@@ -12,6 +12,7 @@ REPO_USER ?= unset
 REPO_PASS ?= unset
 
 build: clean
+	python -m pip install --upgrade pip
 	python -m pip install --upgrade --quiet setuptools wheel twine
 	python setup.py --quiet sdist bdist_wheel
 
