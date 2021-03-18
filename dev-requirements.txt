@@ -1,0 +1,4 @@
+coverage ~= 5.5
+ipython ~= 7.21.0
+pylint >= 2.5.0
+unittest-xml-reporting ~= 3.0.4

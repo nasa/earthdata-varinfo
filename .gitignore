@@ -1,0 +1,19 @@
+# Unit test / coverage reports
+.coverage
+tests/coverage
+tests/reports
+
+# Environments
+.venv
+venv/
+
+# Distribution / packaging
+*.egg-info/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Jupyter notebook
+.ipynb_checkopints

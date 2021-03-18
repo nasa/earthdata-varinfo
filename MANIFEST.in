@@ -1,0 +1,5 @@
+# Things to include in the build package, in addition to the package defined in
+# setup.py
+include CHANGELOG.md
+include README.md
+include VERSION
