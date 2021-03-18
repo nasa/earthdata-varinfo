@@ -17,7 +17,7 @@
 
  WORKDIR /app/
  RUN apk update
- RUN apk add --no-cache make build-base libffi-dev
+ RUN apk add --no-cache make gcc build-base libressl-dev musl-dev libffi-dev
 
  RUN addgroup -g 500 bamboo
  RUN adduser -D -h /build -G bamboo -u 500 bamboo
