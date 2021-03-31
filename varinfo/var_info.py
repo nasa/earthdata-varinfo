@@ -3,29 +3,31 @@
     coordinates, dimensions and ancillary data sets.
 
 """
+from abc import ABC, abstractmethod
 from logging import Logger
-from typing import Dict, Set
+from typing import Dict, Set, Union
 import re
 import xml.etree.ElementTree as ET
 import yaml
 
-from harmony.util import Config
-
 from varinfo.cf_config import CFConfig
-from varinfo.utilities import (DAP4_TO_NUMPY_MAP, download_url,
-                               get_xml_namespace, split_attribute_path,
-                               recursive_get)
-from varinfo.variable import Variable
+from varinfo.utilities import (DAP4_TO_NUMPY_MAP, get_xml_namespace,
+                               split_attribute_path, recursive_get)
+from varinfo.variable import VariableFromDmr
 
 
-class VarInfo:
-    """ A class to represent the full dataset of a granule, having downloaded
-        and parsed a `.dmr` file from OPeNDAP.
+OutputVariableType = Union[VariableFromDmr]
+
+class VarInfoBase(ABC):
+    """ An abstract base class to represent the full dataset of a granule,
+        having reading information from a representation of that granule.
+
+        A class to represent the full dataset of a granule, by parsing a `.dmr`
+        file from OPeNDAP.
 
     """
 
-    def __init__(self, file_url: str, logger: Logger, temp_dir: str,
-                 access_token: str, config: Config,
+    def __init__(self, file_path: str, logger: Logger,
                  config_file: str = 'varinfo/sample_config.yml'):
         """ Distinguish between variables containing references to other
             datasets, and those that do not. The former are considered science
@@ -40,93 +42,46 @@ class VarInfo:
         """
         self.config_file = config_file
         self.logger = logger
-        self.output_dir = temp_dir
         self.cf_config = None
         self.global_attributes = {}
         self.short_name = None
         self.mission = None
         self.namespace = None
-        self.metadata_variables: Dict[str, Variable] = {}
-        self.variables_with_coordinates: Dict[str, Variable] = {}
+        self.metadata_variables: Dict[str, OutputVariableType] = {}
+        self.variables_with_coordinates: Dict[str, OutputVariableType] = {}
         self.references: Set[str] = set()
         self.metadata = {}
 
         self._set_var_info_config()
-        self._read_dataset(file_url, access_token, config)
+        self._read_dataset(file_path)
         self._set_global_attributes()
         self._set_mission_and_short_name()
         self._set_cf_config()
         self._update_global_attributes()
         self._extract_variables()
 
-    def _read_dataset(self, dataset_url: str, access_token: str,
-                      config: Config):
-        """ Download a `.dmr` file from the specified URL. Then extract the XML
-            tree and namespace.
+    @abstractmethod
+    def _read_dataset(self, file_path: str):
+        """ This method parses a file at the specified location using
+            functionality specific to the type of input (e.g. a `.dmr` file).
 
         """
-        self.logger.info('Retrieving .dmr from OPeNDAP')
-        dmr_file = download_url(dataset_url, self.output_dir, self.logger,
-                                access_token, config)
 
-        with open(dmr_file, 'r') as file_handler:
-            dmr_content = file_handler.read()
-
-        self.dataset = ET.fromstring(dmr_content)
-        self.namespace = get_xml_namespace(self.dataset)
-
+    @abstractmethod
     def _set_global_attributes(self):
-        """ Recurse through all attributes in a `.dmr` file. Starting at the
-            supplied root element, find all child Attribute elements. Those
-            children with a type property corresponding to a DAP4 variable
-            type are placed in an output_dictionary. If the type is not
-            recognised by the DAP4 protocol, the attribute is assumed to be a
-            string.
+        """ Extract the global attributes from the granule representation using
+            functionality specific to the type of input.
 
         """
-        def save_attribute(output, group_path, attribute):
-            attribute_name = attribute.get('name')
-            attribute_value = attribute.find(f'{self.namespace}Value').text
-            dap4_type = attribute.get('type')
-            numpy_type = DAP4_TO_NUMPY_MAP.get(dap4_type, str)
 
-            group_dictionary = output
-
-            if group_path != '':
-                # Recurse through group keys to retrieve the nested group to
-                # which the attribute belongs. If a group in the path doesn't
-                # exist, because this attribute is the first to be parsed from
-                # this group, then create a new nested dictionary for the group
-                # to contain the child attributes
-                nested_groups = group_path.lstrip('/').split('/')
-                for group in nested_groups:
-                    group_dictionary = group_dictionary.setdefault(group, {})
-
-            group_dictionary[attribute_name] = numpy_type(attribute_value)
-
-        self.traverse_elements(self.dataset, {'Attribute'}, save_attribute,
-                               self.global_attributes)
-
+    @abstractmethod
     def _extract_variables(self):
-        """ Iterate through all children of the `.dmr` root dataset element.
-            If the child matches one of the DAP4 variable types, then create an
-            instance of the `Variable` class, and assign it to either the
-            `variables_with_coordinates` or the `metadata_variables`
-            dictionary accordingly.
+        """ Iterate through all variables in the retrieved dataset. For each
+            variable create an instance of a `Variable` (using the relavent
+            child class), and assign it to either the `metadata_variables`
+            or the `variable_with_coordinates` dictionary accordingly.
 
         """
-        def save_variable(output, group_path, element):
-            element_path = '/'.join([group_path, element.get('name')])
-            variable = Variable(element, self.cf_config,
-                                namespace=self.namespace,
-                                full_name_path=element_path)
-            output[variable.full_name_path] = variable
-            self._assign_variable(variable)
-
-        all_variables = {}
-
-        self.traverse_elements(self.dataset, set(DAP4_TO_NUMPY_MAP.keys()),
-                               save_variable, all_variables)
 
     def _assign_variable(self, variable_object):
         """ Given a `Variable` instance, based on the content of the
@@ -320,6 +275,74 @@ class VarInfo:
 
         return {variable for variable in variable_set
                 if not fakedim_pattern.match(variable)}
+
+
+class VarInfoFromDmr(VarInfoBase):
+    """ A child class that inherits from `VarInfoBase` and implements functions
+        to retrieve a dataset from a `.dmr` file, and the extract variables
+        from the resulting XML tree.
+
+    """
+    def _read_dataset(self, file_path: str):
+        """ Extract the XML tree and namespace from an OPeNDAP `.dmr` file. """
+        with open(file_path, 'r') as file_handler:
+            dmr_content = file_handler.read()
+
+        self.dataset = ET.fromstring(dmr_content)
+        self.namespace = get_xml_namespace(self.dataset)
+
+    def _set_global_attributes(self):
+        """ Recurse through all attributes in a `.dmr` file. Starting at the
+            supplied root element, find all child Attribute elements. Those
+            children with a type property corresponding to a DAP4 variable
+            type are placed in an output_dictionary. If the type is not
+            recognised by the DAP4 protocol, the attribute is assumed to be a
+            string.
+
+        """
+        def save_attribute(output, group_path, attribute):
+            attribute_name = attribute.get('name')
+            attribute_value = attribute.find(f'{self.namespace}Value').text
+            dap4_type = attribute.get('type')
+            numpy_type = DAP4_TO_NUMPY_MAP.get(dap4_type, str)
+
+            group_dictionary = output
+
+            if group_path != '':
+                # Recurse through group keys to retrieve the nested group to
+                # which the attribute belongs. If a group in the path doesn't
+                # exist, because this attribute is the first to be parsed from
+                # this group, then create a new nested dictionary for the group
+                # to contain the child attributes
+                nested_groups = group_path.lstrip('/').split('/')
+                for group in nested_groups:
+                    group_dictionary = group_dictionary.setdefault(group, {})
+
+            group_dictionary[attribute_name] = numpy_type(attribute_value)
+
+        self.traverse_elements(self.dataset, {'Attribute'}, save_attribute,
+                               self.global_attributes)
+
+    def _extract_variables(self):
+        """ Iterate through all children of the `.dmr` root dataset element.
+            If the child matches one of the DAP4 variable types, then create an
+            instance of the `VariableFromDmr` class, and assign it to either
+            the `variables_with_coordinates` or the `metadata_variables`
+            dictionary accordingly.
+
+        """
+        def save_variable(output, group_path, element):
+            element_path = '/'.join([group_path, element.get('name')])
+            variable = VariableFromDmr(element, self.cf_config,
+                                       namespace=self.namespace,
+                                       full_name_path=element_path)
+            output[variable.full_name_path] = variable
+            self._assign_variable(variable)
+
+        all_variables = {}
+
+        self.traverse_elements(self.dataset, set(DAP4_TO_NUMPY_MAP.keys()),
+                               save_variable, all_variables)
 
     def traverse_elements(self, element: ET.Element, element_types: Set[str],
                           operation, output, group_path: str = ''):

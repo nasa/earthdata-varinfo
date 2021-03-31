@@ -24,24 +24,3 @@ class DmrNamespaceError(CustomError):
     """
     def __init__(self, tag):
         super().__init__('DmrNamespaceError', f'Unexpected root: {tag}')
-
-
-class UrlAccessFailed(CustomError):
-    """ This exception is raise when an HTTP request for a given URL has a non
-        500 error, and is therefore not retried.
-
-    """
-    def __init__(self, url, status_code):
-        super().__init__('UrlAccessFailed',
-                         f'{status_code} error retrieving: {url}')
-
-
-class UrlAccessFailedWithRetries(CustomError):
-    """ This exception is raised when an HTTP request for a given URL has
-        failed a specified number of times.
-
-    """
-    def __init__(self, url):
-        super().__init__('UrlAccessFailedWithRetries',
-                         f'URL: {url} was unsuccessfully requested the '
-                         'maximum number of times.')
