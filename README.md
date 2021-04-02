@@ -26,17 +26,12 @@ the cloud, using the `harmony-service-lib`.
 
 ```
 from logging import getLogger
-from harmony.util import config
-from varinfo import VarInfo
+from varinfo import VarInfoFromDmr
 
 logger = getLogger('dev')
-harmony_config = config(False)
-var_info = VarInfo('https://www.opendap.uat.nasa.gov/providers/<provider>/collections/<entry title>/granules/<granule UR>',
-				   logger,
-				   <temp_dir path>,
-				   <access token>,
-				   harmony_config,
-				   'varinfo/sample_config.yml')
+
+var_info = VarInfoFromDmr('/path/to/local/file.dmr', logger,
+						  config_file='varinfo/sample_config.yml')
 var_info.get_science_variables()
 var_info.get_metadata_variables()
 var_info.get_required_variables('/path/to/science/variable')

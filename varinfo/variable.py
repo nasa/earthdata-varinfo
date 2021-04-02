@@ -3,7 +3,8 @@
     coordinates, dimensions and ancillary data sets.
 
 """
-from typing import List, Optional, Set, Tuple
+from abc import ABC, abstractmethod
+from typing import List, Optional, Set, Tuple, Union
 import re
 import xml.etree.ElementTree as ET
 
@@ -11,15 +12,17 @@ from varinfo.cf_config import CFConfig
 from varinfo.utilities import get_xml_attribute
 
 
-class Variable:
+InputVariableType = Union[ET.Element]
+
+
+class VariableBase(ABC):
     """ A class to represent a single variable contained within a granule
-        `.dmr` XML file. It will produce an object in which references are
+        representation. It will produce an object in which references are
         fully qualified, and also augmented by any overrides or supplements
         from the supplied configuration file.
 
     """
-
-    def __init__(self, variable: ET.Element, cf_config: CFConfig,
+    def __init__(self, variable: InputVariableType, cf_config: CFConfig,
                  namespace: str, full_name_path: str):
         """ Extract the references contained within the variable's coordinates,
             ancillary_variables or dimensions. These should be augmented by
@@ -57,25 +60,24 @@ class Variable:
             'valid_min': self._get_attribute(variable, 'valid_min')
         }
 
-    def _get_data_type(self, variable: ET.Element) -> str:
+    @abstractmethod
+    def _get_data_type(self, variable: InputVariableType):
         """ Extract a string representation of the variable data type. """
-        return variable.tag.lstrip(self.namespace).lower()
 
-    def _get_attribute(self, variable: ET.Element, attribute_name: str,
-                       default_value: Optional = None) -> Optional:
-        """ Use a utility function to retrieve an attribute from a Variable
-            XML element in the `.dmr`. If the attribute is absent, use the
-            provided default value.
+    @abstractmethod
+    def _get_raw_dimensions(self, variable: InputVariableType):
+        """ Retrieve the dimension names as they are stored within the
+            variable.
 
         """
-        return get_xml_attribute(variable, attribute_name, self.namespace,
-                                 default_value)
 
-    def _get_raw_dimensions(self, variable: ET.Element) -> List[str]:
-        """ Extract the raw dimension names from a <Dim /> XML element. """
-        return [dimension.get('name')
-                for dimension
-                in variable.findall(f'{self.namespace}Dim')]
+    @abstractmethod
+    def _get_attribute(self, variable: InputVariableType, attribute_name: str,
+                       default_value: Optional = None) -> Optional:
+        """ Extract the attribute value, falling back to a default value if the
+            attribute is absent.
+
+        """
 
     def get_references(self) -> Set[str]:
         """ Combine the references extracted from the ancillary_variables,
@@ -87,7 +89,7 @@ class Variable:
                                               self.dimensions,
                                               self.subset_control_variables)
 
-    def _get_cf_references(self, variable: ET.Element,
+    def _get_cf_references(self, variable: InputVariableType,
                            attribute_name: str) -> Set[str]:
         """ Obtain the string value of a metadata attribute, which should have
             already been corrected for any known artefacts (missing or
@@ -98,7 +100,7 @@ class Variable:
         attribute_string = self._get_cf_attribute(variable, attribute_name)
         return self._extract_references(attribute_string)
 
-    def _get_cf_attribute(self, variable: ET.Element,
+    def _get_cf_attribute(self, variable: InputVariableType,
                           attribute_name: str) -> str:
         """ Given the name of a CF-convention attribute, extract the string
             value from the variable metadata. Then check the output from the
@@ -221,3 +223,30 @@ class Variable:
         group_path = '/'.join(split_full_path) or None
 
         return group_path, name
+
+
+class VariableFromDmr(VariableBase):
+    """ This child class inherits from the `VariableBase` class, and implements
+        the abstract methods assuming the variable source is part of an XML
+        element tree.
+
+    """
+    def _get_data_type(self, variable: ET.Element) -> str:
+        """ Extract a string representation of the variable data type. """
+        return variable.tag.lstrip(self.namespace).lower()
+
+    def _get_attribute(self, variable: ET.Element, attribute_name: str,
+                       default_value: Optional = None) -> Optional:
+        """ Use a utility function to retrieve an attribute from a Variable
+            XML element in the `.dmr`. If the attribute is absent, use the
+            provided default value.
+
+        """
+        return get_xml_attribute(variable, attribute_name, self.namespace,
+                                 default_value)
+
+    def _get_raw_dimensions(self, variable: ET.Element) -> List[str]:
+        """ Extract the raw dimension names from a <Dim /> XML element. """
+        return [dimension.get('name')
+                for dimension
+                in variable.findall(f'{self.namespace}Dim')]
