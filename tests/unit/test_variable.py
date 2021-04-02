@@ -2,10 +2,10 @@ from unittest import TestCase
 import xml.etree.ElementTree as ET
 
 from varinfo import CFConfig
-from varinfo import Variable
+from varinfo import VariableFromDmr
 
 
-class TestVariable(TestCase):
+class TestVariableFromDmr(TestCase):
     """ Tests for the `Variable` class using `xml.etree.ElementTree` input. """
 
     @classmethod
@@ -42,8 +42,8 @@ class TestVariable(TestCase):
             XML element instance.
 
         """
-        variable = Variable(self.dmr_variable, self.fakesat_config,
-                            self.namespace, self.dmr_variable_path)
+        variable = VariableFromDmr(self.dmr_variable, self.fakesat_config,
+                                   self.namespace, self.dmr_variable_path)
 
         self.assertEqual(variable.full_name_path, '/group/variable')
         self.assertEqual(variable.group_path, '/group')
@@ -66,8 +66,8 @@ class TestVariable(TestCase):
             f'</{self.namespace}Float64>'
         )
 
-        variable = Variable(dmr_variable, self.fakesat_config, self.namespace,
-                            '/coordinates_group/science')
+        variable = VariableFromDmr(dmr_variable, self.fakesat_config,
+                                   self.namespace, '/coordinates_group/science')
 
         self.assertEqual(variable.coordinates, {'/coordinates_group/lat',
                                                 '/coordinates_group/lon'})
@@ -92,8 +92,8 @@ class TestVariable(TestCase):
                     f'  </{self.namespace}Attribute>'
                     f'</{self.namespace}Float64>'
                 )
-                variable = Variable(dmr_variable, self.fakesat_config,
-                                    self.namespace, variable_name)
+                variable = VariableFromDmr(dmr_variable, self.fakesat_config,
+                                           self.namespace, variable_name)
                 self.assertEqual(variable.coordinates, {qualified_reference})
 
         root_var_name = '/global_aerosol_frac'
@@ -112,8 +112,8 @@ class TestVariable(TestCase):
                     f'</{self.namespace}Float64>'
                 )
 
-                variable = Variable(dmr_variable, self.fakesat_config,
-                                    self.namespace, root_var_name)
+                variable = VariableFromDmr(dmr_variable, self.fakesat_config,
+                                           self.namespace, root_var_name)
                 self.assertEqual(variable.coordinates, {qualified_reference})
 
     def test_variable_get_references(self):
@@ -122,8 +122,8 @@ class TestVariable(TestCase):
             subset_control_variables is returned.
 
         """
-        variable = Variable(self.dmr_variable, self.fakesat_config,
-                            self.namespace, self.dmr_variable_path)
+        variable = VariableFromDmr(self.dmr_variable, self.fakesat_config,
+                                   self.namespace, self.dmr_variable_path)
 
         references = variable.get_references()
 
@@ -152,7 +152,7 @@ class TestVariable(TestCase):
             f'  <{self.namespace}Dim name="/group_one/delta_time" />'
             f'</{self.namespace}Float64>'
         )
-        variable = Variable(dmr_variable, self.fakesat_config, self.namespace,
-                            variable_name)
+        variable = VariableFromDmr(dmr_variable, self.fakesat_config,
+                                   self.namespace, variable_name)
 
         self.assertEqual(variable.dimensions, {'/group_one/delta_time'})
