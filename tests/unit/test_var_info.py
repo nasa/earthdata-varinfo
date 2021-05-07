@@ -364,3 +364,28 @@ class TestVarInfoFromDmr(TestCase):
 
         self.assertEqual(required_variables,
                          {'/science_variable', '/other_science'})
+
+    def test_get_variable(self):
+        """ Ensure a variable, both with or without, coordinates can be
+            retrieved. In the case that a non-existent variable is requested,
+            ensure `None` is returned.
+
+        """
+        dmr_path = write_dmr(self.output_dir, self.mock_dataset_two)
+        dataset = VarInfoFromDmr(dmr_path, self.logger,
+                                 config_file=self.config_file)
+
+        with self.subTest('A variable with coordinates'):
+            science_variable = dataset.get_variable('/science/interesting_thing')
+            self.assertIsNotNone(science_variable)
+            self.assertEqual(science_variable,
+                             dataset.variables_with_coordinates['/science/interesting_thing'])
+
+        with self.subTest('A metadata variable'):
+            metadata_variable = dataset.get_variable('/required_group/has_no_coordinates')
+            self.assertIsNotNone(metadata_variable)
+            self.assertEqual(metadata_variable,
+                             dataset.metadata_variables['/required_group/has_no_coordinates'])
+
+        with self.subTest('A non existent variable returns `None`'):
+            self.assertIsNone(dataset.get_variable('/non/existent/variable'))

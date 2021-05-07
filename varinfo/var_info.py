@@ -5,7 +5,7 @@
 """
 from abc import ABC, abstractmethod
 from logging import Logger
-from typing import Dict, Set, Union
+from typing import Dict, Optional, Set, Union
 import re
 import xml.etree.ElementTree as ET
 import yaml
@@ -17,6 +17,7 @@ from varinfo.variable import VariableFromDmr
 
 
 OutputVariableType = Union[VariableFromDmr]
+
 
 class VarInfoBase(ABC):
     """ An abstract base class to represent the full dataset of a granule,
@@ -153,6 +154,15 @@ class VarInfoBase(ABC):
 
         if self.cf_config.global_overrides:
             self.global_attributes.update(self.cf_config.global_overrides)
+
+    def get_variable(self, variable_path: str) -> Optional[OutputVariableType]:
+        """ Retrieve a variable specified by an absolute path. First check the
+            variables with coordinates, before checking those without. If there
+            are no matching variables, a value of `None` is returned.
+
+        """
+        return (self.variables_with_coordinates.get(variable_path) or
+                self.metadata_variables.get(variable_path))
 
     def get_science_variables(self) -> Set[str]:
         """ Retrieve set of names for all variables that have coordinate
