@@ -66,7 +66,7 @@ class CFConfig:
 
         self.excluded_science_variables = {
             pattern
-            for item in config['Excluded_Science_Variables']
+            for item in config.get('Excluded_Science_Variables', [])
             if self._is_applicable(item['Applicability'].get('Mission'),
                                    item['Applicability'].get('ShortNamePath'))
             for pattern in item['Variable_Pattern']
@@ -74,7 +74,7 @@ class CFConfig:
 
         self.required_variables = {
             pattern
-            for item in config['Required_Fields']
+            for item in config.get('Required_Fields', [])
             if self._is_applicable(item['Applicability'].get('Mission'),
                                    item['Applicability'].get('ShortNamePath'))
             for pattern in item['Variable_Pattern']
@@ -82,7 +82,7 @@ class CFConfig:
 
         self.global_supplements = {
             attribute['Name']: attribute['Value']
-            for item in config['CF_Supplements']
+            for item in config.get('CF_Supplements', [])
             if self._is_applicable(item['Applicability'].get('Mission'),
                                    item['Applicability'].get('ShortNamePath'))
             for attribute in item.get('Global_Attributes', [])
@@ -90,16 +90,16 @@ class CFConfig:
 
         self.global_overrides = {
             attribute['Name']: attribute['Value']
-            for item in config['CF_Overrides']
+            for item in config.get('CF_Overrides', [])
             if self._is_applicable(item['Applicability'].get('Mission'),
                                    item['Applicability'].get('ShortNamePath'))
             for attribute in item.get('Global_Attributes', [])
         }
 
-        for override in config['CF_Overrides']:
+        for override in config.get('CF_Overrides', []):
             self._process_cf_item(override, self._cf_overrides)
 
-        for supplement in config['CF_Supplements']:
+        for supplement in config.get('CF_Supplements', []):
             self._process_cf_item(supplement, self._cf_supplements)
 
     def _is_applicable(self, mission: str, short_name: str = None) -> bool:
