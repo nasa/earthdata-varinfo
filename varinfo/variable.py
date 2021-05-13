@@ -84,9 +84,15 @@ class VariableBase(ABC):
             coordinates and dimensions data into a single set for VarInfo to
             use directly.
 
+            The variable dimensions are cast as a set to allow combination with
+            the other set attributes of the `VariableBase` class. The
+            dimensions attribute is kept as a list prior to combination in the
+            full set of variable references to ensure that the ordering of the
+            dimensions is preserved.
+
         """
         return self.ancillary_variables.union(self.coordinates,
-                                              self.dimensions,
+                                              set(self.dimensions),
                                               self.subset_control_variables)
 
     def _get_cf_references(self, variable: InputVariableType,
@@ -131,13 +137,13 @@ class VariableBase(ABC):
         """
         if attribute_string is not None:
             raw_references = re.split(r'\s+|,\s*', attribute_string)
-            references = self._qualify_references(raw_references)
+            references = set(self._qualify_references(raw_references))
         else:
             references = set()
 
         return references
 
-    def _extract_dimensions(self, variable: ET.Element) -> Set[str]:
+    def _extract_dimensions(self, variable: ET.Element) -> List[str]:
         """ Find the dimensions for the variable in question. If there are
             overriding or supplemental dimensions from the CF configuration
             file, these are used instead of, or in addition to, the raw
@@ -161,12 +167,12 @@ class VariableBase(ABC):
 
         return self._qualify_references(dimensions)
 
-    def _qualify_references(self, raw_references: List[str]) -> Set[str]:
+    def _qualify_references(self, raw_references: List[str]) -> List[str]:
         """ Take a list of local references to other variables, and produce a
             list of absolute references.
 
         """
-        references = set()
+        references = []
 
         if self.group_path is not None:
             for reference in raw_references:
@@ -183,7 +189,7 @@ class VariableBase(ABC):
                     # Reference is in the same group as this variable
                     absolute_path = '/'.join([self.group_path, reference])
 
-                references.add(absolute_path)
+                references.append(absolute_path)
 
         else:
             for reference in raw_references:
@@ -192,7 +198,7 @@ class VariableBase(ABC):
                 else:
                     absolute_path = f'/{reference}'
 
-                references.add(absolute_path)
+                references.append(absolute_path)
 
         return references
 
