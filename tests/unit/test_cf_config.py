@@ -56,8 +56,8 @@ class TestCFConfig(TestCase):
 
         # The attributes below are protected-access within the class, however,
         # this test should still check they only contain the expected items.
-        self.assertEqual(self.cf_overrides, config._cf_overrides) # pylint: disable=W0212
-        self.assertEqual(self.cf_supplements, config._cf_supplements) # pylint: disable=W0212
+        self.assertEqual(self.cf_overrides, config._cf_overrides)  # pylint: disable=W0212
+        self.assertEqual(self.cf_supplements, config._cf_supplements)  # pylint: disable=W0212
 
     def test_get_cf_attributes_all(self):
         """ Ensure the CFConfig.get_cf_references method returns all the

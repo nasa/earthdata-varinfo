@@ -1,3 +1,16 @@
+## v0.1.1
+### 2021-05-13
+
+The `VariableBase.dimensions` class attribute is now a list, rather than a set,
+to enable retrieval of dimensions in the order they are stored in sources such
+as a `.dmr` file. The `VarInfoBase.get_variable` utility method has been added
+to enable retrieval of any variable using a fully qualified path. Finally, the
+`CFConfig` class has been updated to avoid the requirement of several
+fields within the configuration file schema. This ensures that if these options
+are not relevant for a service, they do not have to be included in that version
+of the configuration file.
+
+
 ## v0.1.0
 ### 2021-04-02
 

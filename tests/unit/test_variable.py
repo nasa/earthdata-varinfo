@@ -20,7 +20,8 @@ class TestVariableFromDmr(TestCase):
         cls.namespace = 'namespace_string'
         cls.dmr_variable = ET.fromstring(
             f'<{cls.namespace}Float64 name="variable">'
-            f'  <{cls.namespace}Dim name="dimension" />'
+            f'  <{cls.namespace}Dim name="first_dimension" />'
+            f'  <{cls.namespace}Dim name="second_dimension" />'
             f'  <{cls.namespace}Attribute name="ancillary_variables" type="String">'
             f'    <{cls.namespace}Value>/ancillary_data/epoch</{cls.namespace}Value>'
             f'  </{cls.namespace}Attribute>'
@@ -41,6 +42,12 @@ class TestVariableFromDmr(TestCase):
         """ Ensure a `Variable` instance can be created from an input `.dmr`
             XML element instance.
 
+            This variable should contain the correct metadata, including
+            full path, coordinates, dimensions and subset control variables.
+            The dimensions retrieved from the variable should be in the order
+            they are contained in the variable XML, to ensure data requests
+            can be made against the variable with index ranges specified.
+
         """
         variable = VariableFromDmr(self.dmr_variable, self.fakesat_config,
                                    self.namespace, self.dmr_variable_path)
@@ -52,7 +59,8 @@ class TestVariableFromDmr(TestCase):
         self.assertEqual(variable.ancillary_variables, {'/ancillary_data/epoch'})
         self.assertEqual(variable.coordinates, {'/group/latitude',
                                                 '/group/longitude'})
-        self.assertEqual(variable.dimensions, {'/group/dimension'})
+        self.assertEqual(variable.dimensions, ['/group/first_dimension',
+                                               '/group/second_dimension'])
         self.assertEqual(variable.subset_control_variables,
                          {'/group/begin', '/group/count'})
 
@@ -130,7 +138,8 @@ class TestVariableFromDmr(TestCase):
         self.assertEqual(references, {'/ancillary_data/epoch',
                                       '/group/latitude',
                                       '/group/longitude',
-                                      '/group/dimension',
+                                      '/group/first_dimension',
+                                      '/group/second_dimension',
                                       '/group/begin',
                                       '/group/count'})
 
@@ -155,4 +164,4 @@ class TestVariableFromDmr(TestCase):
         variable = VariableFromDmr(dmr_variable, self.fakesat_config,
                                    self.namespace, variable_name)
 
-        self.assertEqual(variable.dimensions, {'/group_one/delta_time'})
+        self.assertEqual(variable.dimensions, ['/group_one/delta_time'])
