@@ -9,6 +9,8 @@ venv/
 
 # Distribution / packaging
 *.egg-info/
+build/
+dist/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

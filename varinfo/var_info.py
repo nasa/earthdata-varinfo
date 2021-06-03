@@ -273,6 +273,32 @@ class VarInfoBase(ABC):
 
         return self.exclude_fake_dimensions(required_variables)
 
+    def get_required_dimensions(self, variables: Set[str]) -> Set[str]:
+        """ Return a single set of all variables that are used as dimensions
+            for any of the listed variables.
+
+        """
+        return set(dimension
+                   for variable in variables
+                   for dimension
+                   in getattr(self.get_variable(variable), 'dimensions', []))
+
+    def get_spatial_dimensions(self, variables: Set[str]) -> Set[str]:
+        """ Return a single set of all variables that are both used as
+            dimensions for any of the input variables, and that are geographic
+            in nature (as determined by the `units` metadata attribute).
+
+            Not all variables have dimensions, which necessitates a check on
+            their existence before determining the dimension is geographic.
+
+        """
+        return set(dimension
+                   for variable in variables
+                   for dimension
+                   in getattr(self.get_variable(variable), 'dimensions', [])
+                   if self.get_variable(dimension) is not None
+                   and self.get_variable(dimension).is_geographic())
+
     @staticmethod
     def exclude_fake_dimensions(variable_set: Set[str]) -> Set[str]:
         """ An OPeNDAP `.dmr` can contain fake dimensions, used to supplement

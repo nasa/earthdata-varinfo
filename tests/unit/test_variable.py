@@ -37,6 +37,67 @@ class TestVariableFromDmr(TestCase):
             f'</{cls.namespace}Float64>'
         )
         cls.dmr_variable_path = '/group/variable'
+        cls.longitude_variable_string = (
+            f'<{cls.namespace}Float64 name="variable_name">'
+            f'  <{cls.namespace}Attribute name="units" type="String">'
+            f'    <{cls.namespace}Value>degrees_east</{cls.namespace}Value>'
+            f'  </{cls.namespace}Attribute>'
+            f'</{cls.namespace}Float64>'
+        )
+        cls.latitude_variable_string = (
+            f'<{cls.namespace}Float64 name="variable_name">'
+            f'  <{cls.namespace}Attribute name="units" type="String">'
+            f'    <{cls.namespace}Value>degrees_north</{cls.namespace}Value>'
+            f'  </{cls.namespace}Attribute>'
+            f'</{cls.namespace}Float64>'
+        )
+        cls.non_geo_variable_string = (
+            f'<{cls.namespace}Float64 name="variable_name">'
+            f'  <{cls.namespace}Attribute name="units" type="String">'
+            f'    <{cls.namespace}Value>m</{cls.namespace}Value>'
+            f'  </{cls.namespace}Attribute>'
+            f'</{cls.namespace}Float64>'
+        )
+        cls.no_units_variable_string = (
+            f'<{cls.namespace}Float64 name="variable_name">'
+            f'</{cls.namespace}Float64>'
+        )
+        cls.valid_range_string = (
+            f'<{cls.namespace}Float64 name="variable_name">'
+            f'  <{cls.namespace}Attribute name="valid_range" type="Float32">'
+            f'    <{cls.namespace}Value>-180</{cls.namespace}Value>'
+            f'    <{cls.namespace}Value>180</{cls.namespace}Value>'
+            f'  </{cls.namespace}Attribute>'
+            f'</{cls.namespace}Float64>'
+        )
+        cls.valid_min_max_string = (
+            f'<{cls.namespace}Float64 name="variable_name">'
+            f'  <{cls.namespace}Attribute name="valid_max" type="Float32">'
+            f'    <{cls.namespace}Value>90</{cls.namespace}Value>'
+            f'  </{cls.namespace}Attribute>'
+            f'  <{cls.namespace}Attribute name="valid_min" type="Float32">'
+            f'    <{cls.namespace}Value>-90</{cls.namespace}Value>'
+            f'  </{cls.namespace}Attribute>'
+            f'</{cls.namespace}Float64>'
+        )
+        cls.valid_min_only_string = (
+            f'<{cls.namespace}Float64 name="variable_name">'
+            f'  <{cls.namespace}Attribute name="valid_min" type="Float32">'
+            f'    <{cls.namespace}Value>-90</{cls.namespace}Value>'
+            f'  </{cls.namespace}Attribute>'
+            f'</{cls.namespace}Float64>'
+        )
+        cls.valid_max_only_string = (
+            f'<{cls.namespace}Float64 name="variable_name">'
+            f'  <{cls.namespace}Attribute name="valid_max" type="Float32">'
+            f'    <{cls.namespace}Value>90</{cls.namespace}Value>'
+            f'  </{cls.namespace}Attribute>'
+            f'</{cls.namespace}Float64>'
+        )
+        cls.no_range_string = (
+            f'<{cls.namespace}Float64 name="variable_name">'
+            f'</{cls.namespace}Float64>'
+        )
 
     def test_variable_instantiation(self):
         """ Ensure a `Variable` instance can be created from an input `.dmr`
@@ -165,3 +226,150 @@ class TestVariableFromDmr(TestCase):
                                    self.namespace, variable_name)
 
         self.assertEqual(variable.dimensions, ['/group_one/delta_time'])
+
+    def test_is_geographic(self):
+        """ Ensure that a dimension is correctly recognised as geographic, and
+            that if there is no `units` metadata attribute, the variable is not
+            identified as geographic.
+
+        """
+
+        test_args = [['Longitudinal variable', self.longitude_variable_string],
+                     ['Latitudinal variable', self.latitude_variable_string]]
+
+        for description, variable_string in test_args:
+            with self.subTest(description):
+                variable_tree = ET.fromstring(variable_string)
+                variable = VariableFromDmr(variable_tree, self.fakesat_config,
+                                           self.namespace, '/variable')
+
+                self.assertTrue(variable.is_geographic())
+
+
+        test_args = [['Non geographic variable', self.non_geo_variable_string],
+                     ['No units in variable', self.no_units_variable_string]]
+
+        for description, variable_string in test_args:
+            with self.subTest(description):
+                variable_tree = ET.fromstring(variable_string)
+                variable = VariableFromDmr(variable_tree, self.fakesat_config,
+                                           self.namespace, '/variable')
+
+                self.assertFalse(variable.is_geographic())
+
+    def test_is_latitude(self):
+        """ Ensure that a varaible is correctly identified a latitudinal based
+            on its `units` metadata attribute.
+
+        """
+        with self.subTest('Latitude variable'):
+            variable_tree = ET.fromstring(self.latitude_variable_string)
+            variable = VariableFromDmr(variable_tree, self.fakesat_config,
+                                       self.namespace, '/variable')
+
+            self.assertTrue(variable.is_latitude())
+
+        test_args = [['Longitude variable', self.longitude_variable_string],
+                     ['Non geographic variable', self.non_geo_variable_string],
+                     ['No units variable', self.no_units_variable_string]]
+
+        for description, variable_string in test_args:
+            with self.subTest(description):
+                variable_tree = ET.fromstring(variable_string)
+                variable = VariableFromDmr(variable_tree, self.fakesat_config,
+                                           self.namespace, '/variable')
+
+                self.assertFalse(variable.is_latitude())
+
+    def test_is_longitude(self):
+        """ Ensure that a variable is correctly identified as longitudinal
+            based on its `units` metadata attribute.
+
+        """
+        with self.subTest('Longitude variable'):
+            variable_tree = ET.fromstring(self.longitude_variable_string)
+            variable = VariableFromDmr(variable_tree, self.fakesat_config,
+                                       self.namespace, '/variable')
+
+            self.assertTrue(variable.is_longitude())
+
+        test_args = [['Latitude variable', self.latitude_variable_string],
+                     ['Non geographic variable', self.non_geo_variable_string],
+                     ['No units variable', self.no_units_variable_string]]
+
+        for description, variable_string in test_args:
+            with self.subTest(description):
+                variable_tree = ET.fromstring(variable_string)
+                variable = VariableFromDmr(variable_tree, self.fakesat_config,
+                                           self.namespace, '/variable')
+
+                self.assertFalse(variable.is_longitude())
+
+    def test_get_range(self):
+        """ Ensure the correct valid range is returned based either on the
+            `valid_range` metadata attribute or both the `valid_min` and
+            `valid_max` metadata attributes. If insufficient metadata exists to
+            define the range, then the method should return `None`.
+
+        """
+        test_args = [
+            ['Variable with valid_range', self.valid_range_string, [-180.0, 180.0]],
+            ['Variable with valid_min and valid_max', self.valid_min_max_string, [-90, 90]],
+            ['Variable with only valid_min', self.valid_min_only_string, None],
+            ['Variable with only valid_max', self.valid_max_only_string, None],
+            ['Variable with no range metadata', self.no_range_string, None]
+        ]
+
+        for description, variable_string, expected_range in test_args:
+            with self.subTest(description):
+                variable_tree = ET.fromstring(variable_string)
+                variable = VariableFromDmr(variable_tree, self.fakesat_config,
+                                           self.namespace, '/variable')
+
+                self.assertEqual(variable.get_range(), expected_range)
+
+    def test_get_valid_min(self):
+        """ Ensure the correct valid minimum of the variable range is extracted
+            from a variable based on the `valid_min` metadata attribute, or if
+            that is missing the first element of the `valid_range` metadata
+            attribute. If neither are present, then `None` should be returned.
+
+        """
+        test_args = [
+            ['Variable with valid_min and valid_max', self.valid_min_max_string, -90],
+            ['Variable with valid_range', self.valid_range_string, -180.0],
+            ['Variable with only valid_min', self.valid_min_only_string, -90],
+            ['Variable with only valid_max', self.valid_max_only_string, None],
+            ['Variable with no range metadata', self.no_range_string, None]
+        ]
+
+        for description, variable_string, expected_valid_min in test_args:
+            with self.subTest(description):
+                variable_tree = ET.fromstring(variable_string)
+                variable = VariableFromDmr(variable_tree, self.fakesat_config,
+                                           self.namespace, '/variable')
+
+                self.assertEqual(variable.get_valid_min(), expected_valid_min)
+
+    def test_get_valid_max(self):
+        """ Ensure the correct valid maximum of the variable range is extracted
+            from a variable based on the `valid_max` metadata attribute, or if
+            that is missing the second element of the `valid_range` metadata
+            attribute. If neither are present, then `None` should be returned.
+
+        """
+        test_args = [
+            ['Variable with valid_min and valid_max', self.valid_min_max_string, 90],
+            ['Variable with valid_range', self.valid_range_string, 180.0],
+            ['Variable with only valid_min', self.valid_min_only_string, None],
+            ['Variable with only valid_max', self.valid_max_only_string, 90],
+            ['Variable with no range metadata', self.no_range_string, None]
+        ]
+
+        for description, variable_string, expected_valid_max in test_args:
+            with self.subTest(description):
+                variable_tree = ET.fromstring(variable_string)
+                variable = VariableFromDmr(variable_tree, self.fakesat_config,
+                                           self.namespace, '/variable')
+
+                self.assertEqual(variable.get_valid_max(), expected_valid_max)
