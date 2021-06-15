@@ -1,3 +1,20 @@
+## v0.2.0
+### 2021-06-15
+
+The `VariableBase` class now has additional methods: `get_range`,
+`get_valid_min` and `get_valid_max` that will try to retrieve range-based
+metadata based on the `valid_range`, `valid_min` and `valid_max` attributes.
+The `VariableBase` class also has heuristic based methods to determine if the
+variable is latitudinal or longitudinal, based on the value of the `units`
+metadata attribute.
+
+Metadata attributes within a `.dmr` with multiple values will now return a list
+of values of all child element.
+
+Finally, the `VarInfoBase` class has two new utility methods:
+`get_required_dimensions` and `get_spatial_dimensions`, which retrieve sets of
+dimensions for an input set of variables within a granule.
+
 ## v0.1.1
 ### 2021-05-13
 
@@ -9,7 +26,6 @@ to enable retrieval of any variable using a fully qualified path. Finally, the
 fields within the configuration file schema. This ensures that if these options
 are not relevant for a service, they do not have to be included in that version
 of the configuration file.
-
 
 ## v0.1.0
 ### 2021-04-02
