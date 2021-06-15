@@ -1,3 +1,4 @@
+from typing import List
 from unittest import TestCase
 import xml.etree.ElementTree as ET
 
@@ -95,6 +96,10 @@ class TestUtilities(TestCase):
             f'  <{self.namespace}Attribute name="bad_type" type="Random64">'
             f'    <{self.namespace}Value>{value}</{self.namespace}Value>'
             f'  </{self.namespace}Attribute>'
+            f'  <{self.namespace}Attribute name="multi" type="Float64">'
+            f'    <{self.namespace}Value>-90.0</{self.namespace}Value>'
+            f'    <{self.namespace}Value>90.0</{self.namespace}Value>'
+            f'  </{self.namespace}Attribute>'
             f'</{self.namespace}Int64>'
         )
 
@@ -111,3 +116,14 @@ class TestUtilities(TestCase):
 
                 self.assertIsInstance(attribute_value, expected_type)
                 self.assertEqual(attribute_value, expected_value)
+
+        with self.subTest('Multiple values are retrieved'):
+            attribute_value = get_xml_attribute(variable, 'multi',
+                                                self.namespace)
+
+            self.assertIsInstance(attribute_value, List)
+            self.assertEqual(len(attribute_value), 2)
+            self.assertListEqual(attribute_value, [-90.0, 90.0])
+
+            for value in attribute_value:
+                self.assertIsInstance(value, np.float64)
