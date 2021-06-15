@@ -67,17 +67,24 @@ def get_xml_attribute(variable: Element, attribute_name: str, namespace: str,
         user-defined, or default to `None`. If present, the returned value is
         cast as the type indicated by the Attribute tag's `type` property.
 
+        Attributes with multiple Value children will return a list of all those
+        children, cast as the indicated type.
+
     """
     attribute_element = variable.find(f'{namespace}Attribute'
                                       f'[@name="{attribute_name}"]')
 
     if attribute_element is not None:
         value_type = attribute_element.get('type', 'String')
-        value_element = attribute_element.find(f'{namespace}Value')
+        numpy_type = DAP4_TO_NUMPY_MAP.get(value_type, str)
 
-        if value_element is not None:
-            numpy_type = DAP4_TO_NUMPY_MAP.get(value_type, str)
-            attribute_value = numpy_type(value_element.text)
+        value_elements = attribute_element.findall(f'{namespace}Value')
+
+        if len(value_elements) > 1:
+            attribute_value = [numpy_type(value_element.text)
+                               for value_element in value_elements]
+        elif len(value_elements) == 1:
+            attribute_value = numpy_type(value_elements[0].text)
         else:
             attribute_value = default_value
 

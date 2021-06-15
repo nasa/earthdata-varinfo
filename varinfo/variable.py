@@ -57,7 +57,8 @@ class VariableBase(ABC):
             'scale': self._get_attribute(variable, 'scale', 1),
             'units': self._get_attribute(variable, 'units'),
             'valid_max': self._get_attribute(variable, 'valid_max'),
-            'valid_min': self._get_attribute(variable, 'valid_min')
+            'valid_min': self._get_attribute(variable, 'valid_min'),
+            'valid_range': self._get_attribute(variable, 'valid_range'),
         }
 
     @abstractmethod
@@ -79,6 +80,64 @@ class VariableBase(ABC):
 
         """
 
+    def get_range(self) -> Optional[List[float]]:
+        """ Retrieve the range of valid data from the variable metadata. First,
+            try to parse the `valid_range` metadata attribute. If this is
+            absent, check for a combination of `valid_min` and `valid_max`.
+
+            If insufficient range information is present in the metadata, this
+            method will return `None`.
+
+        """
+        valid_range = self.attributes.get('valid_range')
+
+        if valid_range is None:
+            valid_min = self.attributes.get('valid_min')
+            valid_max = self.attributes.get('valid_max')
+
+            if valid_min is not None and valid_max is not None:
+                valid_range = [valid_min, valid_max]
+
+        return valid_range
+
+    def get_valid_min(self) -> Optional[float]:
+        """ Retrieve the minimum valid value for variable data from the
+            associated metadata. First try to retrieve data from the
+            `valid_min` metadata attribute. If this is absent, then try to
+            retrieve the same information from the `valid_range` metadata.
+
+            If insufficient range information is present in the metadata, this
+            method will return `None`.
+
+        """
+        valid_min = self.attributes.get('valid_min')
+
+        if valid_min is None:
+            valid_range = self.attributes.get('valid_range')
+            if isinstance(valid_range, List) and len(valid_range) == 2:
+                valid_min = valid_range[0]
+
+        return valid_min
+
+    def get_valid_max(self) -> Optional[float]:
+        """ Retrieve the maximum valid value for variable data from the
+            associated metadata. First try to retrieve data from the
+            `valid_max` metadata attribute. If this is absent, then try to
+            retrieve the same information from the `valid_range` metadata.
+
+            If insufficient range information is present in the metadata, this
+            method will return `None`.
+
+        """
+        valid_max = self.attributes.get('valid_max')
+
+        if valid_max is None:
+            valid_range = self.attributes.get('valid_range')
+            if isinstance(valid_range, List) and len(valid_range) == 2:
+                valid_max = valid_range[1]
+
+        return valid_max
+
     def get_references(self) -> Set[str]:
         """ Combine the references extracted from the ancillary_variables,
             coordinates and dimensions data into a single set for VarInfo to
@@ -94,6 +153,29 @@ class VariableBase(ABC):
         return self.ancillary_variables.union(self.coordinates,
                                               set(self.dimensions),
                                               self.subset_control_variables)
+
+    def is_geographic(self) -> bool:
+        """ Use heuristics to determine if the variable is a geographic
+            coordinate based on its units. A latitude variable will have units
+            'degrees_north' and a longitude variable with have units
+            'degrees_east'.
+
+        """
+        return self.is_longitude() or self.is_latitude()
+
+    def is_latitude(self) -> bool:
+        """ Determine if the variable is a latitude based on the `units`
+            metadata attribute being 'degrees_north'.
+
+        """
+        return self.attributes.get('units') == 'degrees_north'
+
+    def is_longitude(self) -> bool:
+        """ Determine if the variable is a longitude based on the `units`
+            metadata attribute being 'degrees_east'.
+
+        """
+        return self.attributes.get('units') == 'degrees_east'
 
     def _get_cf_references(self, variable: InputVariableType,
                            attribute_name: str) -> Set[str]:
