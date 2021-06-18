@@ -328,35 +328,44 @@ class VarInfoFromDmr(VarInfoBase):
         self.namespace = get_xml_namespace(self.dataset)
 
     def _set_global_attributes(self):
-        """ Recurse through all attributes in a `.dmr` file. Starting at the
-            supplied root element, find all child Attribute elements. Those
-            children with a type property corresponding to a DAP4 variable
-            type are placed in an output_dictionary. If the type is not
-            recognised by the DAP4 protocol, the attribute is assumed to be a
-            string.
+        """ Extract all global attributes from a `.dmr` file. First this method
+            searches for a root level Attribute element with name
+            "HDF5_GLOBAL". If this is present, it is assumed to be a container
+            for the global attributes. If "HDF5_GLOBAL" is absent, the global
+            attributes are assumed to be direct children of the root Dataset
+            element in the XML tree. All child Attribute elements children with
+            a type property corresponding to a DAP4 variable type are placed in
+            an output dictionary. If the type is not recognised by the DAP4
+            protocol, the attribute is assumed to be a string.
 
         """
         def save_attribute(output, group_path, attribute):
             attribute_name = attribute.get('name')
-            attribute_value = attribute.find(f'{self.namespace}Value').text
             dap4_type = attribute.get('type')
-            numpy_type = DAP4_TO_NUMPY_MAP.get(dap4_type, str)
 
-            group_dictionary = output
+            if dap4_type != 'container':
+                attribute_value = attribute.find(f'{self.namespace}Value').text
+                numpy_type = DAP4_TO_NUMPY_MAP.get(dap4_type, str)
 
-            if group_path != '':
-                # Recurse through group keys to retrieve the nested group to
-                # which the attribute belongs. If a group in the path doesn't
-                # exist, because this attribute is the first to be parsed from
-                # this group, then create a new nested dictionary for the group
-                # to contain the child attributes
-                nested_groups = group_path.lstrip('/').split('/')
-                for group in nested_groups:
-                    group_dictionary = group_dictionary.setdefault(group, {})
+                group_dictionary = output
 
-            group_dictionary[attribute_name] = numpy_type(attribute_value)
+                if group_path != '':
+                    # Recurse through group keys to retrieve the nested group
+                    # to which the attribute belongs. If a group in the path
+                    # doesn't exist, because this attribute is the first to be
+                    # parsed from this group, then create a new nested
+                    # dictionary for the group to contain the child attributes
+                    nested_groups = group_path.lstrip('/').split('/')
+                    for group in nested_groups:
+                        group_dictionary = group_dictionary.setdefault(group, {})
 
-        self.traverse_elements(self.dataset, {'Attribute'}, save_attribute,
+                group_dictionary[attribute_name] = numpy_type(attribute_value)
+
+        globals_parent = self.dataset.find(
+            f'{self.namespace}Attribute[@name="HDF5_GLOBAL"]'
+        ) or self.dataset
+
+        self.traverse_elements(globals_parent, {'Attribute'}, save_attribute,
                                self.global_attributes)
 
     def _extract_variables(self):
@@ -387,7 +396,6 @@ class VarInfoFromDmr(VarInfoBase):
             output object, using the supplied function or class.
 
         """
-
         for child in list(element):
             # If it is in the DAP4 list: use the function
             # else, if it is a Group, call this function again

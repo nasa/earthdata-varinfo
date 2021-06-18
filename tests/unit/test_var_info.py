@@ -274,6 +274,37 @@ class TestVarInfoFromDmr(TestCase):
         self.assertEqual(set(dataset.references), {'/science/latitude',
                                                    '/science/longitude'})
 
+    def test_var_info_from_dmr_instantiation_nested_attributes(self):
+        """ Ensure VarInfoFromDmr can successfully extract global attributes
+            from the `.dmr` if they are stored in an Attribute container with
+            name "HDF5_GLOBALS".
+
+        """
+        history = '2021-06-24T01:02:03+00:00 Service v0.0.1'
+        mock_dmr = (
+            f'<Dataset xmlns="{self.namespace}">'
+            '  <Attribute name="HDF5_GLOBAL" type="container">'
+            '    <Attribute name="short_name" type="String">'
+            '      <Value>FAKESAT1</Value>'
+            '    </Attribute>'
+            '    <Attribute name="history" type="String">'
+            f'      <Value>{history}</Value>'
+            '    </Attribute>'
+            '    <Attribute name="numeric_attribute" type="Float64">'
+            '      <Value>-90.0</Value>'
+            '    </Attribute>'
+            '  </Attribute>'
+            '</Dataset>'
+        )
+        dmr_path = write_dmr(self.output_dir, mock_dmr)
+        dataset = VarInfoFromDmr(dmr_path, self.logger,
+                                 config_file=self.config_file)
+
+        expected_globals = {'history': history,
+                            'numeric_attribute': -90.0,
+                            'short_name': 'FAKESAT1'}
+        self.assertDictEqual(expected_globals, dataset.global_attributes)
+
     def test_var_info_get_science_variables(self):
         """ Ensure the correct set of science variables is returned. This
             should account for excluded science variables defined in the
