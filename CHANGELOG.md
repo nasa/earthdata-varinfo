@@ -1,3 +1,12 @@
+## v0.2.1
+### 2021-06-18
+
+The `VarInfoFromDmr` class has been updated to make it compatible with `.dmr`
+files that place global variables in a container `Attribute` element with a
+name of "HDF5_GLOBAL". This is preferentially selected as the root element for
+global attribute extraction, falling back on the main `Dataset` element if it
+is not present.
+
 ## v0.2.0
 ### 2021-06-15
 
