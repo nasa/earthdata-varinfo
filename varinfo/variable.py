@@ -8,11 +8,13 @@ from typing import List, Optional, Set, Tuple, Union
 import re
 import xml.etree.ElementTree as ET
 
+from netCDF4 import Variable as NetCDF4Variable
+
 from varinfo.cf_config import CFConfig
 from varinfo.utilities import get_xml_attribute
 
 
-InputVariableType = Union[ET.Element]
+InputVariableType = Union[ET.Element, NetCDF4Variable]
 
 
 class VariableBase(ABC):
@@ -114,7 +116,7 @@ class VariableBase(ABC):
 
         if valid_min is None:
             valid_range = self.attributes.get('valid_range')
-            if isinstance(valid_range, List) and len(valid_range) == 2:
+            if isinstance(valid_range, list) and len(valid_range) == 2:
                 valid_min = valid_range[0]
 
         return valid_min
@@ -133,7 +135,7 @@ class VariableBase(ABC):
 
         if valid_max is None:
             valid_range = self.attributes.get('valid_range')
-            if isinstance(valid_range, List) and len(valid_range) == 2:
+            if isinstance(valid_range, list) and len(valid_range) == 2:
                 valid_max = valid_range[1]
 
         return valid_max
@@ -338,3 +340,29 @@ class VariableFromDmr(VariableBase):
         return [dimension.get('name')
                 for dimension
                 in variable.findall(f'{self.namespace}Dim')]
+
+
+class VariableFromNetCDF4(VariableBase):
+    """ This child class inherits from the `VariableBase` class, and implements
+        the abstract methods assuming the variable source is part of a NetCDF-4
+        file.
+
+    """
+    def _get_data_type(self, variable: InputVariableType) -> str:
+        """ Extract a string representation of the variable data type. """
+        return variable.datatype.name
+
+    def _get_raw_dimensions(self, variable: NetCDF4Variable) -> List[str]:
+        """ Retrieve the dimension names as they are stored within the
+            variable.
+
+        """
+        return list(variable.dimensions)
+
+    def _get_attribute(self, variable: NetCDF4Variable, attribute_name: str,
+                       default_value: Optional = None) -> Optional:
+        """ Extract the attribute value, falling back to a default value if the
+            attribute is absent.
+
+        """
+        return getattr(variable, attribute_name, default_value)

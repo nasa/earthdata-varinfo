@@ -10,10 +10,12 @@ import re
 import xml.etree.ElementTree as ET
 import yaml
 
+from netCDF4 import Dataset, Group
+
 from varinfo.cf_config import CFConfig
 from varinfo.utilities import (DAP4_TO_NUMPY_MAP, get_xml_namespace,
                                split_attribute_path, recursive_get)
-from varinfo.variable import VariableFromDmr
+from varinfo.variable import VariableFromDmr, VariableFromNetCDF4
 
 
 OutputVariableType = Union[VariableFromDmr]
@@ -29,16 +31,15 @@ class VarInfoBase(ABC):
     """
 
     def __init__(self, file_path: str, logger: Logger,
-                 config_file: str = 'varinfo/sample_config.yml'):
+                 config_file: Optional[str] = None):
         """ Distinguish between variables containing references to other
             datasets, and those that do not. The former are considered science
             variables, providing they are not considered coordinates or
             dimensions for another variable.
 
-            Unlike NCInfo in SwotRepr, each variable contains references to
-            their specific coordinates and dimensions, allowing the retrieval
-            of all required variables for a specified list of science
-            variables.
+            Each variable contains references to their specific coordinates and
+            dimensions, allowing the retrieval of all required variables for a
+            specified list of science variables.
 
         """
         self.config_file = config_file
@@ -105,8 +106,11 @@ class VarInfoBase(ABC):
             from short_name to satellite mission.
 
         """
-        with open(self.config_file, 'r') as file_handler:
-            self.var_info_config = yaml.load(file_handler, yaml.FullLoader)
+        if self.config_file is not None:
+            with open(self.config_file, 'r') as file_handler:
+                self.var_info_config = yaml.load(file_handler, yaml.FullLoader)
+        else:
+            self.var_info_config = {}
 
     def _set_cf_config(self):
         """ Instantiate a CFConfig object, to contain any rules for exclusions,
@@ -126,7 +130,7 @@ class VarInfoBase(ABC):
         self.short_name = next(
             (recursive_get(self.global_attributes, split_attribute_path(item))
              for item
-             in self.var_info_config['Collection_ShortName_Path']
+             in self.var_info_config.get('Collection_ShortName_Path', [])
              if recursive_get(self.global_attributes,
                               split_attribute_path(item))
              is not None),
@@ -136,7 +140,7 @@ class VarInfoBase(ABC):
         if self.short_name is not None:
             self.mission = next((name
                                  for pattern, name
-                                 in self.var_info_config['Mission'].items()
+                                 in self.var_info_config.get('Mission', {}).items()
                                  if re.match(pattern, self.short_name)
                                  is not None), None)
 
@@ -407,3 +411,56 @@ class VarInfoFromDmr(VarInfoBase):
                 new_group_path = '/'.join([group_path, child.get('name')])
                 self.traverse_elements(child, element_types, operation, output,
                                        new_group_path)
+
+
+class VarInfoFromNetCDF4(VarInfoBase):
+    """ A child class that inherits from `VarInfoBase` and implements functions
+        to retrieve a dataset from a NetCDF-4 file, and extract the variables
+        by traversing the granule structure.
+
+    """
+    def _read_dataset(self, file_path: str):
+        """ Set the dataset to the file path for the NetCDF-4 file. This is
+            done instead of assigning a `netCDF4.Dataset` instance, so that the
+            file is not still in memory after being parsed, so that other
+            services can interact with the NetCDF-4 file without any conflicts.
+
+        """
+        self.dataset = file_path
+
+    def _set_global_attributes(self):
+        """ Extract all global attributes from the NetCDF-4 dataset. Using the
+            `Dataset.__dict__` method allows extraction of all global
+            attributes in a single call.
+
+        """
+        with Dataset(self.dataset, 'r') as dataset:
+            self.global_attributes = dataset.__dict__
+
+    def _extract_variables(self):
+        """ Traverse all groups of the NetCDF-4 file, beginning at the  root
+            group.
+
+        """
+        with Dataset(self.dataset, 'r') as dataset:
+            self._parse_group(dataset)
+
+    def _parse_group(self, group: Union[Dataset, Group]):
+        """ If the child matches one of the DAP4 variable types, then create an
+            instance of the `VariableFromDmr` class, and assign it to either
+            the `variables_with_coordinates` or the `metadata_variables`
+            dictionary accordingly.
+
+        """
+        for netcdf4_variable in group.variables.values():
+            variable_path = '/'.join([group.path, netcdf4_variable.name])
+            variable_path = f'/{variable_path.lstrip("/")}'
+
+            variable = VariableFromNetCDF4(netcdf4_variable, self.cf_config,
+                                           namespace=self.namespace,
+                                           full_name_path=variable_path)
+
+            self._assign_variable(variable)
+
+        for child_group in group.groups.values():
+            self._parse_group(child_group)

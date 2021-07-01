@@ -4,8 +4,6 @@ import xml.etree.ElementTree as ET
 
 import numpy as np
 
-from harmony.util import config
-
 from varinfo.exceptions import DmrNamespaceError
 from varinfo.utilities import (get_xml_attribute, get_xml_namespace,
                                recursive_get, split_attribute_path)
@@ -17,9 +15,6 @@ class TestUtilities(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.namespace = 'namespace_string'
-
-    def setUp(self):
-        self.config = config(validate=False)
 
     def test_recursive_get(self):
         """ Can retrieve a nested dictionary value, or account for missing

@@ -45,19 +45,33 @@ class TestCFConfig(TestCase):
         self.assertEqual(self.mission, config.mission)
         self.assertEqual(self.short_name, config.short_name)
 
-        self.assertCountEqual(self.excluded_science_variables,
-                              config.excluded_science_variables)
+        self.assertSetEqual(self.excluded_science_variables,
+                            config.excluded_science_variables)
 
-        self.assertCountEqual(self.required_variables,
-                              config.required_variables)
+        self.assertSetEqual(self.required_variables,
+                            config.required_variables)
 
-        self.assertEqual(self.global_overrides, config.global_overrides)
-        self.assertEqual(self.global_supplements, config.global_supplements)
+        self.assertDictEqual(self.global_overrides, config.global_overrides)
+        self.assertDictEqual(self.global_supplements, config.global_supplements)
 
         # The attributes below are protected-access within the class, however,
         # this test should still check they only contain the expected items.
         self.assertEqual(self.cf_overrides, config._cf_overrides)  # pylint: disable=W0212
         self.assertEqual(self.cf_supplements, config._cf_supplements)  # pylint: disable=W0212
+
+    def test_instantiation_no_file(self):
+        """ Ensure an instance of the `CFConfig` class can be produced when no
+            file is specified. This should result in largely empty attributes.
+
+        """
+        config = CFConfig(self.mission, self.short_name)
+
+        self.assertEqual(self.mission, config.mission)
+        self.assertEqual(self.short_name, config.short_name)
+        self.assertSetEqual(set(), config.excluded_science_variables)
+        self.assertSetEqual(set(), config.required_variables)
+        self.assertDictEqual({}, config.global_overrides)
+        self.assertDictEqual({}, config.global_supplements)
 
     def test_get_cf_attributes_all(self):
         """ Ensure the CFConfig.get_cf_references method returns all the
@@ -66,9 +80,9 @@ class TestCFConfig(TestCase):
 
         """
         config = CFConfig(self.mission, self.short_name, self.test_config)
-        self.assertEqual(config.get_cf_attributes(),
-                         {'cf_overrides': self.cf_overrides,
-                          'cf_supplements': self.cf_supplements})
+        self.assertDictEqual(config.get_cf_attributes(),
+                             {'cf_overrides': self.cf_overrides,
+                              'cf_supplements': self.cf_supplements})
 
     def test_get_cf_attributes_variable(self):
         """ Ensure the CFConfig.get_cf_references method returns all overriding
@@ -103,6 +117,6 @@ class TestCFConfig(TestCase):
 
         for description, variable, overrides, supplements in test_args:
             with self.subTest(description):
-                self.assertEqual(config.get_cf_attributes(variable),
-                                 {'cf_overrides': overrides,
-                                  'cf_supplements': supplements})
+                self.assertDictEqual(config.get_cf_attributes(variable),
+                                     {'cf_overrides': overrides,
+                                      'cf_supplements': supplements})
