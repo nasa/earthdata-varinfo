@@ -18,6 +18,7 @@
  WORKDIR /app/
  RUN apk update
  RUN apk add --no-cache make gcc build-base libressl-dev musl-dev libffi-dev
+ RUN apk add --no-cache hdf5 hdf5-dev netcdf netcdf-dev
 
  RUN addgroup -g 500 bamboo
  RUN adduser -D -h /build -G bamboo -u 500 bamboo
