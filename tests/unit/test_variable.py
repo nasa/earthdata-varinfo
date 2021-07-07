@@ -1,8 +1,11 @@
 from unittest import TestCase
 import xml.etree.ElementTree as ET
 
+from netCDF4 import Dataset
+from numpy import float64
+
 from varinfo import CFConfig
-from varinfo import VariableFromDmr
+from varinfo import VariableFromDmr, VariableFromNetCDF4
 
 
 class TestVariableFromDmr(TestCase):
@@ -373,3 +376,29 @@ class TestVariableFromDmr(TestCase):
                                            self.namespace, '/variable')
 
                 self.assertEqual(variable.get_valid_max(), expected_valid_max)
+
+    def test_variable_from_netcdf4(self):
+        """ Ensure that a `netCDF4.Variable` instance can be correctly parsed
+            by the `VariableFromNetCDF4` child class.
+
+        """
+        with Dataset('test.nc4', 'w', diskless=True) as dataset:
+            dataset.createDimension('lat', size=2)
+            dataset.createDimension('lon', size=2)
+            nc4_variable = dataset.createVariable('science', float64,
+                                                  dimensions=('lat', 'lon'))
+            nc4_variable.setncatts({'coordinates': '/lat /lon',
+                                    'units': 'metres',
+                                    'valid_min': -10,
+                                    'valid_max': 10})
+
+            variable = VariableFromNetCDF4(nc4_variable, self.fakesat_config,
+                                           self.namespace, '/science')
+
+        self.assertEqual(variable.full_name_path, '/science')
+        self.assertEqual(variable.attributes['data_type'], 'float64')
+        self.assertEqual(variable.attributes['units'], 'metres')
+        self.assertListEqual(variable.get_range(), [-10, 10])
+        self.assertEqual(variable.get_valid_min(), -10)
+        self.assertEqual(variable.get_valid_max(), 10)
+        self.assertSetEqual(variable.get_references(), {'/lat', '/lon'})

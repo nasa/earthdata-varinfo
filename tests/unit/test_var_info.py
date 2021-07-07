@@ -4,8 +4,9 @@ from tempfile import mkdtemp
 from unittest import TestCase
 import re
 
-from varinfo import VarInfoFromDmr
-from tests.utilities import write_dmr
+from varinfo import VarInfoFromDmr, VarInfoFromNetCDF4
+from tests.utilities import (netcdf4_global_attributes, write_dmr,
+                             write_skeleton_netcdf4)
 
 
 class TestVarInfoFromDmr(TestCase):
@@ -20,6 +21,7 @@ class TestVarInfoFromDmr(TestCase):
         cls.logger = Logger('VarInfo tests')
         cls.config_file = 'tests/unit/data/test_config.yml'
         cls.namespace = 'namespace_string'
+        cls.sample_config = 'varinfo/sample_config.yml'
 
         cls.mock_dataset = (
             f'<Dataset xmlns="{cls.namespace}">'
@@ -185,7 +187,7 @@ class TestVarInfoFromDmr(TestCase):
                             '</Dataset>')
                 dmr_path = write_dmr(self.output_dir, mock_dmr)
 
-                dataset = VarInfoFromDmr(dmr_path, self.logger)
+                dataset = VarInfoFromDmr(dmr_path, self.logger, self.sample_config)
 
                 self.assertEqual(dataset.short_name, short_name)
 
@@ -193,7 +195,7 @@ class TestVarInfoFromDmr(TestCase):
             mock_dmr = (f'<Dataset xmlns="{self.namespace}"></Dataset>')
             dmr_path = write_dmr(self.output_dir, mock_dmr)
 
-            dataset = VarInfoFromDmr(dmr_path, self.logger)
+            dataset = VarInfoFromDmr(dmr_path, self.logger, self.sample_config)
 
             self.assertEqual(dataset.short_name, None)
 
@@ -219,9 +221,28 @@ class TestVarInfoFromDmr(TestCase):
                             '</Dataset>')
                 dmr_path = write_dmr(self.output_dir, mock_dmr)
 
-                dataset = VarInfoFromDmr(dmr_path, self.logger)
+                dataset = VarInfoFromDmr(dmr_path, self.logger, self.sample_config)
 
                 self.assertEqual(dataset.mission, expected_mission)
+
+    def test_var_info_instantiation_no_config_file(self):
+        """ Ensure VarInfo can instantiate when no configuration file is given.
+            This will mean the mission cannot be determined for the VarInfo
+            class and that the associated CFConfig instance will be mostly a
+            no-op.
+
+        """
+        dmr_path = write_dmr(self.output_dir, self.mock_dataset)
+        dataset = VarInfoFromDmr(dmr_path, self.logger)
+
+        self.assertIsNone(dataset.short_name)
+        self.assertIsNone(dataset.mission)
+        self.assertSetEqual(set(dataset.metadata_variables.keys()),
+                            {'/ancillary_one', '/dimension_one', '/latitude',
+                             '/longitude', '/metadata_variable'})
+
+        self.assertSetEqual(set(dataset.variables_with_coordinates.keys()),
+                            {'/science_variable', '/subset_one'})
 
     def test_var_info_instantiation_no_augmentation(self):
         """ Ensure VarInfo instantiates correctly, creating records of all the
@@ -529,3 +550,21 @@ class TestVarInfoFromDmr(TestCase):
                 dataset.get_spatial_dimensions({'/science_one', '/science_four'}),
                 {'/latitude', '/longitude'}
             )
+
+    def test_var_info_netcdf4(self):
+        """ Ensure a NetCDF-4 file can be parsed by the `VarInfoFromNetCDF4`
+            class, with the expected results.
+
+        """
+        netcdf4_path = write_skeleton_netcdf4(self.output_dir)
+        dataset = VarInfoFromNetCDF4(netcdf4_path, self.logger,
+                                     config_file=self.config_file)
+
+        self.assertSetEqual(dataset.get_science_variables(),
+                            {'/science1', '/group/science2'})
+
+        self.assertSetEqual(dataset.get_metadata_variables(),
+                            {'/scalar1', '/group/scalar2'})
+
+        self.assertDictEqual(dataset.global_attributes,
+                             netcdf4_global_attributes)

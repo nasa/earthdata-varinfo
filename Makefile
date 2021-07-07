@@ -27,7 +27,7 @@ develop:
 	pip install -e .[dev]
 
 lint:
-	pylint varinfo
+	pylint varinfo --extension-pkg-whitelist=netCDF4
 
 prepare-test:
 	mkdir -p tests/reports tests/coverage

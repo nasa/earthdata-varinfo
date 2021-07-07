@@ -1,6 +1,6 @@
 # sds-varinfo
 
-A Python package for parsing Earth Observiation science granule structure and
+A Python package for parsing Earth Observation science granule structure and
 extracting relations between science variables and their associated metadata,
 such as coordinates.
 
@@ -9,7 +9,9 @@ such as coordinates.
 ### CFConfig
 
 A class that takes a YAML file and retrieves all related configuration based on
-the supplied mission name and collection shortname.
+the supplied mission name and collection shortname. The YAML file is optional,
+and if not supplied, a `CFConfig` class will be constructed with largely empty
+attributes.
 
 ```
 from varinfo import CFConfig
@@ -20,9 +22,16 @@ cf_attributes = cf_config.get_cf_attributes('/full/variable/path')
 
 ### VarInfo
 
-A class that contains the relations between all variables within a single
-granule. Currently this maps input from a `.dmr` file downloaded from Hyrax in
-the cloud, using the `harmony-service-lib`.
+A group of classes that contain the relations between all variables within a
+single granule. Current classes include:
+
+* VarInfoBase: An abstract base class that contains core logic and methods used
+  by the child classes that parse different sources of granule information.
+* VarInfoFromDmr: Child class that maps input from a `.dmr` file downloaded
+  from Hyrax in the cloud. This inherits all the methods and logic of
+  VarInfoBase.
+* VarInfoFromNetCDF4: Child class that maps input directly from a NetCDF-4
+  file. Thus inherits all the methods and logic of VarInfoBase.
 
 ```
 from logging import getLogger
@@ -32,9 +41,23 @@ logger = getLogger('dev')
 
 var_info = VarInfoFromDmr('/path/to/local/file.dmr', logger,
 						  config_file='varinfo/sample_config.yml')
+
+# Retrieve a set of variables with coordinate metadata:
 var_info.get_science_variables()
+
+# Retrieve a set of variables without coordinate metadata:
 var_info.get_metadata_variables()
-var_info.get_required_variables('/path/to/science/variable')
+
+# Augment a set of desired variables with all variables required to support
+# the requested set. For example coordinate variables.
+var_info.get_required_variables({'/path/to/science/variable'})
+
+# Retrieve an ordered list of dimensions associated with all specified variables.
+var_info.get_required_dimensions({'/path/to/science/variable'})
+
+# Retrieve all spatial dimensions associated with the specified set of science
+# variables.
+var_info.get_spatial_dimensions({'/path/to/science/variable'})
 ```
 
 ## Installing

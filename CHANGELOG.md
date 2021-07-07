@@ -1,3 +1,14 @@
+## v1.0.0
+### 2021-07-07
+
+New `VarInfoFromNetCDF4` and `VariableFromNetCDF4` classes have been added to
+`sds-varinfo` so that a raw NetCDF-4 file can be parsed to provide the same
+level of granule information as from a `.dmr` file.
+
+Additionally, the `CFConfig` class has been updated to not require a
+configuration file, resulting in an instance of the class with no CF-Convention
+overrides or supplements.
+
 ## v0.2.1
 ### 2021-06-18
 

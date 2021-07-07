@@ -18,7 +18,7 @@
     request for a specific collection.
 
 """
-from typing import Dict
+from typing import Dict, Optional
 import re
 import yaml
 
@@ -35,7 +35,7 @@ class CFConfig:
 
     """
     def __init__(self, mission: str, collection_short_name: str,
-                 config_file: str = 'varinfo/sample_config.yml'):
+                 config_file: Optional[str] = None):
         """ Set supplied class attributes. Then read the designated
             configuration file to obtain mission and short name specific
             attributes.
@@ -61,8 +61,11 @@ class CFConfig:
             upon instantiating the class.
 
         """
-        with open(self.config_file, 'r') as file_handler:
-            config = yaml.load(file_handler, Loader=yaml.FullLoader)
+        if self.config_file is not None:
+            with open(self.config_file, 'r') as file_handler:
+                config = yaml.load(file_handler, Loader=yaml.FullLoader)
+        else:
+            config = {}
 
         self.excluded_science_variables = {
             pattern
