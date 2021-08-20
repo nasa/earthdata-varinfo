@@ -1,3 +1,16 @@
+## v1.0.1
+### 2021-08-20
+
+The `VarInfoBase.get_required_variables` and
+`VarInfoBase.get_required_dimensions` methods have been updated to filter out
+any variable references that point to non-existant variables. This might occur
+when a variable has a dimension only present to denote array size. For example,
+a CF-Convention `bounds` reference variable, such as `lat_bnds`. In these
+cases, the variable will have an additional dimension without a corresponding
+variable. The amended class methods continue to return references to all
+variables that are both listed via variable metadata and present in the
+granule.
+
 ## v1.0.0
 ### 2021-07-07
 

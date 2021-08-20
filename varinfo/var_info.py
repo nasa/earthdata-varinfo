@@ -264,13 +264,18 @@ class VarInfoBase(ABC):
             variable_name = requested_variables.pop()
             required_variables.add(variable_name)
 
-            variable = (self.variables_with_coordinates.get(variable_name) or
-                        self.metadata_variables.get(variable_name))
+            variable = self.get_variable(variable_name)
 
             if variable is not None:
                 # Add variable. Enqueue references not already present in
-                # required set.
-                variable_references = variable.get_references()
+                # required set. (Also checking that they are real variables,
+                # and not non-variable dimensions)
+                variable_references = {
+                    reference_variable
+                    for reference_variable
+                    in variable.get_references()
+                    if self.get_variable(reference_variable) is not None
+                }
                 requested_variables.update(
                     variable_references.difference(required_variables)
                 )
@@ -285,7 +290,8 @@ class VarInfoBase(ABC):
         return set(dimension
                    for variable in variables
                    for dimension
-                   in getattr(self.get_variable(variable), 'dimensions', []))
+                   in getattr(self.get_variable(variable), 'dimensions', [])
+                   if self.get_variable(dimension) is not None)
 
     def get_spatial_dimensions(self, variables: Set[str]) -> Set[str]:
         """ Return a single set of all variables that are both used as
@@ -297,11 +303,9 @@ class VarInfoBase(ABC):
 
         """
         return set(dimension
-                   for variable in variables
                    for dimension
-                   in getattr(self.get_variable(variable), 'dimensions', [])
-                   if self.get_variable(dimension) is not None
-                   and self.get_variable(dimension).is_geographic())
+                   in self.get_required_dimensions(variables)
+                   if self.get_variable(dimension).is_geographic())
 
     @staticmethod
     def exclude_fake_dimensions(variable_set: Set[str]) -> Set[str]:
@@ -392,6 +396,21 @@ class VarInfoFromDmr(VarInfoBase):
 
         self.traverse_elements(self.dataset, set(DAP4_TO_NUMPY_MAP.keys()),
                                save_variable, all_variables)
+
+        self._remove_non_variable_references()
+
+    def _remove_non_variable_references(self):
+        """ After all references have been combined, remove those that point to
+            non-existant variables. For example dimensions that are present in
+            a variable to only denote array size in that dimension. This must
+            be done after all variables are parsed, to ensure a reference isn't
+            being made to a variable that hasn't yet been extracted.
+
+        """
+        self.references = {reference
+                           for reference
+                           in self.references
+                           if self.get_variable(reference) is not None}
 
     def traverse_elements(self, element: ET.Element, element_types: Set[str],
                           operation, output, group_path: str = ''):

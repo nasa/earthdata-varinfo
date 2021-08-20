@@ -88,6 +88,10 @@ class TestVarInfoFromDmr(TestCase):
             '    </Float64>'
             '    <Float64 name="longitude">'
             '    </Float64>'
+            '    <Float64 name="lat_bnds">'
+            '      <Dim name="/science/latitude"/>'
+            '      <Dim name="/science/latv" size="2"/>'
+            '    </Float64>'
             '  </Group>'
             '  <Group name="METADATA">'
             '    <Group name="DatasetIdentification">'
@@ -288,7 +292,8 @@ class TestVarInfoFromDmr(TestCase):
         self.assertEqual(dataset.global_attributes, expected_global_attributes)
         self.assertEqual(set(dataset.metadata_variables.keys()),
                          {'/science/latitude', '/science/longitude',
-                          '/required_group/has_no_coordinates'})
+                          '/required_group/has_no_coordinates',
+                          '/science/lat_bnds'})
         self.assertEqual(set(dataset.variables_with_coordinates.keys()),
                          {'/science/interesting_thing',
                           '/exclude_one/has_coordinates'})
@@ -356,7 +361,7 @@ class TestVarInfoFromDmr(TestCase):
         metadata_variables = dataset.get_metadata_variables()
         self.assertEqual(metadata_variables,
                          {'/required_group/has_no_coordinates',
-                          '/exclude_one/has_coordinates'})
+                          '/exclude_one/has_coordinates', '/science/lat_bnds'})
 
     def test_var_info_get_required_variables(self):
         """ Ensure a full list of variables is returned when the VarInfo
@@ -371,16 +376,24 @@ class TestVarInfoFromDmr(TestCase):
         dataset = VarInfoFromDmr(dmr_path, self.logger,
                                  config_file=self.config_file)
 
-        required_variables = dataset.get_required_variables(
-            {'/science/interesting_thing'}
-        )
-        self.assertEqual(
-            required_variables,
-            {'/required_group/has_no_coordinates',
-             '/science/interesting_thing',
-             '/science/latitude',
-             '/science/longitude'}
-        )
+        with self.subTest('All references to other variables are retrieved'):
+            required_variables = dataset.get_required_variables(
+                {'/science/interesting_thing'}
+            )
+            self.assertSetEqual(
+                required_variables,
+                {'/required_group/has_no_coordinates',
+                 '/science/interesting_thing',
+                 '/science/latitude',
+                 '/science/longitude'}
+            )
+
+        with self.subTest('Non-variable dimensions are not returned'):
+            self.assertSetEqual(
+                dataset.get_required_variables({'/science/lat_bnds'}),
+                {'/science/lat_bnds', '/science/latitude',
+                 '/required_group/has_no_coordinates'}
+            )
 
     def test_var_info_variable_is_excluded(self):
         """ Ensure the a variable is correctly identified as being excluded or
@@ -443,22 +456,34 @@ class TestVarInfoFromDmr(TestCase):
             self.assertIsNone(dataset.get_variable('/non/existent/variable'))
 
     def test_get_required_dimensions(self):
-        """ Ensure all dimensions associated with the specified variables are
-            returned.
+        """ Ensure all dimensions, that are themselves variables, associated
+            with the specified variables are returned. Dimensions that are
+            only used to specify an array size in one dimension, and do not
+            have an associated variable, will not be returned.
 
         """
         mock_dmr = (f'<Dataset xmlns="{self.namespace}">'
                     '  <Attribute name="short_name">'
                     '    <Value>FAKE123A</Value>'
                     '  </Attribute>'
-                    '    <Float64 name="science_one">'
-                    '      <Dim name="/latitude"/>'
-                    '    </Float64>'
-                    '    <Float64 name="science_two">'
-                    '      <Dim name="/longitude"/>'
-                    '    </Float64>'
-                    '    <Float64 name="science_three">'
-                    '    </Float64>'
+                    '  <Dimension name="latitude" size="1800"/>'
+                    '  <Dimension name="longitude" size="3600"/>'
+                    '  <Float64 name="science_one">'
+                    '    <Dim name="/latitude"/>'
+                    '  </Float64>'
+                    '  <Float64 name="science_two">'
+                    '    <Dim name="/longitude"/>'
+                    '  </Float64>'
+                    '  <Float64 name="science_three">'
+                    '  </Float64>'
+                    '  <Float64 name="longitude">'
+                    '  </Float64>'
+                    '  <Float64 name="latitude">'
+                    '  </Float64>'
+                    '  <Float64 name="lat_bnds">'
+                    '    <Dim name="latv" size="2"/>'
+                    '    <Dim name="latitude" size="1800"/>'
+                    '  </Float64>'
                     '</Dataset>')
 
         dmr_path = write_dmr(self.output_dir, mock_dmr)
@@ -478,6 +503,10 @@ class TestVarInfoFromDmr(TestCase):
         with self.subTest('A non-existent variable returns an empty set'):
             self.assertSetEqual(dataset.get_required_dimensions({'/science_four'}),
                                 set())
+
+        with self.subTest('Non-variable dimensions are not returned'):
+            self.assertSetEqual(dataset.get_required_dimensions({'/lat_bnds'}),
+                                {'/latitude'})
 
     def test_get_spatial_dimensions(self):
         """ Ensure only spatial dimensions are returned, and if a variable or
