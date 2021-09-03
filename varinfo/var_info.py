@@ -95,7 +95,7 @@ class VarInfoBase(ABC):
         full_path = variable_object.full_name_path
         self.references.update(variable_object.get_references())
 
-        if variable_object.coordinates:
+        if variable_object.references.get('coordinates') is not None:
             self.variables_with_coordinates[full_path] = variable_object
         else:
             self.metadata_variables[full_path] = variable_object
