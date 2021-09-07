@@ -1,3 +1,15 @@
+## v1.1.0
+### 2021-09-03
+
+The `VariableBase` class has been updated to retrieve all metadata attributes,
+rather than only named attributes. In addition the retrieval of CF-Convention
+references from metadata attributes has been consolidated into a `references`
+class attribute. This causes a minor change to clients attempting to access
+coordinate variable references: `variable.reference.get('coordinates')`. The
+`VariableBase.dimensions` attribute remains in place, and will still be
+combined with other variable references when using the `get_references` class
+method.
+
 ## v1.0.1
 ### 2021-08-20
 

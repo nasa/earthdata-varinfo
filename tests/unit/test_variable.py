@@ -119,14 +119,21 @@ class TestVariableFromDmr(TestCase):
         self.assertEqual(variable.full_name_path, '/group/variable')
         self.assertEqual(variable.group_path, '/group')
         self.assertEqual(variable.name, 'variable')
+        self.assertSetEqual(set(variable.attributes.keys()),
+                            {'ancillary_variables', 'coordinates',
+                             'subset_control_variables', 'units'})
         self.assertEqual(variable.attributes.get('units'), 'm')
-        self.assertEqual(variable.ancillary_variables, {'/ancillary_data/epoch'})
-        self.assertEqual(variable.coordinates, {'/group/latitude',
-                                                '/group/longitude'})
         self.assertEqual(variable.dimensions, ['/group/first_dimension',
                                                '/group/second_dimension'])
-        self.assertEqual(variable.subset_control_variables,
-                         {'/group/begin', '/group/count'})
+        self.assertSetEqual(set(variable.references.keys()),
+                            {'ancillary_variables', 'coordinates',
+                             'subset_control_variables'})
+        self.assertSetEqual(variable.references.get('ancillary_variables'),
+                            {'/ancillary_data/epoch'})
+        self.assertSetEqual(variable.references.get('coordinates'),
+                            {'/group/latitude', '/group/longitude'})
+        self.assertSetEqual(variable.references.get('subset_control_variables'),
+                            {'/group/begin', '/group/count'})
 
     def test_variable_cf_override(self):
         """ Ensure a CF attribute is overridden by the `CFConfig` value. """
@@ -141,8 +148,8 @@ class TestVariableFromDmr(TestCase):
         variable = VariableFromDmr(dmr_variable, self.fakesat_config,
                                    self.namespace, '/coordinates_group/science')
 
-        self.assertEqual(variable.coordinates, {'/coordinates_group/lat',
-                                                '/coordinates_group/lon'})
+        self.assertSetEqual(variable.references.get('coordinates'),
+                            {'/coordinates_group/lat', '/coordinates_group/lon'})
 
     def test_variable_reference_qualification(self):
         """ Ensure different reference types (relative, absolute) are correctly
@@ -166,7 +173,8 @@ class TestVariableFromDmr(TestCase):
                 )
                 variable = VariableFromDmr(dmr_variable, self.fakesat_config,
                                            self.namespace, variable_name)
-                self.assertEqual(variable.coordinates, {qualified_reference})
+                self.assertSetEqual(variable.references.get('coordinates'),
+                                    {qualified_reference})
 
         root_var_name = '/global_aerosol_frac'
         test_args = [
@@ -186,7 +194,8 @@ class TestVariableFromDmr(TestCase):
 
                 variable = VariableFromDmr(dmr_variable, self.fakesat_config,
                                            self.namespace, root_var_name)
-                self.assertEqual(variable.coordinates, {qualified_reference})
+                self.assertSetEqual(variable.references.get('coordinates'),
+                                    {qualified_reference})
 
     def test_variable_get_references(self):
         """ Ensure that a set of absolute paths to all variables referred to
@@ -194,18 +203,37 @@ class TestVariableFromDmr(TestCase):
             subset_control_variables is returned.
 
         """
-        variable = VariableFromDmr(self.dmr_variable, self.fakesat_config,
-                                   self.namespace, self.dmr_variable_path)
+        with self.subTest('References include anc, coords, dims and subset'):
+            variable = VariableFromDmr(self.dmr_variable, self.fakesat_config,
+                                       self.namespace, self.dmr_variable_path)
 
-        references = variable.get_references()
+            references = variable.get_references()
 
-        self.assertEqual(references, {'/ancillary_data/epoch',
-                                      '/group/latitude',
-                                      '/group/longitude',
-                                      '/group/first_dimension',
-                                      '/group/second_dimension',
-                                      '/group/begin',
-                                      '/group/count'})
+            self.assertSetEqual(references, {'/ancillary_data/epoch',
+                                             '/group/latitude',
+                                             '/group/longitude',
+                                             '/group/first_dimension',
+                                             '/group/second_dimension',
+                                             '/group/begin',
+                                             '/group/count'})
+
+        with self.subTest('References include bounds and grid_mapping'):
+            dmr_variable = ET.fromstring(
+                f'<{self.namespace}Float64 name="/lat">'
+                f'  <{self.namespace}Attribute name="bounds" type="String">'
+                f'    <{self.namespace}Value>lat_bnds</{self.namespace}Value>'
+                f'  </{self.namespace}Attribute>'
+                f'  <{self.namespace}Attribute name="grid_mapping" type="String">'
+                f'    <{self.namespace}Value>longitude_latitude</{self.namespace}Value>'
+                f'  </{self.namespace}Attribute>'
+                f'</{self.namespace}Float64>'
+            )
+
+            variable = VariableFromDmr(dmr_variable, self.fakesat_config,
+                                       self.namespace, '/lat')
+
+            self.assertSetEqual(variable.get_references(),
+                                {'/lat_bnds', '/longitude_latitude'})
 
     def test_dmr_dimension_conversion(self):
         """ Ensure that if a dimension has a `.dmr` style name it is converted
@@ -396,7 +424,9 @@ class TestVariableFromDmr(TestCase):
                                            self.namespace, '/science')
 
         self.assertEqual(variable.full_name_path, '/science')
-        self.assertEqual(variable.attributes['data_type'], 'float64')
+        self.assertEqual(variable.data_type, 'float64')
+        self.assertSetEqual(set(variable.attributes.keys()),
+                            {'coordinates', 'units', 'valid_min', 'valid_max'})
         self.assertEqual(variable.attributes['units'], 'metres')
         self.assertListEqual(variable.get_range(), [-10, 10])
         self.assertEqual(variable.get_valid_min(), -10)
