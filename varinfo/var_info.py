@@ -320,7 +320,7 @@ class VarInfoBase(ABC):
                    for dimension
                    in self.get_required_dimensions(variables)
                    if self.get_variable(dimension).is_temporal())
-                   
+
     @staticmethod
     def exclude_fake_dimensions(variable_set: Set[str]) -> Set[str]:
         """ An OPeNDAP `.dmr` can contain fake dimensions, used to supplement
