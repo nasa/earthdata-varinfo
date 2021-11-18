@@ -15,7 +15,7 @@ method.
 
 The `VarInfoBase.get_required_variables` and
 `VarInfoBase.get_required_dimensions` methods have been updated to filter out
-any variable references that point to non-existant variables. This might occur
+any variable references that point to non-existent variables. This might occur
 when a variable has a dimension only present to denote array size. For example,
 a CF-Convention `bounds` reference variable, such as `lat_bnds`. In these
 cases, the variable will have an additional dimension without a corresponding

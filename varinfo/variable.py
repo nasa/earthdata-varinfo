@@ -165,6 +165,14 @@ class VariableBase(ABC):
                                                 'degrees_E', 'degree_E',
                                                 'degreesE', 'degreeE']
 
+    def is_temporal(self) -> bool:
+        """ Determine if the variable is a time based on the `units`
+            metadata attribute being 'since' or other similar options
+            as defined in section 4.3 of the CF Conventions (v1.8).
+
+        """
+        return " since " in self.attributes.get('units') 
+
     def _get_all_cf_references(self) -> Dict[str, Set[str]]:
         """ Retrieve a dictionary containing all CF-Convention attributes
             within the variable that have references to other variables in the
