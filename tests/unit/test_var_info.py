@@ -580,6 +580,85 @@ class TestVarInfoFromDmr(TestCase):
                 {'/latitude', '/longitude'}
             )
 
+    def test_get_temporal_dimensions(self):
+        """ Ensure only temporal dimensions are returned, and if a variable or
+            dimension is misnamed, the method will not cause an error.
+
+        """
+        mock_dmr = (f'<Dataset xmlns="{self.namespace}">'
+                    '  <Attribute name="short_name">'
+                    '    <Value>FAKE123A</Value>'
+                    '  </Attribute>'
+                    '    <Float64 name="science_one">'
+                    '      <Dim name="/latitude"/>'
+                    '      <Dim name="/longitude"/>'
+                    '      <Dim name="/time"/>'
+                    '    </Float64>'
+                    '    <Float64 name="science_two">'
+                    '      <Dim name="x"/>'
+                    '      <Dim name="y"/>'
+                    '    </Float64>'
+                    '    <Float64 name="science_three">'
+                    '    </Float64>'
+                    '    <Float64 name="science_four">'
+                    '      <Dim name="non-existant"/>'
+                    '    </Float64>'
+                    '    <Int32 name="time">'
+                    '      <Attribute name="units" type="String">'
+                    '        <Value>minutes since 1980-01-02 00:30:00 </Value>'
+                    '      </Attribute>'
+                    '    </Int32>'
+                    '    <Float64 name="latitude">'
+                    '      <Attribute name="units" type="String">'
+                    '        <Value>degrees_north</Value>'
+                    '      </Attribute>'
+                    '    </Float64>'
+                    '    <Float64 name="longitude">'
+                    '      <Attribute name="units" type="String">'
+                    '        <Value>degrees_east</Value>'
+                    '      </Attribute>'
+                    '    </Float64>'
+                    '    <Float64 name="x">'
+                    '      <Attribute name="units" type="String">'
+                    '        <Value>m</Value>'
+                    '      </Attribute>'
+                    '    </Float64>'
+                    '    <Float64 name="y">'
+                    '      <Attribute name="units" type="String">'
+                    '        <Value>m</Value>'
+                    '      </Attribute>'
+                    '    </Float64>'
+                    '</Dataset>')
+
+        dmr_path = write_dmr(self.output_dir, mock_dmr)
+        dataset = VarInfoFromDmr(dmr_path, self.logger,
+                                 config_file=self.config_file)
+
+        with self.subTest('All (and only) temporal variables are returned'):
+            self.assertSetEqual(
+                dataset.get_temporal_dimensions({'/science_one', '/science_two'}),
+                {'/time'}
+            )
+
+        with self.subTest('A variable with no dimensions is handled'):
+            self.assertSetEqual(
+                dataset.get_temporal_dimensions({'/science_three'}),
+                set()
+            )
+
+        with self.subTest('A misnamed variable is handled'):
+            self.assertSetEqual(
+                dataset.get_temporal_dimensions({'/science_one', '/science_five'}),
+                {'/time'}
+            )
+
+        with self.subTest('A misnamed dimension is handled'):
+            self.assertSetEqual(
+                dataset.get_temporal_dimensions({'/science_one', '/science_four'}),
+                {'/time'}
+            )
+
+
     def test_var_info_netcdf4(self):
         """ Ensure a NetCDF-4 file can be parsed by the `VarInfoFromNetCDF4`
             class, with the expected results.
