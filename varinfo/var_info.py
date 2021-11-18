@@ -415,7 +415,7 @@ class VarInfoFromDmr(VarInfoBase):
 
     def _remove_non_variable_references(self):
         """ After all references have been combined, remove those that point to
-            non-existant variables. For example dimensions that are present in
+            non-existent variables. For example dimensions that are present in
             a variable to only denote array size in that dimension. This must
             be done after all variables are parsed, to ensure a reference isn't
             being made to a variable that hasn't yet been extracted.

@@ -168,7 +168,7 @@ class VariableBase(ABC):
     def is_temporal(self) -> bool:
         """ Determine if the variable is a time based on the `units`
             metadata attribute being 'since' or other similar options
-            as defined in section 4.1 of the CF Conventions (v1.8).
+            as defined in section 4.3 of the CF Conventions (v1.8).
 
         """
         return " since " in self.attributes.get('units') 
