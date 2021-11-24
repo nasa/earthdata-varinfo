@@ -307,6 +307,20 @@ class VarInfoBase(ABC):
                    in self.get_required_dimensions(variables)
                    if self.get_variable(dimension).is_geographic())
 
+    def get_temporal_dimensions(self, variables: Set[str]) -> Set[str]:
+        """ Return a single set of all variables that are both used as
+            dimensions for any of the input variables, and that are temporal
+            in nature (as determined by the `units` metadata attribute).
+
+            Not all variables have dimensions, which necessitates a check on
+            their existence before determining the dimension is temporal.
+
+        """
+        return set(dimension
+                   for dimension
+                   in self.get_required_dimensions(variables)
+                   if self.get_variable(dimension).is_temporal())
+
     @staticmethod
     def exclude_fake_dimensions(variable_set: Set[str]) -> Set[str]:
         """ An OPeNDAP `.dmr` can contain fake dimensions, used to supplement
@@ -401,7 +415,7 @@ class VarInfoFromDmr(VarInfoBase):
 
     def _remove_non_variable_references(self):
         """ After all references have been combined, remove those that point to
-            non-existant variables. For example dimensions that are present in
+            non-existent variables. For example dimensions that are present in
             a variable to only denote array size in that dimension. This must
             be done after all variables are parsed, to ensure a reference isn't
             being made to a variable that hasn't yet been extracted.

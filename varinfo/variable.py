@@ -4,7 +4,7 @@
 
 """
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 import re
 import xml.etree.ElementTree as ET
 
@@ -62,6 +62,17 @@ class VariableBase(ABC):
             self.references dictionary.
 
         """
+
+    def get_attribute_value(self, attribute_name: str,
+                            default_value: Optional = None) -> Any:
+        """ A convenience function for the end-user to retrieve the value of a
+            specified attribute, or use an optional default value if that
+            attribute is not present in the variable metadata. If no default
+            value is supplied, requesting the value of an absent attribute will
+            return `None`.
+
+        """
+        return self.attributes.get(attribute_name, default_value)
 
     def get_range(self) -> Optional[List[float]]:
         """ Retrieve the range of valid data from the variable metadata. First,
@@ -164,6 +175,14 @@ class VariableBase(ABC):
         return self.attributes.get('units') in ['degrees_east', 'degree_east',
                                                 'degrees_E', 'degree_E',
                                                 'degreesE', 'degreeE']
+
+    def is_temporal(self) -> bool:
+        """ Determine if the variable is a time based on the `units`
+            metadata attribute being 'since' or other similar options
+            as defined in section 4.4 of the CF Conventions (v1.8).
+
+        """
+        return ' since ' in self.attributes.get('units')
 
     def _get_all_cf_references(self) -> Dict[str, Set[str]]:
         """ Retrieve a dictionary containing all CF-Convention attributes

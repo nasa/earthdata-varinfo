@@ -235,6 +235,34 @@ class TestVariableFromDmr(TestCase):
             self.assertSetEqual(variable.get_references(),
                                 {'/lat_bnds', '/longitude_latitude'})
 
+    def test_get_attribute_value(self):
+        """ Ensure that a metadata attribute value is retrieved or, if that
+            metadata attribute is not included in the variable, the default
+            value is returned.
+
+        """
+        variable = VariableFromDmr(self.dmr_variable, self.fakesat_config,
+                                   self.namespace, self.dmr_variable_path)
+
+        default_value = 'default'
+
+        with self.subTest('Present attribute returns expected value'):
+            self.assertEqual(variable.get_attribute_value('units'), 'm')
+
+        with self.subTest('Present attribute ignores default value'):
+            self.assertEqual(
+                variable.get_attribute_value('units', default_value), 'm'
+            )
+
+        with self.subTest('Absent attribute uses supplied default'):
+            self.assertEqual(
+                variable.get_attribute_value('missing', default_value),
+                default_value
+            )
+
+        with self.subTest('Absent attribute with no default returns `None`'):
+            self.assertIsNone(variable.get_attribute_value('missing'))
+
     def test_dmr_dimension_conversion(self):
         """ Ensure that if a dimension has a `.dmr` style name it is converted
             to the full path, for example:
