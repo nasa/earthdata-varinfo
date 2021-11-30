@@ -365,7 +365,7 @@ class VarInfoFromDmr(VarInfoBase):
             attribute_name = attribute.get('name')
             dap4_type = attribute.get('type')
 
-            if dap4_type != 'container':
+            if dap4_type != 'Container':
                 attribute_value = attribute.find(f'{self.namespace}Value').text
                 numpy_type = DAP4_TO_NUMPY_MAP.get(dap4_type, str)
 
