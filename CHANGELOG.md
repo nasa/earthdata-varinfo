@@ -1,3 +1,8 @@
+## v1.2.1
+### 2021-12-01
+The `VarInfoFromDmr._set_global_attributes` class method has been updated to
+correctly handle `Attribute` XML elements with a DAP4 type: `Container`.
+
 ## v1.2.0
 ### 2021-11-18
 
