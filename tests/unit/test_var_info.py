@@ -309,7 +309,7 @@ class TestVarInfoFromDmr(TestCase):
         history = '2021-06-24T01:02:03+00:00 Service v0.0.1'
         mock_dmr = (
             f'<Dataset xmlns="{self.namespace}">'
-            '  <Attribute name="HDF5_GLOBAL" type="container">'
+            '  <Attribute name="HDF5_GLOBAL" type="Container">'
             '    <Attribute name="short_name" type="String">'
             '      <Value>FAKESAT1</Value>'
             '    </Attribute>'
