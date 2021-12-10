@@ -101,6 +101,11 @@ CF_Overrides:
         Attributes:
           - Name: 'coordinates'
             Value: 'lat, lon'
+      - Applicability:
+          Variable_Pattern: '/absent_override'
+        Attributes:
+          - Name: 'extra_override'
+            Value: 'overriding value'
     Global_Attributes:
       - Name: 'global_override'
         Value: 'GLOBAL'
@@ -139,6 +144,16 @@ CF_Supplements:
         Attributes:
           - Name: 'group_supplement'
             Value: 'FAKE99 group4'
+      - Applicability:
+          Variable_Pattern: '/absent_override'
+        Attributes:
+          - Name: 'extra_override'
+            Value: 'supplemental value'
+      - Applicability:
+          Variable_Pattern: '/absent_supplement'
+        Attributes:
+          - Name: 'extra_supplement'
+            Value: 'supplemental value'
     Global_Attributes:
       - Name: 'fakesat_global_supplement'
         Value: 'fakesat value'
