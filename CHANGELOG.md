@@ -1,5 +1,15 @@
+## v1.2.2
+### 2021-12-10
+
+The `VariableBase` and child classes have been updated such that all metadata
+attributes can be augmented by overrides and supplements, not just those that
+contain CF-Convention references. In addition the configuration file can now be
+used to set values for metadata attributes not present in the original granule
+metadata.
+
 ## v1.2.1
 ### 2021-12-01
+
 The `VarInfoFromDmr._set_global_attributes` class method has been updated to
 correctly handle `Attribute` XML elements with a DAP4 type: `Container`.
 
