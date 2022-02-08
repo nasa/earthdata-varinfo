@@ -1,3 +1,9 @@
+## v1.2.3
+### 2022-02-07
+
+This patch version updates the `numpy` dependency within `sds-varinfo` to help
+mitigate security vulnerabilities from `numpy` versions in downstream services.
+
 ## v1.2.2
 ### 2021-12-10
 
