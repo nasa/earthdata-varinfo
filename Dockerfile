@@ -18,15 +18,15 @@
  #
  #
  ##############################################################################
- FROM python:3.8-alpine3.13
+ FROM python:3.10-slim
 
  WORKDIR /app/
- RUN apk update
- RUN apk add --no-cache make gcc build-base libressl-dev musl-dev libffi-dev
- RUN apk add --no-cache hdf5 hdf5-dev netcdf netcdf-dev
+ RUN apt-get update && apt-get install -y \
+    make gcc hdf5-tools libnetcdf-dev && \
+    rm -rf /var/lib/apt/lists/*
 
- RUN addgroup -g 500 bamboo
- RUN adduser -D -h /build -G bamboo -u 500 bamboo
+ RUN addgroup -gid 500 bamboo
+ RUN adduser --disabled-password --home /build --ingroup bamboo --uid 500 bamboo
 
  COPY . /app/
  RUN make develop
