@@ -12,11 +12,6 @@
  #
  # These commands are encapsulated in bin/build-image.sh and bin/run-test.sh
  #
- # NOTE: 2021-07-07: Alpine version has been pinned to 3.13 due to regression
- #       in the image, see: https://gitlab.alpinelinux.org/alpine/aports/-/issues/12763
- #       Expected resolution mid-July 2021 (remove tag from image when fixed).
- #
- #
  ##############################################################################
  FROM python:3.10-slim
 
