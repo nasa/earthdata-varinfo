@@ -213,7 +213,7 @@ class VariableBase(ABC):
             as defined in section 4.4 of the CF Conventions (v1.8).
 
         """
-        return ' since ' in self.attributes.get('units')
+        return ' since ' in self.attributes.get('units', '')
 
     def _get_all_cf_references(self) -> Dict[str, Set[str]]:
         """ Retrieve a dictionary containing all CF-Convention attributes
