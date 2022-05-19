@@ -363,6 +363,61 @@ class TestVariableFromDmr(TestCase):
 
         self.assertEqual(variable.dimensions, ['/group_one/delta_time'])
 
+    def test_is_temporal(self):
+        """ Ensure that a dimension is correctly recognised as temporal. If
+            there is not `units` metadata attribute, the variable is not
+            identified as temporal (and also doesn't raise an exception).
+
+        """
+        with self.subTest('Temporal variable'):
+            temporal_variable_xml = ET.fromstring(
+                f'<{self.namespace}Float64 name="/group_one/time">'
+                f'  <{self.namespace}Dim name="/group_one/time" />'
+                f'  <{self.namespace}Attribute name="units" type="String">'
+                f'    <{self.namespace}Value>'
+                '        seconds since 1980-01-01T00:00:00'
+                f'    </{self.namespace}Value>'
+                f'  </{self.namespace}Attribute>'
+                f'</{self.namespace}Float64>'
+            )
+            temporal_variable = VariableFromDmr(temporal_variable_xml,
+                                                self.fakesat_config,
+                                                self.namespace,
+                                                '/group_one/time')
+
+            self.assertTrue(temporal_variable.is_temporal())
+
+        with self.subTest('Non-temporal variable'):
+            non_temporal_variable_xml = ET.fromstring(
+                f'<{self.namespace}Float64 name="/group_one/longitude">'
+                f'  <{self.namespace}Dim name="/group_one/longitude" />'
+                f'  <{self.namespace}Attribute name="units" type="String">'
+                f'    <{self.namespace}Value>'
+                '        degrees_east'
+                f'    </{self.namespace}Value>'
+                f'  </{self.namespace}Attribute>'
+                f'</{self.namespace}Float64>'
+            )
+            non_temporal_variable = VariableFromDmr(non_temporal_variable_xml,
+                                                    self.fakesat_config,
+                                                    self.namespace,
+                                                    '/group_one/longitude')
+
+            self.assertFalse(non_temporal_variable.is_temporal())
+
+        with self.subTest('Variable with no "units" metadata attribute'):
+            unitless_variable_xml = ET.fromstring(
+                f'<{self.namespace}Float64 name="/group_one/unitless">'
+                f'  <{self.namespace}Dim name="/group_one/unitless" />'
+                f'</{self.namespace}Float64>'
+            )
+            unitless_variable = VariableFromDmr(unitless_variable_xml,
+                                                self.fakesat_config,
+                                                self.namespace,
+                                                '/group_one/unitless')
+
+            self.assertFalse(unitless_variable.is_temporal())
+
     def test_is_geographic(self):
         """ Ensure that a dimension is correctly recognised as geographic, and
             that if there is no `units` metadata attribute, the variable is not
@@ -380,7 +435,6 @@ class TestVariableFromDmr(TestCase):
                                            self.namespace, '/variable')
 
                 self.assertTrue(variable.is_geographic())
-
 
         test_args = [['Non geographic variable', self.non_geo_variable_string],
                      ['No units in variable', self.no_units_variable_string]]
