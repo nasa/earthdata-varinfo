@@ -365,7 +365,7 @@ class TestVariableFromDmr(TestCase):
 
     def test_is_temporal(self):
         """ Ensure that a dimension is correctly recognised as temporal. If
-            there is not `units` metadata attribute, the variable is not
+            there is not a `units` metadata attribute, the variable is not
             identified as temporal (and also doesn't raise an exception).
 
         """

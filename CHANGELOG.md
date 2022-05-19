@@ -1,3 +1,10 @@
+## v1.2.5
+### 2022-05-19
+
+This patch version updates the `Variable.is_temporal` method such that it can
+handle variables without a `units` metadata attribute. In these instances, the
+variable will be determined to not be temporal.
+
 ## v1.2.4
 ### 2022-04-05
 
