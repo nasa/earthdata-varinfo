@@ -658,7 +658,6 @@ class TestVarInfoFromDmr(TestCase):
                 {'/time'}
             )
 
-
     def test_var_info_netcdf4(self):
         """ Ensure a NetCDF-4 file can be parsed by the `VarInfoFromNetCDF4`
             class, with the expected results.
