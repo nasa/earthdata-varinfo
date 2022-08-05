@@ -61,7 +61,27 @@ class TestVariableFromDmr(TestCase):
             f'  </{cls.namespace}Attribute>'
             f'</{cls.namespace}Float64>'
         )
-        cls.no_units_variable_string = (
+        cls.projection_x_variable_string = (
+            f'<{cls.namespace}Float64 name="variable_name">'
+            f'  <{cls.namespace}Attribute name="standard_name" type="String">'
+            f'    <{cls.namespace}Value>projection_x_coordinate</{cls.namespace}Value>'
+            f'  </{cls.namespace}Attribute>'
+            f'  <{cls.namespace}Attribute name="units" type="String">'
+            f'    <{cls.namespace}Value>m</{cls.namespace}Value>'
+            f'  </{cls.namespace}Attribute>'
+            f'</{cls.namespace}Float64>'
+        )
+        cls.projection_y_variable_string = (
+            f'<{cls.namespace}Float64 name="variable_name">'
+            f'  <{cls.namespace}Attribute name="standard_name" type="String">'
+            f'    <{cls.namespace}Value>projection_y_coordinate</{cls.namespace}Value>'
+            f'  </{cls.namespace}Attribute>'
+            f'  <{cls.namespace}Attribute name="units" type="String">'
+            f'    <{cls.namespace}Value>m</{cls.namespace}Value>'
+            f'  </{cls.namespace}Attribute>'
+            f'</{cls.namespace}Float64>'
+        )
+        cls.no_attributes_variable_string = (
             f'<{cls.namespace}Float64 name="variable_name">'
             f'</{cls.namespace}Float64>'
         )
@@ -437,7 +457,8 @@ class TestVariableFromDmr(TestCase):
                 self.assertTrue(variable.is_geographic())
 
         test_args = [['Non geographic variable', self.non_geo_variable_string],
-                     ['No units in variable', self.no_units_variable_string]]
+                     ['No units in variable', self.no_attributes_variable_string],
+                     ['Projected variable', self.projection_x_variable_string]]
 
         for description, variable_string in test_args:
             with self.subTest(description):
@@ -461,7 +482,8 @@ class TestVariableFromDmr(TestCase):
 
         test_args = [['Longitude variable', self.longitude_variable_string],
                      ['Non geographic variable', self.non_geo_variable_string],
-                     ['No units variable', self.no_units_variable_string]]
+                     ['Projected y variable', self.projection_y_variable_string],
+                     ['No units variable', self.no_attributes_variable_string]]
 
         for description, variable_string in test_args:
             with self.subTest(description):
@@ -485,7 +507,8 @@ class TestVariableFromDmr(TestCase):
 
         test_args = [['Latitude variable', self.latitude_variable_string],
                      ['Non geographic variable', self.non_geo_variable_string],
-                     ['No units variable', self.no_units_variable_string]]
+                     ['Projected x variable', self.projection_x_variable_string],
+                     ['No units variable', self.no_attributes_variable_string]]
 
         for description, variable_string in test_args:
             with self.subTest(description):
@@ -494,6 +517,35 @@ class TestVariableFromDmr(TestCase):
                                            self.namespace, '/variable')
 
                 self.assertFalse(variable.is_longitude())
+
+    def test_is_projection_x_or_y(self):
+        """ Ensure that a variable is correctly identified as a projected
+            horizontal spatial dimension based on its `standard_name` metadata
+            attribute.
+
+        """
+        test_args = [['Projected x variable', self.projection_x_variable_string],
+                     ['Projected y variable', self.projection_y_variable_string]]
+
+        for description, variable_string in test_args:
+            with self.subTest(description):
+                variable_tree = ET.fromstring(variable_string)
+                variable = VariableFromDmr(variable_tree, self.fakesat_config,
+                                           self.namespace, '/variable')
+
+                self.assertTrue(variable.is_projection_x_or_y())
+
+        test_args = [['Latitude variable', self.latitude_variable_string],
+                     ['Longitude variable', self.longitude_variable_string],
+                     ['No standard name', self.no_attributes_variable_string]]
+
+        for description, variable_string in test_args:
+            with self.subTest(description):
+                variable_tree = ET.fromstring(variable_string)
+                variable = VariableFromDmr(variable_tree, self.fakesat_config,
+                                           self.namespace, '/variable')
+
+                self.assertFalse(variable.is_projection_x_or_y())
 
     def test_get_range(self):
         """ Ensure the correct valid range is returned based either on the

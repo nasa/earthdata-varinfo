@@ -1,3 +1,19 @@
+## v2.0.0
+### 2022-08-04
+
+This major version updates both the `VariableBase` and `VarInfoBase` classes
+to allow the retrieval of projected horizontal spatial dimensions. The
+`VarInfoBase.get_spatial_dimensions` method now retrieves both geographic and
+projected horizontal spatial dimensions, instead of just geographic dimensions.
+Two new methods have been added to the class:
+`VarInfoBase.get_geographic_spatial_dimensions`, which replaces the old
+functionality of `VarInfoBase.get_spatial_dimensions` to retrieve only
+geographic dimensions. `VarInfoBase.get_projected_spatial_dimensions` will
+retrieve only projected horizontal spatial dimensions.
+
+The `VariableBase.is_projected_x_or_y` method has been added in support of this
+functionality.
+
 ## v1.2.5
 ### 2022-05-19
 

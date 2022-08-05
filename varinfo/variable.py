@@ -207,6 +207,21 @@ class VariableBase(ABC):
                                                 'degrees_E', 'degree_E',
                                                 'degreesE', 'degreeE']
 
+    def is_projection_x_or_y(self) -> bool:
+        """ Determine if the variable is a projected x or y horizontal spatial
+            coordinate based on the `standard_name` metadata attribute being
+            `projection_x_coordinate` or `projection_y_coordinate`, as defined
+            by the CF Conventions (v1.9). Note, geostationary projections have
+            coordinates with `standard_name` metadata attribute values of
+            `projection_x_angular_coordinate` and
+            `projection_y_angular_coordinate`.
+
+        """
+        return self.attributes.get('standard_name') in [
+            'projection_x_coordinate', 'projection_x_angular_coordinate',
+            'projection_y_coordinate', 'projection_y_angular_coordinate'
+        ]
+
     def is_temporal(self) -> bool:
         """ Determine if the variable is a time based on the `units`
             metadata attribute being 'since' or other similar options
