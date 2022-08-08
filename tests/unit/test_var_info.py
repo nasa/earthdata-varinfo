@@ -23,10 +23,11 @@ class TestVarInfoFromDmr(TestCase):
         cls.namespace = 'namespace_string'
         cls.sample_config = 'varinfo/sample_config.yml'
 
-        cls.mock_dataset = (
+        cls.mock_geographic_dataset = (
             f'<Dataset xmlns="{cls.namespace}">'
             '  <Float64 name="ancillary_one">'
             '  </Float64>'
+            '  <Dimension name="dimension_one" size="1234"/>'
             '  <Float64 name="dimension_one">'
             '  </Float64>'
             '  <Float64 name="latitude">'
@@ -100,6 +101,61 @@ class TestVarInfoFromDmr(TestCase):
             '      </Attribute>'
             '    </Group>'
             '  </Group>'
+            '</Dataset>'
+        )
+
+        cls.mock_geo_and_projected_dataset = (
+            f'<Dataset xmlns="{cls.namespace}">'
+            '  <Dimension name="x" size="72" />'
+            '  <Dimension name="y" size="36" />'
+            '  <Dimension name="latitude" size="180" />'
+            '  <Dimension name="longitude" size="360" />'
+            '  <Attribute name="short_name">'
+            '    <Value>FAKE123A</Value>'
+            '  </Attribute>'
+            '  <Float64 name="science_one">'
+            '    <Dim name="/latitude"/>'
+            '    <Dim name="/longitude"/>'
+            '  </Float64>'
+            '  <Float64 name="science_two">'
+            '    <Dim name="x"/>'
+            '    <Dim name="y"/>'
+            '  </Float64>'
+            '  <Float64 name="science_three">'
+            '  </Float64>'
+            '  <Float64 name="science_four">'
+            '    <Dim name="non-existent"/>'
+            '  </Float64>'
+            '  <Float64 name="latitude">'
+            '    <Dim name="/latitude"/>'
+            '    <Attribute name="units" type="String">'
+            '      <Value>degrees_north</Value>'
+            '    </Attribute>'
+            '  </Float64>'
+            '  <Float64 name="longitude">'
+            '    <Dim name="/longitude"/>'
+            '    <Attribute name="units" type="String">'
+            '      <Value>degrees_east</Value>'
+            '    </Attribute>'
+            '  </Float64>'
+            '  <Float64 name="x">'
+            '    <Dim name="/x"/>'
+            '    <Attribute name="units" type="String">'
+            '      <Value>m</Value>'
+            '    </Attribute>'
+            '    <Attribute name="standard_name" type="String">'
+            '      <Value>projection_x_coordinate</Value>'
+            '    </Attribute>'
+            '  </Float64>'
+            '  <Float64 name="y">'
+            '    <Dim name="/y"/>'
+            '    <Attribute name="units" type="String">'
+            '      <Value>m</Value>'
+            '    </Attribute>'
+            '    <Attribute name="standard_name" type="String">'
+            '      <Value>projection_y_coordinate</Value>'
+            '    </Attribute>'
+            '  </Float64>'
             '</Dataset>'
         )
 
@@ -236,7 +292,7 @@ class TestVarInfoFromDmr(TestCase):
             no-op.
 
         """
-        dmr_path = write_dmr(self.output_dir, self.mock_dataset)
+        dmr_path = write_dmr(self.output_dir, self.mock_geographic_dataset)
         dataset = VarInfoFromDmr(dmr_path, self.logger)
 
         self.assertIsNone(dataset.short_name)
@@ -255,7 +311,7 @@ class TestVarInfoFromDmr(TestCase):
             and short name that do not have any CF overrides or supplements.
 
         """
-        dmr_path = write_dmr(self.output_dir, self.mock_dataset)
+        dmr_path = write_dmr(self.output_dir, self.mock_geographic_dataset)
         dataset = VarInfoFromDmr(dmr_path, self.logger,
                                  config_file=self.config_file)
 
@@ -509,57 +565,19 @@ class TestVarInfoFromDmr(TestCase):
                                 {'/latitude'})
 
     def test_get_spatial_dimensions(self):
-        """ Ensure only spatial dimensions are returned, and if a variable or
-            dimension is misnamed, the method will not cause an error.
+        """ Ensure all horizontal spatial dimensions are returned, both
+            geographic and projected.
 
         """
-        mock_dmr = (f'<Dataset xmlns="{self.namespace}">'
-                    '  <Attribute name="short_name">'
-                    '    <Value>FAKE123A</Value>'
-                    '  </Attribute>'
-                    '    <Float64 name="science_one">'
-                    '      <Dim name="/latitude"/>'
-                    '      <Dim name="/longitude"/>'
-                    '    </Float64>'
-                    '    <Float64 name="science_two">'
-                    '      <Dim name="x"/>'
-                    '      <Dim name="y"/>'
-                    '    </Float64>'
-                    '    <Float64 name="science_three">'
-                    '    </Float64>'
-                    '    <Float64 name="science_four">'
-                    '      <Dim name="non-existent"/>'
-                    '    </Float64>'
-                    '    <Float64 name="latitude">'
-                    '      <Attribute name="units" type="String">'
-                    '        <Value>degrees_north</Value>'
-                    '      </Attribute>'
-                    '    </Float64>'
-                    '    <Float64 name="longitude">'
-                    '      <Attribute name="units" type="String">'
-                    '        <Value>degrees_east</Value>'
-                    '      </Attribute>'
-                    '    </Float64>'
-                    '    <Float64 name="x">'
-                    '      <Attribute name="units" type="String">'
-                    '        <Value>m</Value>'
-                    '      </Attribute>'
-                    '    </Float64>'
-                    '    <Float64 name="y">'
-                    '      <Attribute name="units" type="String">'
-                    '        <Value>m</Value>'
-                    '      </Attribute>'
-                    '    </Float64>'
-                    '</Dataset>')
-
-        dmr_path = write_dmr(self.output_dir, mock_dmr)
+        dmr_path = write_dmr(self.output_dir, self.mock_geo_and_projected_dataset)
         dataset = VarInfoFromDmr(dmr_path, self.logger,
                                  config_file=self.config_file)
 
-        with self.subTest('All (and only) geographic variables are returned'):
+        with self.subTest('All horizontal spatial variables are returned'):
             self.assertSetEqual(
-                dataset.get_spatial_dimensions({'/science_one', '/science_two'}),
-                {'/latitude', '/longitude'}
+                dataset.get_spatial_dimensions({'/science_one',
+                                                '/science_two'}),
+                {'/latitude', '/longitude', '/x', '/y'}
             )
 
         with self.subTest('A variable with no dimensions is handled'):
@@ -576,8 +594,82 @@ class TestVarInfoFromDmr(TestCase):
 
         with self.subTest('A misnamed dimension is handled'):
             self.assertSetEqual(
-                dataset.get_spatial_dimensions({'/science_one', '/science_four'}),
+                dataset.get_spatial_dimensions({'/science_two', '/science_four'}),
+                {'/x', '/y'}
+            )
+
+    def test_get_geographic_spatial_dimensions(self):
+        """ Ensure only geographic spatial dimensions are returned and, if a
+            variable or dimension is misnamed, the method will not cause an
+            error.
+
+        """
+        dmr_path = write_dmr(self.output_dir, self.mock_geo_and_projected_dataset)
+        dataset = VarInfoFromDmr(dmr_path, self.logger,
+                                 config_file=self.config_file)
+
+        with self.subTest('All (and only) geographic variables are returned'):
+            self.assertSetEqual(
+                dataset.get_geographic_spatial_dimensions({'/science_one',
+                                                           '/science_two'}),
                 {'/latitude', '/longitude'}
+            )
+
+        with self.subTest('A variable with no dimensions is handled'):
+            self.assertSetEqual(
+                dataset.get_geographic_spatial_dimensions({'/science_three'}),
+                set()
+            )
+
+        with self.subTest('A misnamed variable is handled'):
+            self.assertSetEqual(
+                dataset.get_geographic_spatial_dimensions({'/science_one',
+                                                           '/science_five'}),
+                {'/latitude', '/longitude'}
+            )
+
+        with self.subTest('A misnamed dimension is handled'):
+            self.assertSetEqual(
+                dataset.get_geographic_spatial_dimensions({'/science_one',
+                                                           '/science_four'}),
+                {'/latitude', '/longitude'}
+            )
+
+    def test_get_projected_spatial_dimensions(self):
+        """ Ensure only projected geographic spatial dimensions are returned
+            and, of a variable or dimension is misnamed, the method will not
+            cause an error.
+
+        """
+        dmr_path = write_dmr(self.output_dir, self.mock_geo_and_projected_dataset)
+        dataset = VarInfoFromDmr(dmr_path, self.logger,
+                                 config_file=self.config_file)
+
+        with self.subTest('All (and only) projected dimension variables are returned'):
+            self.assertSetEqual(
+                dataset.get_projected_spatial_dimensions({'/science_one',
+                                                           '/science_two'}),
+                {'/x', '/y'}
+            )
+
+        with self.subTest('A variable with no dimensions is handled'):
+            self.assertSetEqual(
+                dataset.get_projected_spatial_dimensions({'/science_three'}),
+                set()
+            )
+
+        with self.subTest('A misnamed variable is handled'):
+            self.assertSetEqual(
+                dataset.get_projected_spatial_dimensions({'/science_two',
+                                                          '/science_five'}),
+                {'/x', '/y'}
+            )
+
+        with self.subTest('A misnamed dimension is handled'):
+            self.assertSetEqual(
+                dataset.get_projected_spatial_dimensions({'/science_two',
+                                                          '/science_four'}),
+                {'/x', '/y'}
             )
 
     def test_get_temporal_dimensions(self):

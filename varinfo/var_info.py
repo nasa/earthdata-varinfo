@@ -295,6 +295,16 @@ class VarInfoBase(ABC):
 
     def get_spatial_dimensions(self, variables: Set[str]) -> Set[str]:
         """ Return a single set of all variables that are both used as
+            dimensions for any of the input variables, and that are horizontal
+            spatial dimensions (either geographic or projected).
+
+        """
+        return set().union(self.get_geographic_spatial_dimensions(variables),
+                           self.get_projected_spatial_dimensions(variables))
+
+    def get_geographic_spatial_dimensions(self,
+                                          variables: Set[str]) -> Set[str]:
+        """ Return a single set of all the variables that are both used as
             dimensions for any of the input variables, and that are geographic
             in nature (as determined by the `units` metadata attribute).
 
@@ -306,6 +316,19 @@ class VarInfoBase(ABC):
                    for dimension
                    in self.get_required_dimensions(variables)
                    if self.get_variable(dimension).is_geographic())
+
+    def get_projected_spatial_dimensions(self,
+                                         variables: Set[str]) -> Set[str]:
+        """ Return a single set of all the variables that are both used as
+            dimensions for any of the input variables, and that are projected
+            in nature (as determined by the `standard_name` metadata
+            attribute).
+
+        """
+        return set(dimension
+                   for dimension
+                   in self.get_required_dimensions(variables)
+                   if self.get_variable(dimension).is_projection_x_or_y())
 
     def get_temporal_dimensions(self, variables: Set[str]) -> Set[str]:
         """ Return a single set of all variables that are both used as
