@@ -31,6 +31,7 @@ class VarInfoBase(ABC):
     """
 
     def __init__(self, file_path: str, logger: Logger,
+                 short_name: Optional[str] = None,
                  config_file: Optional[str] = None):
         """ Distinguish between variables containing references to other
             datasets, and those that do not. The former are considered science
@@ -46,7 +47,7 @@ class VarInfoBase(ABC):
         self.logger = logger
         self.cf_config = None
         self.global_attributes = {}
-        self.short_name = None
+        self.short_name = short_name
         self.mission = None
         self.namespace = None
         self.metadata_variables: Dict[str, OutputVariableType] = {}
@@ -127,15 +128,17 @@ class VarInfoBase(ABC):
         associated mission.
 
         """
-        self.short_name = next(
-            (recursive_get(self.global_attributes, split_attribute_path(item))
-             for item
-             in self.var_info_config.get('Collection_ShortName_Path', [])
-             if recursive_get(self.global_attributes,
-                              split_attribute_path(item))
-             is not None),
-            None
-        )
+        if self.short_name is None:
+            self.short_name = next(
+                (recursive_get(self.global_attributes,
+                               split_attribute_path(item))
+                 for item
+                 in self.var_info_config.get('Collection_ShortName_Path', [])
+                 if recursive_get(self.global_attributes,
+                                  split_attribute_path(item))
+                 is not None),
+                None
+            )
 
         if self.short_name is not None:
             self.mission = next((name
