@@ -1,3 +1,17 @@
+## v2.1.0
+### 2022-08-31
+
+This minor version updates the `VarInfoFromDmr` and `VarInfoFromNetCDF4`
+classes to optionally accept a collection short name via the new `short_name`
+keyword argument. If this is supplied, it will be used as the identifier for
+the collection associated with the granule metadata being parsed. If
+`short_name` is not supplied, the `VarInfo` classes will scan the granule for
+known metadata attributes that contain the collection short name, as before.
+This new `short_name` argument allows for clients to specify the collection
+short name in cases where it is not listed in the metadata of a granule, which
+is particularly useful if there are metadata overrides or supplements required
+for granules within that collection.
+
 ## v2.0.0
 ### 2022-08-04
 
