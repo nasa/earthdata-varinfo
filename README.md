@@ -40,7 +40,7 @@ from varinfo import VarInfoFromDmr
 logger = getLogger('dev')
 
 var_info = VarInfoFromDmr('/path/to/local/file.dmr', logger,
-						  config_file='varinfo/sample_config.yml')
+                          config_file='varinfo/sample_config.yml')
 
 # Retrieve a set of variables with coordinate metadata:
 var_info.get_science_variables()
@@ -59,6 +59,22 @@ var_info.get_required_dimensions({'/path/to/science/variable'})
 # variables.
 var_info.get_spatial_dimensions({'/path/to/science/variable'})
 ```
+
+The `VarInfoFromDmr` and `VarInfoFromNetCDF4` classes also have an optional
+argument `short_name`, which can be used upon instantiation to specify the
+short name of the collection to which the granule belongs. This option is to be
+used when a granule does not contain the collection short name within its
+metadata global attributes (e.g., ABoVE collections from ORNL).
+
+```
+var_info = VarInfoFromDmr('/path/to/local/file.dmr', logger,
+                          short_name='ATL03')
+```
+
+Note: as there are now two optional parameters, `short_name` and `config_file`,
+it is best to ensure that both are specified as named arguments upon
+instantiation.
+
 
 ## Installing
 
