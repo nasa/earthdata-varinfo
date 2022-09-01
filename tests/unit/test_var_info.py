@@ -170,6 +170,11 @@ class TestVarInfoFromDmr(TestCase):
             collection short name if it is stored as a metadata attribute in
             any of the prescribed locations.
 
+            Alternatively, ensure that the optional `short_name` argument for
+            the `VarInfo` classes will be used in the absence of metadata
+            attributes. This supplied argument should also take precedence over
+            metadata supplied values.
+
         """
         short_name = 'ATL03'
 
@@ -247,7 +252,8 @@ class TestVarInfoFromDmr(TestCase):
                             '</Dataset>')
                 dmr_path = write_dmr(self.output_dir, mock_dmr)
 
-                dataset = VarInfoFromDmr(dmr_path, self.logger, self.sample_config)
+                dataset = VarInfoFromDmr(dmr_path, self.logger,
+                                         config_file=self.sample_config)
 
                 self.assertEqual(dataset.short_name, short_name)
 
@@ -255,9 +261,31 @@ class TestVarInfoFromDmr(TestCase):
             mock_dmr = (f'<Dataset xmlns="{self.namespace}"></Dataset>')
             dmr_path = write_dmr(self.output_dir, mock_dmr)
 
-            dataset = VarInfoFromDmr(dmr_path, self.logger, self.sample_config)
+            dataset = VarInfoFromDmr(dmr_path, self.logger,
+                                     config_file=self.sample_config)
 
             self.assertEqual(dataset.short_name, None)
+
+        with self.subTest('No short name in metadata, but given in call'):
+            mock_dmr = (f'<Dataset xmlns="{self.namespace}"></Dataset>')
+            dmr_path = write_dmr(self.output_dir, mock_dmr)
+
+            dataset = VarInfoFromDmr(dmr_path, self.logger, short_name='ATL03',
+                                     config_file=self.sample_config)
+
+            self.assertEqual(dataset.short_name, 'ATL03')
+
+        with self.subTest('Short name given in call overrides metadata'):
+            mock_dmr = (f'<Dataset xmlns="{self.namespace}">'
+                        '  <Attribute name="short_name">'
+                        f'    <Value>ATL03</Value>'
+                        '  </Attribute>'
+                        '</Dataset>')
+            dmr_path = write_dmr(self.output_dir, mock_dmr)
+
+            dataset = VarInfoFromDmr(dmr_path, self.logger, short_name='ATL08',
+                                     config_file=self.sample_config)
+            self.assertEqual(dataset.short_name, 'ATL08')
 
     def test_var_info_mission(self):
         """ Ensure VarInfo can identify the correct mission given a collection
@@ -281,7 +309,8 @@ class TestVarInfoFromDmr(TestCase):
                             '</Dataset>')
                 dmr_path = write_dmr(self.output_dir, mock_dmr)
 
-                dataset = VarInfoFromDmr(dmr_path, self.logger, self.sample_config)
+                dataset = VarInfoFromDmr(dmr_path, self.logger,
+                                         config_file=self.sample_config)
 
                 self.assertEqual(dataset.mission, expected_mission)
 
