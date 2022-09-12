@@ -1,3 +1,12 @@
+## v2.2.0
+### 2022-09-12
+
+This minor version update adds the `VarInfoBase.get_variables_with_dimensions`
+method to allow a client to retrieve all variables that have a specified set of
+dimensions. This will return both variables that only have the listed
+dimensions and variables for which the list of dimensions is a subset of all
+the variable dimensions.
+
 ## v2.1.0
 ### 2022-08-31
 
