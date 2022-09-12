@@ -779,6 +779,37 @@ class TestVarInfoFromDmr(TestCase):
                 {'/time'}
             )
 
+    def test_get_variables_with_dimensions(self):
+        """ Ensure that all variables that use the listed dimensions are
+            retrieved. This should include variables for which the listed
+            dimensions are both the full set or just a subset of their total
+            dimensions, e.g., a variable with dimensions (time, y, x) will be
+            returned when a request names only `{'/y', '/x'}`, as will a
+            variable with only those dimensions.
+
+        """
+        dmr_path = write_dmr(self.output_dir, self.mock_geo_and_projected_dataset)
+        dataset = VarInfoFromDmr(dmr_path, self.logger,
+                                 config_file=self.config_file)
+
+        with self.subTest('Only geographically gridded variables are retrieved'):
+            self.assertSetEqual(
+                dataset.get_variables_with_dimensions({'/latitude', '/longitude'}),
+                {'/science_one'}
+            )
+
+        with self.subTest('Only projection gridded variables are retrieved'):
+            self.assertSetEqual(
+                dataset.get_variables_with_dimensions({'/x', '/y'}),
+                {'/science_two'}
+            )
+
+        with self.subTest('Subsets of dimensions are identified'):
+            self.assertSetEqual(
+                dataset.get_variables_with_dimensions({'/latitude'}),
+                {'/science_one', '/latitude'}
+            )
+
     def test_var_info_netcdf4(self):
         """ Ensure a NetCDF-4 file can be parsed by the `VarInfoFromNetCDF4`
             class, with the expected results.
