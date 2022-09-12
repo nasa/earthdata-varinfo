@@ -80,7 +80,7 @@ class VarInfoBase(ABC):
     @abstractmethod
     def _extract_variables(self):
         """ Iterate through all variables in the retrieved dataset. For each
-            variable create an instance of a `Variable` (using the relavent
+            variable create an instance of a `Variable` (using the relevant
             child class), and assign it to either the `metadata_variables`
             or the `variable_with_coordinates` dictionary accordingly.
 
@@ -193,7 +193,7 @@ class VarInfoBase(ABC):
 
     def get_metadata_variables(self) -> Set[str]:
         """ Retrieve set of names for all variables that do no have
-            coordaintes references, that are not themselves used as dimensions,
+            coordinates references, that are not themselves used as dimensions,
             coordinates or ancillary data for another variable.
 
             Additionally, any excluded science variables, that are contained
@@ -346,6 +346,21 @@ class VarInfoBase(ABC):
                    for dimension
                    in self.get_required_dimensions(variables)
                    if self.get_variable(dimension).is_temporal())
+
+    def get_variables_with_dimensions(self, dimensions: Set[str]) -> Set[str]:
+        """ Return a single set of all variables that include all the supplied
+            dimensions as a subset of their own dimensions.
+
+        """
+        all_variables = set().union(
+            set(self.variables_with_coordinates.keys()),
+            set(self.metadata_variables.keys())
+        )
+
+        return set(
+            variable for variable in all_variables
+            if dimensions.issubset(set(self.get_variable(variable).dimensions))
+        )
 
     @staticmethod
     def exclude_fake_dimensions(variable_set: Set[str]) -> Set[str]:
