@@ -321,7 +321,6 @@ CF_Supplements:
         Attributes:
           - Name: 'subset_control_variables'
             Value: 'tx_sample_start_index, tx_sample_count'
-        Attributes:
           - Name: 'subset_control_type'
             Value: 'fwd_segment_index'
       - Applicability:
