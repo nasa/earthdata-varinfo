@@ -285,15 +285,6 @@ CF_Supplements:
             Value: 'lat_lowestmode, lon_lowestmode, delta_time'
           - Name: 'subset_control_type'
             Value: 'coordinates'
-      - Applicability:
-          ShortNamePath: 'GEDI_L2A|GEDI02_A'
-          Variables: '/BEAM[\d]+/geolocation/'
-        Attributes:
-          # Resetting the spatial coordinates for subsetting purposes
-          - Name: 'subset_control_variables'
-            Value: 'lat_lowestmode, lon_lowestmode, delta_time'
-          - Name: 'subset_control_type'
-            Value: 'coordinates'
       # Provide index segment subset-control designation for these dataset
       - Applicability:
           ShortNamePath: 'GEDI_L1[AB]|GEDI01_[AB]'
