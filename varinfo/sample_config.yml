@@ -168,14 +168,14 @@ CF_Overrides:
 # For extending CF references. This allows for CF references to persist, while
 # supplemental information is provided. In particular, e.g. for subsetting
 # support, non-CF attributes can be provided.
-CF_Supplements:  
+CF_Supplements:
   - Applicability:
       Mission: 'ICESat2'
       ShortNamePath: 'ATL0[3-9]|ATL1[023]' # L1/L2
     Global_Attributes:
       - Name: 'Data_Organization'
         Value: 'h5_trajectory'
-       # organizations: h5_grid, h5_trajectory, h5_swath, h4eos_grid, h4eos_swath 
+       # organizations: h5_grid, h5_trajectory, h5_swath, h4eos_grid, h4eos_swath
     Applicability_Group:
       # provide an ancillary_variable reference for these datasets
       # (ensuring treatment as "required_field")
@@ -285,15 +285,6 @@ CF_Supplements:
             Value: 'lat_lowestmode, lon_lowestmode, delta_time'
           - Name: 'subset_control_type'
             Value: 'coordinates'
-      - Applicability:
-          ShortNamePath: 'GEDI_L2A|GEDI02_A'
-          Variables: '/BEAM[\d]+/geolocation/'
-        Attributes:
-          # Resetting the spatial coordinates for subsetting purposes
-          - Name: 'subset_control_variables'
-            Value': 'lat_lowestmode, lon_lowest_mode, delta_time'
-          - Name: 'subset_control_type'
-            Value: 'coordinates'
       # Provide index segment subset-control designation for these dataset
       - Applicability:
           ShortNamePath: 'GEDI_L1[AB]|GEDI01_[AB]'
@@ -321,7 +312,6 @@ CF_Supplements:
         Attributes:
           - Name: 'subset_control_variables'
             Value: 'tx_sample_start_index, tx_sample_count'
-        Attributes:
           - Name: 'subset_control_type'
             Value: 'fwd_segment_index'
       - Applicability:
