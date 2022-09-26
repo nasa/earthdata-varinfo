@@ -297,7 +297,7 @@ CF_Supplements:
       # Provide index segment subset-control designation for these dataset
       - Applicability:
           ShortNamePath: 'GEDI_L1[AB]|GEDI01_[AB]'
-          Variables: '/BEAM[\\d]+/rxwaveform'
+          Variable_Pattern: '/BEAM[\d]+/rxwaveform'
         Attributes:
           - Name: 'subset_control_variables'
             Value: 'rx_sample_start_index, rx_sample_count'
@@ -305,19 +305,19 @@ CF_Supplements:
             Value: 'fwd_segment_index'
       - Applicability:
           ShortNamePath: 'GEDI_L1[AB]|GEDI01_[AB]'
-          Variables: '/BEAM[\\d]+/rx_sample_start_index'
+          Variable_Pattern: '/BEAM[\d]+/rx_sample_start_index'
         Attributes:
           - Name: 'subset_control_variable_type'
             Value: 'segment_index_beg'
       - Applicability:
           ShortNamePath: 'GEDI_L1[AB]|GEDI01_[AB]'
-          Variable_Pattern: '/BEAM[\\d]+/rx_sample_count'
+          Variable_Pattern: '/BEAM[\d]+/rx_sample_count'
         Attributes:
           - Name: 'subset_control_variable_type'
             Value: 'segment_index_cnt'
       - Applicability:
           ShortNamePath: 'GEDI_L1[AB]|GEDI01_[AB]'
-          Variables: '/BEAM[\\d]+/txwaveform'
+          Variable_Pattern: '/BEAM[\d]+/txwaveform'
         Attributes:
           - Name: 'subset_control_variables'
             Value: 'tx_sample_start_index, tx_sample_count'
@@ -326,19 +326,20 @@ CF_Supplements:
             Value: 'fwd_segment_index'
       - Applicability:
           ShortNamePath: 'GEDI_L1[AB]|GEDI01_[AB]'
-          Variables: '/BEAM[\\d]+/tx_sample_start_index'
+          Variable_Pattern: '/BEAM[\d]+/tx_sample_start_index'
         Attributes:
           - Name: 'subset_control_variable_type'
             Value: 'segment_index_beg'
       - Applicability:
           ShortNamePath: 'GEDI_L1[AB]|GEDI01_[AB]'
-          Variable_Pattern: '/BEAM[\\d]+/tx_sample_count'
+          Variable_Pattern: '/BEAM[\d]+/tx_sample_count'
         Attributes:
           - Name: 'subset_control_variable_type'
             Value: 'segment_index_cnt'
+    Applicability_Group:
       - Applicability:
           ShortNamePath: 'GEDI_L2B|GEDI02_B'
-          Variables: '/BEAM[\\d]+/pgap_theta_z'
+          Variable_Pattern: '/BEAM[\d]+/pgap_theta_z'
         Attributes:
           - Name: 'subset_control_variables'
             Value: 'rx_sample_start_index, rx_sample_count'
@@ -346,13 +347,13 @@ CF_Supplements:
             Value: 'fwd_segment_index'
       - Applicability:
           ShortNamePath: 'GEDI_L2B|GEDI02_B'
-          Variables: '/BEAM[\\d]+/rx_sample_start_index'
+          Variable_Pattern: '/BEAM[\d]+/rx_sample_start_index'
         Attributes:
           - Name: 'subset_control_variable_type'
             Value: 'segment_index_beg'
       - Applicability:
           ShortNamePath: 'GEDI_L2B|GEDI02_B'
-          Variable_Pattern: '/BEAM[\\d]+/rx_sample_count'
+          Variable_Pattern: '/BEAM[\d]+/rx_sample_count'
         Attributes:
           - Name: 'subset_control_variable_type'
             Value: 'segment_index_cnt'
