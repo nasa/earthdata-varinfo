@@ -1,9 +1,3 @@
-## v2.2.1
-### unreleased
-
-Updates `sample_config.yml` to change a typo in `subset_control_variables` from
-`lon_lowest_mode` to `lon_lowestmode`
-
 ## v2.2.0
 ### 2022-09-12
 
