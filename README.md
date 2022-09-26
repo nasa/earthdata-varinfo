@@ -94,6 +94,14 @@ If using a local source tree, run the following in the root directory:
 $ pip install -e .
 ```
 
+## Developing
+
+Development on this repo should occur on a feature branch. PRs are created with
+a target of the `dev` branch before being reviewed and merged.
+
+Releases are created when the `dev` branch is merged to `master`. This happens
+when the team decides to cut a release.
+
 ## Releasing:
 
 Refer to the Data Services Wiki page on the CI/CD setup for this package.
