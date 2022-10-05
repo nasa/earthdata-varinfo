@@ -1,7 +1,7 @@
 ## v3.0.0
-### unreleased
+### 2022-10-05
 
-This major version updates changes `sds-varinfo` to use a JSON for the
+This major version update changes `sds-varinfo` to use JSON for the
 configuration file format in place of YAML. For any clients using this version,
 conversion of YAML configuration files can be achieved with:
 
