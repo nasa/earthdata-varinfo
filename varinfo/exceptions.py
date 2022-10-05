@@ -24,3 +24,25 @@ class DmrNamespaceError(CustomError):
     """
     def __init__(self, tag):
         super().__init__('DmrNamespaceError', f'Unexpected root: {tag}')
+
+
+class InvalidConfigFileFormatError(CustomError):
+    """ This exception is raised when a configuration file is specified when
+        creating an instance of a VarInfo or CFConfig class with a non ".json"
+        extension.
+
+    """
+    def __init__(self, file_path):
+        super().__init__('InvalidConfigFileFormatError',
+                         f'"{file_path}" must be a JSON file.')
+
+
+class MissingConfigurationFileError(CustomError):
+    """ This exception is raised when a configuration file path is supplied to
+        either a VarInfo class or the CFConfig class, but there is no file at
+        the specified location.
+
+    """
+    def __init__(self, file_path):
+        super().__init__('MissingConfigurationFileError',
+                         f'No file in specified location: {file_path}')

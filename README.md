@@ -8,15 +8,15 @@ such as coordinates.
 
 ### CFConfig
 
-A class that takes a YAML file and retrieves all related configuration based on
-the supplied mission name and collection shortname. The YAML file is optional,
+A class that takes a JSON file and retrieves all related configuration based on
+the supplied mission name and collection shortname. The JSON file is optional,
 and if not supplied, a `CFConfig` class will be constructed with largely empty
 attributes.
 
 ```
 from varinfo import CFConfig
 
-cf_config = CFConfig('ICESat2', 'ATL03', 'varinfo/sample_config.yml')
+cf_config = CFConfig('ICESat2', 'ATL03', config_file='varinfo/sample_config.json')
 cf_attributes = cf_config.get_cf_attributes('/full/variable/path')
 ```
 
@@ -40,7 +40,7 @@ from varinfo import VarInfoFromDmr
 logger = getLogger('dev')
 
 var_info = VarInfoFromDmr('/path/to/local/file.dmr', logger,
-                          config_file='varinfo/sample_config.yml')
+                          config_file='varinfo/sample_config.json')
 
 # Retrieve a set of variables with coordinate metadata:
 var_info.get_science_variables()

@@ -5,6 +5,8 @@ from unittest import TestCase
 import re
 
 from varinfo import VarInfoFromDmr, VarInfoFromNetCDF4
+from varinfo.exceptions import (InvalidConfigFileFormatError,
+                                MissingConfigurationFileError)
 from tests.utilities import (netcdf4_global_attributes, write_dmr,
                              write_skeleton_netcdf4)
 
@@ -19,9 +21,9 @@ class TestVarInfoFromDmr(TestCase):
 
         """
         cls.logger = Logger('VarInfo tests')
-        cls.config_file = 'tests/unit/data/test_config.yml'
+        cls.config_file = 'tests/unit/data/test_config.json'
         cls.namespace = 'namespace_string'
-        cls.sample_config = 'varinfo/sample_config.yml'
+        cls.sample_config = 'varinfo/sample_config.json'
 
         cls.mock_geographic_dataset = (
             f'<Dataset xmlns="{cls.namespace}">'
@@ -332,6 +334,26 @@ class TestVarInfoFromDmr(TestCase):
 
         self.assertSetEqual(set(dataset.variables_with_coordinates.keys()),
                             {'/science_variable', '/subset_one'})
+
+    def test_var_info_missing_configuration_file(self):
+        """ Ensure a MissingConfigurationFileError is raised when a path to a
+            non-existent configuration file is specified.
+
+        """
+        with self.assertRaises(MissingConfigurationFileError):
+            VarInfoFromDmr('tests/unit/data/ATL03_example.dmr', self.logger,
+                           short_name='ATL03',
+                           config_file='bad_file_path.json')
+
+    def test_var_info_invalid_configuration_file_format(self):
+        """ Ensure an InvalidConfigFileFormatError is raised when the specified
+            configuration file path is not a non-JSON file.
+
+        """
+        with self.assertRaises(InvalidConfigFileFormatError):
+            VarInfoFromDmr('tests/unit/data/ATL03_example.dmr', self.logger,
+                           short_name='ATL03',
+                           config_file='tests/unit/data/ATL03_example.dmr')
 
     def test_var_info_instantiation_no_augmentation(self):
         """ Ensure VarInfo instantiates correctly, creating records of all the

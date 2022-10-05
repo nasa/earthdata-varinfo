@@ -5,14 +5,17 @@
 """
 from abc import ABC, abstractmethod
 from logging import Logger
+from os.path import exists
 from typing import Dict, Optional, Set, Union
+import json
 import re
 import xml.etree.ElementTree as ET
-import yaml
 
 from netCDF4 import Dataset, Group
 
 from varinfo.cf_config import CFConfig
+from varinfo.exceptions import (InvalidConfigFileFormatError,
+                                MissingConfigurationFileError)
 from varinfo.utilities import (DAP4_TO_NUMPY_MAP, get_xml_namespace,
                                split_attribute_path, recursive_get)
 from varinfo.variable import VariableFromDmr, VariableFromNetCDF4
@@ -102,14 +105,20 @@ class VarInfoBase(ABC):
             self.metadata_variables[full_path] = variable_object
 
     def _set_var_info_config(self):
-        """ Read the VarInfo configuration YAML file, containing locations to
+        """ Read the VarInfo configuration JSON file, containing locations to
             search for the collection short_name attribute, and the mapping
             from short_name to satellite mission.
 
         """
-        if self.config_file is not None:
-            with open(self.config_file, 'r') as file_handler:
-                self.var_info_config = yaml.load(file_handler, yaml.FullLoader)
+        if self.config_file is not None and not exists(self.config_file):
+            raise MissingConfigurationFileError(self.config_file)
+        elif (
+            self.config_file is not None and self.config_file.endswith('.json')
+        ):
+            with open(self.config_file, 'r', encoding='utf-8') as file_handler:
+                self.var_info_config = json.load(file_handler)
+        elif self.config_file is not None:
+            raise InvalidConfigFileFormatError(self.config_file)
         else:
             self.var_info_config = {}
 

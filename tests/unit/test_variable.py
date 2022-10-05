@@ -17,7 +17,7 @@ class TestVariableFromDmr(TestCase):
             tests.
 
         """
-        cls.config_file = 'tests/unit/data/test_config.yml'
+        cls.config_file = 'tests/unit/data/test_config.json'
         cls.fakesat_config = CFConfig('FakeSat', 'FAKE99',
                                       config_file=cls.config_file)
         cls.namespace = 'namespace_string'
