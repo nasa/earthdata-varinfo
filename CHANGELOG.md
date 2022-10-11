@@ -1,3 +1,24 @@
+## v3.0.0
+### 2022-10-05
+
+This major version update changes `sds-varinfo` to use JSON for the
+configuration file format in place of YAML. Clients can convert their YAML
+configuration files to JSON using the following snippet:
+
+```Python
+import json
+import yaml
+
+with open('path/to/config.yml', 'r', encoding='utf-8') as file_handler:
+    config_content = yaml.load(file_handler, Loader=yaml.FullLoader)
+
+with open('path/to/config.json', 'w', encoding='utf-8') as file_handler:
+    json.dump(config_content, file_handler, indent=2)
+```
+
+This version also removes redundant `Applicability` section for GEDI L2
+variables from the sample configuration file.
+
 ## v2.2.0
 ### 2022-09-12
 

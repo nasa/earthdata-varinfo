@@ -1,6 +1,8 @@
 from unittest import TestCase
 
 from varinfo import CFConfig
+from varinfo.exceptions import (InvalidConfigFileFormatError,
+                                MissingConfigurationFileError)
 
 
 class TestCFConfig(TestCase):
@@ -13,7 +15,7 @@ class TestCFConfig(TestCase):
     @classmethod
     def setUpClass(cls):
         """ Set attributes for the class that can be shared between tests. """
-        cls.test_config = 'tests/unit/data/test_config.yml'
+        cls.test_config = 'tests/unit/data/test_config.json'
         cls.mission = 'FakeSat'
         cls.short_name = 'FAKE99'
         cls.excluded_science_variables = {'/exclude_one/.*',
@@ -75,6 +77,23 @@ class TestCFConfig(TestCase):
         self.assertSetEqual(set(), config.required_variables)
         self.assertDictEqual({}, config.global_overrides)
         self.assertDictEqual({}, config.global_supplements)
+
+    def test_instantiation_missing_configuration_file(self):
+        """ Ensure a MissingConfigurationFileError is raised when a path to a
+            non-existent configuration file is specified.
+
+        """
+        with self.assertRaises(MissingConfigurationFileError):
+            CFConfig(self.mission, self.short_name, 'bad_file_path.json')
+
+    def test_instantiation_invalid_configuration_file_format(self):
+        """ Ensure an InvalidConfigFileFormatError is raised when the specified
+            configuration file path is for a non-JSON file.
+
+        """
+        with self.assertRaises(InvalidConfigFileFormatError):
+            CFConfig(self.mission, self.short_name,
+                     config_file='tests/unit/data/ATL03_example.dmr')
 
     def test_get_cf_attributes_all(self):
         """ Ensure the CFConfig.get_cf_references method returns all the

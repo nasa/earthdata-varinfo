@@ -1,9 +1,9 @@
 """ This module contains a class designed to read and present information from
-    a YAML configuration file. This configuration file provides supplemental
+    a JSON configuration file. This configuration file provides supplemental
     and overriding information for attributes provided by granules on a per-
     collection basis. This information is primarily intended to augment the
-    CF-Convention attributes for a dataset, but can also be used to alter
-    non CF-Convention metadata within a granule.
+    CF-Convention attributes for a dataset, but can also be used to alter non
+    CF-Convention metadata within a granule.
 
     Information within the configuration file is split into blocks that have
     an Applicability_Group. This section should define a mission, collection
@@ -18,14 +18,18 @@
     request for a specific collection.
 
 """
+from os.path import exists
 from typing import Dict, Optional
+import json
 import re
-import yaml
+
+from varinfo.exceptions import (InvalidConfigFileFormatError,
+                                MissingConfigurationFileError)
 
 
 class CFConfig:
     """ This class should read the main configuration file,
-        see e.g. sample_config.yml, which defines overriding values and
+        see e.g. sample_config.json, which defines overriding values and
         supplements for the attributes stored in fields such as
         ancillary_variables, or dimensions.
 
@@ -56,14 +60,20 @@ class CFConfig:
             self._read_config_file()
 
     def _read_config_file(self):
-        """ Open the main configuration YAML file and extract only those
-            parts of it pertaining to the mission and collection specified
-            upon instantiating the class.
+        """ Open the main configuration JSON file and extract only those parts
+            of it pertaining to the mission and collection specified upon
+            instantiating the class.
 
         """
-        if self.config_file is not None:
-            with open(self.config_file, 'r') as file_handler:
-                config = yaml.load(file_handler, Loader=yaml.FullLoader)
+        if self.config_file is not None and not exists(self.config_file):
+            raise MissingConfigurationFileError(self.config_file)
+        elif (
+            self.config_file is not None and self.config_file.endswith('.json')
+        ):
+            with open(self.config_file, 'r', encoding='utf-8') as file_handler:
+                config = json.load(file_handler)
+        elif self.config_file is not None:
+            raise InvalidConfigFileFormatError(self.config_file)
         else:
             config = {}
 
