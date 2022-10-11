@@ -2,8 +2,8 @@
 ### 2022-10-05
 
 This major version update changes `sds-varinfo` to use JSON for the
-configuration file format in place of YAML. For any clients using this version,
-conversion of YAML configuration files can be achieved with:
+configuration file format in place of YAML. Clients can convert their YAML
+configuration files to JSON using the following snippet:
 
 ```Python
 import json
