@@ -255,7 +255,7 @@
         {
           "Applicability": {
             "ShortNamePath": "ATL03",
-            "Variable_Pattern": "/gt[123][lr]/geolocation/ph_ind"
+            "Variable_Pattern": "/gt[123][lr]/geolocation/ph_index_beg"
           },
           "Attributes": [
             {

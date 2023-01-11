@@ -23,7 +23,7 @@ class TestVarInfoFromDmr(TestCase):
         cls.logger = Logger('VarInfo tests')
         cls.config_file = 'tests/unit/data/test_config.json'
         cls.namespace = 'namespace_string'
-        cls.sample_config = 'varinfo/sample_config.json'
+        cls.sample_config = 'config/0.0.1/sample_config_0.0.1.json'
 
         cls.mock_geographic_dataset = (
             f'<Dataset xmlns="{cls.namespace}">'

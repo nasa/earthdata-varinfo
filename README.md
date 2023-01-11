@@ -16,7 +16,7 @@ attributes.
 ```
 from varinfo import CFConfig
 
-cf_config = CFConfig('ICESat2', 'ATL03', config_file='varinfo/sample_config.json')
+cf_config = CFConfig('ICESat2', 'ATL03', config_file='config/0.0.1/sample_config_0.0.1.json')
 cf_attributes = cf_config.get_cf_attributes('/full/variable/path')
 ```
 
@@ -40,7 +40,7 @@ from varinfo import VarInfoFromDmr
 logger = getLogger('dev')
 
 var_info = VarInfoFromDmr('/path/to/local/file.dmr', logger,
-                          config_file='varinfo/sample_config.json')
+                          config_file='config/0.0.1/sample_config_0.0.1.json')
 
 # Retrieve a set of variables with coordinate metadata:
 var_info.get_science_variables()
@@ -75,6 +75,13 @@ Note: as there are now two optional parameters, `short_name` and `config_file`,
 it is best to ensure that both are specified as named arguments upon
 instantiation.
 
+## Configuration file schema:
+
+The configuration file schema is defined as a JSON schema file in the `config`
+directory. Each new iteration to the schema should be placed in its own
+semantically versioned subdirectory, and a sample configuration file should be
+provided. Additionally, notes on the schema changes should be provided in
+`config/CHANGELOG.md`.
 
 ## Installing
 
