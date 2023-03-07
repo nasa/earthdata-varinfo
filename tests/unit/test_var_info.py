@@ -1,4 +1,4 @@
-from logging import Logger
+from logging import getLogger
 from shutil import rmtree
 from tempfile import mkdtemp
 from unittest import TestCase
@@ -20,146 +20,14 @@ class TestVarInfoFromDmr(TestCase):
             tests.
 
         """
-        cls.logger = Logger('VarInfo tests')
+        cls.logger = getLogger('VarInfo tests')
         cls.config_file = 'tests/unit/data/test_config.json'
         cls.namespace = 'namespace_string'
         cls.sample_config = 'config/0.0.1/sample_config_0.0.1.json'
-
-        cls.mock_geographic_dataset = (
-            f'<Dataset xmlns="{cls.namespace}">'
-            '  <Float64 name="ancillary_one">'
-            '  </Float64>'
-            '  <Dimension name="dimension_one" size="1234"/>'
-            '  <Float64 name="dimension_one">'
-            '  </Float64>'
-            '  <Float64 name="latitude">'
-            '    <Dim name="/dimension_one" />'
-            '  </Float64>'
-            '  <Float64 name="longitude">'
-            '    <Dim name="/dimension_one" />'
-            '  </Float64>'
-            '  <Float64 name="metadata_variable">'
-            '  </Float64>'
-            '  <Float64 name="science_variable">'
-            '    <Dim name="/dimension_one" />'
-            '    <Attribute name="ancillary_variables" type="String">'
-            '      <Value>/ancillary_one</Value>'
-            '    </Attribute>'
-            '    <Attribute name="coordinates" type="String">'
-            '      <Value>/latitude, /longitude</Value>'
-            '    </Attribute>'
-            '    <Attribute name="subset_control_variables" type="String">'
-            '      <Value>/subset_one</Value>'
-            '    </Attribute>'
-            '  </Float64>'
-            '  <Float64 name="subset_one">'
-            '    <Dim name="/dimension_one" />'
-            '    <Attribute name="coordinates" type="String">'
-            '      <Value>/latitude, /longitude</Value>'
-            '    </Attribute>'
-            '  </Float64>'
-            '  <Group name="METADATA">'
-            '    <Group name="DatasetIdentification">'
-            '      <Attribute name="shortName">'
-            '        <Value>ATL03</Value>'
-            '      </Attribute>'
-            '    </Group>'
-            '  </Group>'
-            '</Dataset>'
-        )
-
-        cls.mock_dataset_two = (
-            f'<Dataset xmlns="{cls.namespace}">'
-            '  <Group name="exclude_one">'
-            '    <Float64 name="has_coordinates">'
-            '      <Attribute name="coordinates" type="String">'
-            '        <Value>../science/latitude, ../science/longitude</Value>'
-            '      </Attribute>'
-            '    </Float64>'
-            '  </Group>'
-            '  <Group name="required_group">'
-            '    <Float64 name="has_no_coordinates">'
-            '    </Float64>'
-            '  </Group>'
-            '  <Group name="science">'
-            '    <Float64 name="interesting_thing">'
-            '      <Attribute name="coordinates" type="String">'
-            '        <Value>latitude, longitude</Value>'
-            '      </Attribute>'
-            '    </Float64>'
-            '    <Float64 name="latitude">'
-            '    </Float64>'
-            '    <Float64 name="longitude">'
-            '    </Float64>'
-            '    <Float64 name="lat_bnds">'
-            '      <Dim name="/science/latitude"/>'
-            '      <Dim name="/science/latv" size="2"/>'
-            '    </Float64>'
-            '  </Group>'
-            '  <Group name="METADATA">'
-            '    <Group name="DatasetIdentification">'
-            '      <Attribute name="shortName" type="String">'
-            '        <Value>FAKE99</Value>'
-            '      </Attribute>'
-            '    </Group>'
-            '  </Group>'
-            '</Dataset>'
-        )
-
-        cls.mock_geo_and_projected_dataset = (
-            f'<Dataset xmlns="{cls.namespace}">'
-            '  <Dimension name="x" size="72" />'
-            '  <Dimension name="y" size="36" />'
-            '  <Dimension name="latitude" size="180" />'
-            '  <Dimension name="longitude" size="360" />'
-            '  <Attribute name="short_name">'
-            '    <Value>FAKE123A</Value>'
-            '  </Attribute>'
-            '  <Float64 name="science_one">'
-            '    <Dim name="/latitude"/>'
-            '    <Dim name="/longitude"/>'
-            '  </Float64>'
-            '  <Float64 name="science_two">'
-            '    <Dim name="x"/>'
-            '    <Dim name="y"/>'
-            '  </Float64>'
-            '  <Float64 name="science_three">'
-            '  </Float64>'
-            '  <Float64 name="science_four">'
-            '    <Dim name="non-existent"/>'
-            '  </Float64>'
-            '  <Float64 name="latitude">'
-            '    <Dim name="/latitude"/>'
-            '    <Attribute name="units" type="String">'
-            '      <Value>degrees_north</Value>'
-            '    </Attribute>'
-            '  </Float64>'
-            '  <Float64 name="longitude">'
-            '    <Dim name="/longitude"/>'
-            '    <Attribute name="units" type="String">'
-            '      <Value>degrees_east</Value>'
-            '    </Attribute>'
-            '  </Float64>'
-            '  <Float64 name="x">'
-            '    <Dim name="/x"/>'
-            '    <Attribute name="units" type="String">'
-            '      <Value>m</Value>'
-            '    </Attribute>'
-            '    <Attribute name="standard_name" type="String">'
-            '      <Value>projection_x_coordinate</Value>'
-            '    </Attribute>'
-            '  </Float64>'
-            '  <Float64 name="y">'
-            '    <Dim name="/y"/>'
-            '    <Attribute name="units" type="String">'
-            '      <Value>m</Value>'
-            '    </Attribute>'
-            '    <Attribute name="standard_name" type="String">'
-            '      <Value>projection_y_coordinate</Value>'
-            '    </Attribute>'
-            '  </Float64>'
-            '</Dataset>'
-        )
+        cls.mock_geographic_dmr = 'tests/unit/data/mock_geographic.dmr'
+        cls.mock_dmr_two = 'tests/unit/data/mock_dataset_two.dmr'
+        cls.mock_geo_and_projected_dmr = 'tests/unit/data/mock_geo_and_projected.dmr'
+        cls.dimension_grouping_dmr = 'tests/unit/data/dimension_grouping.dmr'
 
     def setUp(self):
         self.output_dir = mkdtemp()
@@ -323,8 +191,7 @@ class TestVarInfoFromDmr(TestCase):
             no-op.
 
         """
-        dmr_path = write_dmr(self.output_dir, self.mock_geographic_dataset)
-        dataset = VarInfoFromDmr(dmr_path, self.logger)
+        dataset = VarInfoFromDmr(self.mock_geographic_dmr, self.logger)
 
         self.assertIsNone(dataset.short_name)
         self.assertIsNone(dataset.mission)
@@ -362,8 +229,7 @@ class TestVarInfoFromDmr(TestCase):
             and short name that do not have any CF overrides or supplements.
 
         """
-        dmr_path = write_dmr(self.output_dir, self.mock_geographic_dataset)
-        dataset = VarInfoFromDmr(dmr_path, self.logger,
+        dataset = VarInfoFromDmr(self.mock_geographic_dmr, self.logger,
                                  config_file=self.config_file)
 
         self.assertEqual(dataset.short_name, 'ATL03')
@@ -387,8 +253,7 @@ class TestVarInfoFromDmr(TestCase):
             overrides and supplements in the CFConfig class.
 
         """
-        dmr_path = write_dmr(self.output_dir, self.mock_dataset_two)
-        dataset = VarInfoFromDmr(dmr_path, self.logger,
+        dataset = VarInfoFromDmr(self.mock_dmr_two, self.logger,
                                  config_file=self.config_file)
 
         expected_global_attributes = {
@@ -438,14 +303,33 @@ class TestVarInfoFromDmr(TestCase):
                             'short_name': 'FAKESAT1'}
         self.assertDictEqual(expected_globals, dataset.global_attributes)
 
+    def test_var_info_get_all_variables(self):
+        """ Ensure all variables from the input are returned, regardless of
+            whether they are science variables or metadata variables. This will
+            also include any variables that are considered excluded science
+            variables.
+
+        """
+        dataset = VarInfoFromDmr(self.mock_dmr_two, self.logger,
+                                 config_file=self.config_file)
+
+        expected_variables = {'/science/interesting_thing',
+                              '/required_group/has_no_coordinates',
+                              '/exclude_one/has_coordinates',
+                              '/science/lat_bnds',
+                              '/science/latitude',
+                              '/science/longitude'}
+
+        self.assertSetEqual(dataset.get_all_variables(),
+                            expected_variables)
+
     def test_var_info_get_science_variables(self):
         """ Ensure the correct set of science variables is returned. This
             should account for excluded science variables defined in the
             associated instance of the `CFConfig` class.
 
         """
-        dmr_path = write_dmr(self.output_dir, self.mock_dataset_two)
-        dataset = VarInfoFromDmr(dmr_path, self.logger,
+        dataset = VarInfoFromDmr(self.mock_dmr_two, self.logger,
                                  config_file=self.config_file)
 
         science_variables = dataset.get_science_variables()
@@ -461,8 +345,7 @@ class TestVarInfoFromDmr(TestCase):
             excluded by the `CFConfig` instance.
 
         """
-        dmr_path = write_dmr(self.output_dir, self.mock_dataset_two)
-        dataset = VarInfoFromDmr(dmr_path, self.logger,
+        dataset = VarInfoFromDmr(self.mock_dmr_two, self.logger,
                                  config_file=self.config_file)
 
         metadata_variables = dataset.get_metadata_variables()
@@ -479,8 +362,7 @@ class TestVarInfoFromDmr(TestCase):
             subset_control_variables.
 
         """
-        dmr_path = write_dmr(self.output_dir, self.mock_dataset_two)
-        dataset = VarInfoFromDmr(dmr_path, self.logger,
+        dataset = VarInfoFromDmr(self.mock_dmr_two, self.logger,
                                  config_file=self.config_file)
 
         with self.subTest('All references to other variables are retrieved'):
@@ -543,8 +425,7 @@ class TestVarInfoFromDmr(TestCase):
             ensure `None` is returned.
 
         """
-        dmr_path = write_dmr(self.output_dir, self.mock_dataset_two)
-        dataset = VarInfoFromDmr(dmr_path, self.logger,
+        dataset = VarInfoFromDmr(self.mock_dmr_two, self.logger,
                                  config_file=self.config_file)
 
         with self.subTest('A variable with coordinates'):
@@ -620,8 +501,7 @@ class TestVarInfoFromDmr(TestCase):
             geographic and projected.
 
         """
-        dmr_path = write_dmr(self.output_dir, self.mock_geo_and_projected_dataset)
-        dataset = VarInfoFromDmr(dmr_path, self.logger,
+        dataset = VarInfoFromDmr(self.mock_geo_and_projected_dmr, self.logger,
                                  config_file=self.config_file)
 
         with self.subTest('All horizontal spatial variables are returned'):
@@ -655,8 +535,7 @@ class TestVarInfoFromDmr(TestCase):
             error.
 
         """
-        dmr_path = write_dmr(self.output_dir, self.mock_geo_and_projected_dataset)
-        dataset = VarInfoFromDmr(dmr_path, self.logger,
+        dataset = VarInfoFromDmr(self.mock_geo_and_projected_dmr, self.logger,
                                  config_file=self.config_file)
 
         with self.subTest('All (and only) geographic variables are returned'):
@@ -692,8 +571,7 @@ class TestVarInfoFromDmr(TestCase):
             cause an error.
 
         """
-        dmr_path = write_dmr(self.output_dir, self.mock_geo_and_projected_dataset)
-        dataset = VarInfoFromDmr(dmr_path, self.logger,
+        dataset = VarInfoFromDmr(self.mock_geo_and_projected_dmr, self.logger,
                                  config_file=self.config_file)
 
         with self.subTest('All (and only) projected dimension variables are returned'):
@@ -810,8 +688,7 @@ class TestVarInfoFromDmr(TestCase):
             variable with only those dimensions.
 
         """
-        dmr_path = write_dmr(self.output_dir, self.mock_geo_and_projected_dataset)
-        dataset = VarInfoFromDmr(dmr_path, self.logger,
+        dataset = VarInfoFromDmr(self.mock_geo_and_projected_dmr, self.logger,
                                  config_file=self.config_file)
 
         with self.subTest('Only geographically gridded variables are retrieved'):
@@ -831,6 +708,47 @@ class TestVarInfoFromDmr(TestCase):
                 dataset.get_variables_with_dimensions({'/latitude'}),
                 {'/science_one', '/latitude'}
             )
+
+    def test_group_variables_by_dimensions(self):
+        """ Ensure all variables are grouped according to their dimensions. """
+        dataset = VarInfoFromDmr(self.dimension_grouping_dmr, self.logger,
+                                 config_file=self.config_file)
+
+        expected_groups = {
+            ('/time', '/latitude', '/longitude'): {'/science_one',
+                                                   '/science_two'},
+            ('/latitude', '/longitude'): {'/science_three', },
+            ('/longitude', '/latitude'): {'/science_four', },
+            ('/latitude', ): {'/latitude', },
+            ('/longitude', ): {'/longitude', },
+            ('/time', ): {'/time', }
+        }
+
+        self.assertDictEqual(dataset.group_variables_by_dimensions(),
+                             expected_groups)
+
+    def test_group_variables_by_horizontal_dimensions(self):
+        """ Ensure all variables are grouped according to their horizontal
+            spatial dimensions. Order should be considered, though, so the
+            same dimensions in a different order are not grouped together.
+
+        """
+        dataset = VarInfoFromDmr(self.dimension_grouping_dmr, self.logger,
+                                 config_file=self.config_file)
+
+        expected_groups = {
+            ('/latitude', '/longitude'): {'/science_one', '/science_two',
+                                          '/science_three'},
+            ('/longitude', '/latitude'): {'/science_four', },
+            ('/latitude', ): {'/latitude', },
+            ('/longitude', ): {'/longitude', },
+            tuple(): {'/time', }
+        }
+
+        self.assertDictEqual(
+            dataset.group_variables_by_horizontal_dimensions(),
+            expected_groups
+        )
 
     def test_var_info_netcdf4(self):
         """ Ensure a NetCDF-4 file can be parsed by the `VarInfoFromNetCDF4`

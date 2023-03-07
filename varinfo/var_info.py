@@ -6,7 +6,7 @@
 from abc import ABC, abstractmethod
 from logging import Logger
 from os.path import exists
-from typing import Dict, Optional, Set, Union
+from typing import Dict, Optional, Set, Tuple, Union
 import json
 import re
 import xml.etree.ElementTree as ET
@@ -21,6 +21,7 @@ from varinfo.utilities import (DAP4_TO_NUMPY_MAP, get_xml_namespace,
 from varinfo.variable import VariableFromDmr, VariableFromNetCDF4
 
 
+DimensionsGroupType = Dict[Tuple[str], Set[str]]
 OutputVariableType = Union[VariableFromDmr]
 
 
@@ -180,8 +181,14 @@ class VarInfoBase(ABC):
         return (self.variables_with_coordinates.get(variable_path) or
                 self.metadata_variables.get(variable_path))
 
+    def get_all_variables(self) -> Set[str]:
+        """ Retrieve a set of names for all variables in the granule. """
+        return set(self.variables_with_coordinates.keys()).union(
+                set(self.metadata_variables.keys())
+        )
+
     def get_science_variables(self) -> Set[str]:
-        """ Retrieve set of names for all variables that have coordinate
+        """ Retrieve a set of names for all variables that have coordinate
             references, that are not themselves used as dimensions, coordinates
             or ancillary date for another variable.
 
@@ -257,13 +264,9 @@ class VarInfoBase(ABC):
                 '|'.join(self.cf_config.required_variables)
             )
 
-            all_variable_names = set(self.variables_with_coordinates.keys()).union(
-                set(self.metadata_variables.keys())
-            )
-
             cf_required_variables = {variable
                                      for variable
-                                     in all_variable_names
+                                     in self.get_all_variables()
                                      if variable is not None
                                      and re.match(cf_required_pattern, variable)}
         else:
@@ -361,15 +364,68 @@ class VarInfoBase(ABC):
             dimensions as a subset of their own dimensions.
 
         """
-        all_variables = set().union(
-            set(self.variables_with_coordinates.keys()),
-            set(self.metadata_variables.keys())
-        )
-
         return set(
-            variable for variable in all_variables
+            variable for variable in self.get_all_variables()
             if dimensions.issubset(set(self.get_variable(variable).dimensions))
         )
+
+    def group_variables_by_dimensions(self) -> DimensionsGroupType:
+        """ Retrieve a dictionary that groups all variables in a file by the
+            dimensions for their arrays. Example output for M2I3NPASM:
+
+            ```
+            {
+                ('/time', '/lev', '/lat', '/lon'): {'/EPV', '/H', ...},
+                ('/time', '/lat', '/lon'): {'/PHIS', '/PS', '/SLP'},
+                ('/lev', ): {'/lev', },
+                ('/lat', ): {'/lat', },
+                ('/lon', ): {'/lon', },
+                ('/time', ): {'/time', },
+            }
+            ```
+
+        """
+        grouped_variables = {}
+
+        for variable_name in self.get_all_variables():
+            variable = self.get_variable(variable_name)
+            variable_dimensions = tuple(variable.dimensions)
+
+            if variable_dimensions in grouped_variables:
+                grouped_variables[variable_dimensions].add(variable_name)
+            else:
+                grouped_variables[variable_dimensions] = {variable_name, }
+
+        return grouped_variables
+
+    def group_variables_by_horizontal_dimensions(self) -> DimensionsGroupType:
+        """ Retrieve a dictionary that groups all variables by shared
+            horizontal spatial dimensions (e.g., (lon, lat) or (x, y)),
+            regardless of other dimensions. This will, for example, group
+            variables with dimensions (time, lat, lon) with variables only
+            having dimensions (lat, lon). Note, though, the ordering is
+            considered, so variables with dimensions (lat, lon) will not be
+            grouped with variables having dimensions (lon, lat).
+
+        """
+        grid_groups = self.group_variables_by_dimensions()
+
+        horizontal_groups = {}
+
+        for grid_dimensions, variables in grid_groups.items():
+            horizontal_dimensions = tuple(
+                dimension for dimension in grid_dimensions
+                if (self.get_variable(dimension) is not None and
+                    (self.get_variable(dimension).is_geographic() or
+                     self.get_variable(dimension).is_projection_x_or_y()))
+            )
+
+            if horizontal_dimensions in horizontal_groups:
+                horizontal_groups[horizontal_dimensions].update(variables)
+            else:
+                horizontal_groups[horizontal_dimensions] = variables
+
+        return horizontal_groups
 
     @staticmethod
     def exclude_fake_dimensions(variable_set: Set[str]) -> Set[str]:
@@ -393,7 +449,7 @@ class VarInfoFromDmr(VarInfoBase):
     """
     def _read_dataset(self, file_path: str):
         """ Extract the XML tree and namespace from an OPeNDAP `.dmr` file. """
-        with open(file_path, 'r') as file_handler:
+        with open(file_path, 'r', encoding='utf-8') as file_handler:
             dmr_content = file_handler.read()
 
         self.dataset = ET.fromstring(dmr_content)

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<Dataset xmlns="namespace_string">
+  <Group name="exclude_one">
+    <Float64 name="has_coordinates">
+      <Attribute name="coordinates" type="String">
+        <Value>../science/latitude, ../science/longitude</Value>
+      </Attribute>
+    </Float64>
+  </Group>
+  <Group name="required_group">
+    <Float64 name="has_no_coordinates">
+    </Float64>
+  </Group>
+  <Group name="science">
+    <Float64 name="interesting_thing">
+      <Attribute name="coordinates" type="String">
+        <Value>latitude, longitude</Value>
+      </Attribute>
+    </Float64>
+    <Float64 name="latitude">
+    </Float64>
+    <Float64 name="longitude">
+    </Float64>
+    <Float64 name="lat_bnds">
+      <Dim name="/science/latitude"/>
+      <Dim name="/science/latv" size="2"/>
+    </Float64>
+  </Group>
+  <Group name="METADATA">
+    <Group name="DatasetIdentification">
+      <Attribute name="shortName" type="String">
+        <Value>FAKE99</Value>
+      </Attribute>
+    </Group>
+  </Group>
+</Dataset>
