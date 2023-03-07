@@ -1,11 +1,11 @@
 ## v3.1.0
-### YYYY-MM-dd
+### 2023-03-07
 
 This minor version update adds `VarInfoBase.group_variables_by_dimensions` and
 `VarInfoBase.group_variables_by_horizontal_dimensions`, which enable a user to
-retrieve determine which variables share common dimensions. The
+determine which variables share common dimensions. The
 `VarInfoBase.get_all_variables` method has also been added, which will return
-all variables, regardless of if they are considered science of metadata.
+all variables, regardless of if they are considered science or metadata.
 
 ## v3.0.0
 ### 2022-10-05
