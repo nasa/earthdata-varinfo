@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<Dataset xmlns="namespace_string">
+  <Float64 name="ancillary_one">
+  </Float64>
+  <Dimension name="dimension_one" size="1234"/>
+  <Float64 name="dimension_one">
+  </Float64>
+  <Float64 name="latitude">
+    <Dim name="/dimension_one" />
+  </Float64>
+  <Float64 name="longitude">
+    <Dim name="/dimension_one" />
+  </Float64>
+  <Float64 name="metadata_variable">
+  </Float64>
+  <Float64 name="science_variable">
+    <Dim name="/dimension_one" />
+    <Attribute name="ancillary_variables" type="String">
+      <Value>/ancillary_one</Value>
+    </Attribute>
+    <Attribute name="coordinates" type="String">
+      <Value>/latitude, /longitude</Value>
+    </Attribute>
+    <Attribute name="subset_control_variables" type="String">
+      <Value>/subset_one</Value>
+    </Attribute>
+  </Float64>
+  <Float64 name="subset_one">
+    <Dim name="/dimension_one" />
+    <Attribute name="coordinates" type="String">
+      <Value>/latitude, /longitude</Value>
+    </Attribute>
+  </Float64>
+  <Group name="METADATA">
+    <Group name="DatasetIdentification">
+      <Attribute name="shortName">
+        <Value>ATL03</Value>
+      </Attribute>
+    </Group>
+  </Group>
+</Dataset>

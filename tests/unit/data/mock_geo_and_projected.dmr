@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<Dataset xmlns="namespace_string">
+  <Dimension name="x" size="72" />
+  <Dimension name="y" size="36" />
+  <Dimension name="latitude" size="180" />
+  <Dimension name="longitude" size="360" />
+  <Attribute name="short_name">
+    <Value>FAKE123A</Value>
+  </Attribute>
+  <Float64 name="science_one">
+    <Dim name="/latitude"/>
+    <Dim name="/longitude"/>
+  </Float64>
+  <Float64 name="science_two">
+    <Dim name="x"/>
+    <Dim name="y"/>
+  </Float64>
+  <Float64 name="science_three">
+  </Float64>
+  <Float64 name="science_four">
+    <Dim name="non-existent"/>
+  </Float64>
+  <Float64 name="latitude">
+    <Dim name="/latitude"/>
+    <Attribute name="units" type="String">
+      <Value>degrees_north</Value>
+    </Attribute>
+  </Float64>
+  <Float64 name="longitude">
+    <Dim name="/longitude"/>
+    <Attribute name="units" type="String">
+      <Value>degrees_east</Value>
+    </Attribute>
+  </Float64>
+  <Float64 name="x">
+    <Dim name="/x"/>
+    <Attribute name="units" type="String">
+      <Value>m</Value>
+    </Attribute>
+    <Attribute name="standard_name" type="String">
+      <Value>projection_x_coordinate</Value>
+    </Attribute>
+  </Float64>
+  <Float64 name="y">
+    <Dim name="/y"/>
+    <Attribute name="units" type="String">
+      <Value>m</Value>
+    </Attribute>
+    <Attribute name="standard_name" type="String">
+      <Value>projection_y_coordinate</Value>
+    </Attribute>
+  </Float64>
+</Dataset>
