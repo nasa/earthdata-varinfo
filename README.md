@@ -34,12 +34,9 @@ single granule. Current classes include:
   file. Thus inherits all the methods and logic of VarInfoBase.
 
 ```
-from logging import getLogger
 from varinfo import VarInfoFromDmr
 
-logger = getLogger('dev')
-
-var_info = VarInfoFromDmr('/path/to/local/file.dmr', logger,
+var_info = VarInfoFromDmr('/path/to/local/file.dmr',
                           config_file='config/0.0.1/sample_config_0.0.1.json')
 
 # Retrieve a set of variables with coordinate metadata:
@@ -67,7 +64,7 @@ used when a granule does not contain the collection short name within its
 metadata global attributes (e.g., ABoVE collections from ORNL).
 
 ```
-var_info = VarInfoFromDmr('/path/to/local/file.dmr', logger,
+var_info = VarInfoFromDmr('/path/to/local/file.dmr',
                           short_name='ATL03')
 ```
 

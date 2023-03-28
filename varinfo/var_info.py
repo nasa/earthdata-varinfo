@@ -4,7 +4,6 @@
 
 """
 from abc import ABC, abstractmethod
-from logging import Logger
 from os.path import exists
 from typing import Dict, Optional, Set, Tuple, Union
 import json
@@ -33,9 +32,7 @@ class VarInfoBase(ABC):
         file from OPeNDAP.
 
     """
-
-    def __init__(self, file_path: str, logger: Logger,
-                 short_name: Optional[str] = None,
+    def __init__(self, file_path: str, short_name: Optional[str] = None,
                  config_file: Optional[str] = None):
         """ Distinguish between variables containing references to other
             datasets, and those that do not. The former are considered science
@@ -48,14 +45,12 @@ class VarInfoBase(ABC):
 
         """
         self.config_file = config_file
-        self.logger = logger
         self.cf_config = None
         self.global_attributes = {}
         self.short_name = short_name
         self.mission = None
         self.namespace = None
-        self.metadata_variables: Dict[str, OutputVariableType] = {}
-        self.variables_with_coordinates: Dict[str, OutputVariableType] = {}
+        self.variables: Dict[str, OutputVariableType] = {}
         self.references: Set[str] = set()
         self.metadata = {}
 
@@ -91,19 +86,14 @@ class VarInfoBase(ABC):
         """
 
     def _assign_variable(self, variable_object):
-        """ Given a `Variable` instance, based on the content of the
-            `coordinates` attribute, assign it to either the
-            `variables_with_coordinates` or `metadata_variables` dictionary.
-            Additionally, the set of references for all variables is updated.
+        """ Save the `Variable` instance in the dictionary containing all
+            variables. Additionally, the set of references for all variables is
+            updated.
 
         """
         full_path = variable_object.full_name_path
         self.references.update(variable_object.get_references())
-
-        if variable_object.references.get('coordinates') is not None:
-            self.variables_with_coordinates[full_path] = variable_object
-        else:
-            self.metadata_variables[full_path] = variable_object
+        self.variables[full_path] = variable_object
 
     def _set_var_info_config(self):
         """ Read the VarInfo configuration JSON file, containing locations to
@@ -178,14 +168,26 @@ class VarInfoBase(ABC):
             are no matching variables, a value of `None` is returned.
 
         """
-        return (self.variables_with_coordinates.get(variable_path) or
-                self.metadata_variables.get(variable_path))
+        return self.variables.get(variable_path)
 
     def get_all_variables(self) -> Set[str]:
         """ Retrieve a set of names for all variables in the granule. """
-        return set(self.variables_with_coordinates.keys()).union(
-                set(self.metadata_variables.keys())
+        return set(self.variables.keys())
+
+    def get_variables_with_coordinates(self) -> Dict[str, OutputVariableType]:
+        """ Return only variables with a `coordinates` metadata attribute.
+            This list excludes any variables listed as an excluded science
+            variable in the configuration file supplied to the object.
+
+        """
+        exclusion_pattern = re.compile(
+            '|'.join(self.cf_config.excluded_science_variables)
         )
+
+        return {variable_path: variable
+                for variable_path, variable in self.variables.items()
+                if variable.references.get('coordinates') is not None
+                and not self.variable_is_excluded(variable, exclusion_pattern)}
 
     def get_science_variables(self) -> Set[str]:
         """ Retrieve a set of names for all variables that have coordinate
@@ -198,11 +200,13 @@ class VarInfoBase(ABC):
         )
 
         filtered_with_coordinates = {
-            variable
-            for variable
-            in self.variables_with_coordinates
-            if variable is not None
-            and not self.variable_is_excluded(variable, exclusions_pattern)
+            variable_path
+            for variable_path, variable
+            in self.variables.items()
+            if variable_path is not None
+            and variable.references.get('coordinates') is not None
+            and not self.variable_is_excluded(variable_path,
+                                              exclusions_pattern)
         }
 
         return filtered_with_coordinates - self.references
@@ -213,26 +217,24 @@ class VarInfoBase(ABC):
             coordinates or ancillary data for another variable.
 
             Additionally, any excluded science variables, that are contained
-            in the variables_with_coordinates class attribute should be
-            considered a metadata variable.
+            in the variables class attribute should be considered a metadata
+            variable.
 
         """
         exclusions_pattern = re.compile(
             '|'.join(self.cf_config.excluded_science_variables)
         )
 
-        additional_metadata = {
-            variable
-            for variable
-            in self.variables_with_coordinates
-            if variable is not None
-            and self.variable_is_excluded(variable, exclusions_pattern)
+        non_coordinate_variables = {
+            variable_path
+            for variable_path, variable
+            in self.variables.items()
+            if variable_path is not None
+            and (self.variable_is_excluded(variable_path, exclusions_pattern)
+                 or variable.references.get('coordinates') is None)
         }
 
-        metadata_variables = set(self.metadata_variables.keys())
-        metadata_variables.update(additional_metadata)
-
-        return metadata_variables - self.references
+        return non_coordinate_variables - self.references
 
     @staticmethod
     def variable_is_excluded(variable_name: str,

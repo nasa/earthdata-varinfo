@@ -1,3 +1,15 @@
+## v4.0.0
+### XXXX-XX-XX
+
+This major version update does the following:
+* Consolidates all variable objects in the VarInfo family of classes into a
+  single dictionary. This will allow for variables to be identified as more
+  than simply a metadata variable for a variable with coordinates.
+* Converts the class attribute `VarInfoBase.variables_with_coordinates`
+  into a function that retrieve the same variables.
+* Removes the `logger` positional argument to the VarInfo classes, as this
+  logger has never been used.
+
 ## v3.1.0
 ### 2023-03-07
 
