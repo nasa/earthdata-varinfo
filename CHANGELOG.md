@@ -1,5 +1,5 @@
 ## v4.0.0
-### XXXX-XX-XX
+### 2023-03-28
 
 This major version update does the following:
 * Consolidates all variable objects in the VarInfo family of classes into a
