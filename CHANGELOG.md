@@ -1,3 +1,41 @@
+## v4.1.0
+### Unreleased
+
+This minor version updates adds functionality to generate UMM-Var records from
+the variables contained in a VarInfo instance.
+
+This version also a minor bug fix in the VariableFromNetCDF4 class where
+attributes with a value of 1.0 were being returned with a value of True.
+
+UMM-Var attributes currently mapped from metadata attributes:
+
+* Name (required)
+* LongName (required)
+* Definition (required)
+* MetadataSpecification (required) - currently v1.8.2.
+* StandardName
+* DataType
+* Dimensions (see below for more information)
+* Units
+* FillValues
+* Scale
+* Offset
+* ValidRanges
+
+Dimension types currently supported are `TIME_DIMENSION`, `LATITUDE_DIMENSION`,
+`LONGITUDE_TIME` and `OTHER`. Future improvements to sds-varinfo will add
+heuristics to identify depth dimensions. In addition, the size of each
+dimension can currently only be determined for VariableFromNetCDF4 instances.
+Variables parsed from DMR files do not currently contain the required
+information for dimension size, and are set to a size of "Varies".
+
+Additional functionality will be required for VariableType and VariableSubType.
+
+In support of UMM-Var JSON output, functionality has also been added to export
+either a single record or a list of records to JSON files on-disk. These
+functions are `export_umm_var_to_json` and `export_all_umm_var_to_json`,
+respectively.
+
 ## v4.0.0
 ### 2023-03-28
 

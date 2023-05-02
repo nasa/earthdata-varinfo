@@ -1,4 +1,5 @@
 coverage ~= 5.5
 ipython ~= 8.0.1
+jsonschema ~= 4.17.3
 pylint >= 2.5.0
 unittest-xml-reporting ~= 3.0.4

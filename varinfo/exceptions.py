@@ -37,6 +37,16 @@ class InvalidConfigFileFormatError(CustomError):
                          f'"{file_path}" must be a JSON file.')
 
 
+class InvalidExportDirectory(CustomError):
+    """ This exception is raised when an output directory is specified for
+        variable record export, and a file exists at that location instead.
+
+    """
+    def __init__(self, directory_path):
+        super().__init__('InvalidExportDirectory',
+                         f'"{directory_path}" cannot be an existing file.')
+
+
 class MissingConfigurationFileError(CustomError):
     """ This exception is raised when a configuration file path is supplied to
         either a VarInfo class or the CFConfig class, but there is no file at

@@ -1,10 +1,22 @@
 """ Utility classes used to extend the unittest capabilities """
+from typing import Dict
+
 from netCDF4 import Dataset
 from numpy import float64
 
 
 netcdf4_global_attributes = {'short_name': 'ATL03',
                              'history': '2021-07-02T14:18:00 Test data'}
+
+
+def is_dictionary_subset(subset_dict: Dict, container_dict: Dict) -> bool:
+    """ Check that one dictionary is a subset of another, ensuring all keys
+        are present with the expected values.
+
+    """
+    return all(subset_key in container_dict
+               and subset_value == container_dict[subset_key]
+               for subset_key, subset_value in subset_dict.items())
 
 
 def write_dmr(output_dir: str, content: str):
@@ -15,7 +27,7 @@ def write_dmr(output_dir: str, content: str):
     """
     dmr_name = f'{output_dir}/downloaded.dmr'
 
-    with open(dmr_name, 'w') as file_handler:
+    with open(dmr_name, 'w', encoding='utf-8') as file_handler:
         file_handler.write(content)
 
     return dmr_name
@@ -33,8 +45,18 @@ def write_skeleton_netcdf4(output_dir: str) -> str:
         dataset.setncatts(netcdf4_global_attributes)
         dataset.createDimension('lat', size=2)
         dataset.createDimension('lon', size=2)
-        dataset.createVariable('lat', float64, dimensions=('lat', ))
-        dataset.createVariable('lon', float64, dimensions=('lon', ))
+        dataset.createDimension('time', size=1)
+        lat = dataset.createVariable('lat', float64, dimensions=('lat', ))
+        lat.setncatts({'long_name': 'latitude',
+                       'standard_name': 'latitude',
+                       'units': 'degrees_north'})
+        lon = dataset.createVariable('lon', float64, dimensions=('lon', ))
+        lon.setncatts({'long_name': 'longitude',
+                       'standard_name': 'longitude',
+                       'units': 'degrees_east'})
+        time = dataset.createVariable('time', float64, dimensions=('time', ))
+        time.setncatts({'long_name': 'time',
+                        'units': 'seconds since 1970-01-01T00:00:00'})
         create_science_variable(dataset, 'science1')
         create_science_variable(dataset, '/group/science2')
         dataset.createVariable('scalar1', float64, dimensions=())
@@ -49,7 +71,7 @@ def create_science_variable(dataset: Dataset, variable_name: str):
 
     """
     variable = dataset.createVariable(variable_name, float64,
-                                      dimensions=('lat', 'lon'))
+                                      dimensions=('time', 'lat', 'lon'))
 
     variable.setncatts({'coordinates': '/lat /lon',
                         'description': 'A science variable for testing'})

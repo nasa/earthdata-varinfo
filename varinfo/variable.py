@@ -38,6 +38,7 @@ class VariableBase(ABC):
         self.cf_config = cf_config.get_cf_attributes(self.full_name_path)
         self.group_path, self.name = self._extract_group_and_name()
         self.data_type = self._get_data_type(variable)
+        self.shape = self._get_shape(variable)
         self.attributes = self._get_attributes(variable)
         self._get_additional_attributes()
         self.references = self._get_all_cf_references()
@@ -46,6 +47,10 @@ class VariableBase(ABC):
     @abstractmethod
     def _get_data_type(self, variable: InputVariableType):
         """ Extract a string representation of the variable data type. """
+
+    @abstractmethod
+    def _get_shape(self, variable: InputVariableType):
+        """ Extract the shape of the variable array. """
 
     @abstractmethod
     def _get_raw_dimensions(self, variable: InputVariableType):
@@ -385,6 +390,13 @@ class VariableFromDmr(VariableBase):
         """ Extract a string representation of the variable data type. """
         return variable.tag.lstrip(self.namespace).lower()
 
+    def _get_shape(self, variable: ET.Element) -> Tuple[int]:
+        """ Extract the shape of the variable data array. This is not yet
+            implemented as the Dimension information is currently unavailable
+            to the Variable XML content.
+
+        """
+
     def _get_attributes(self, variable: ET.Element) -> Dict:
         """ Locate all child Attribute elements of the variable and extract
             their associated values.
@@ -418,9 +430,13 @@ class VariableFromNetCDF4(VariableBase):
         file.
 
     """
-    def _get_data_type(self, variable: InputVariableType) -> str:
+    def _get_data_type(self, variable: NetCDF4Variable) -> str:
         """ Extract a string representation of the variable data type. """
         return variable.datatype.name
+
+    def _get_shape(self, variable: NetCDF4Variable) -> Tuple[int]:
+        """ Extract the shape of the variable data array. """
+        return variable.shape
 
     def _get_attributes(self, variable: NetCDF4Variable) -> Dict:
         """ Identify all variable attributes and save them to a dictionary. """
@@ -433,7 +449,7 @@ class VariableFromNetCDF4(VariableBase):
             overrides or supplements.
 
         """
-        raw_value = getattr(variable, attribute_name, None)
+        raw_value = variable.__dict__.get(attribute_name)
         return self._get_configured_attribute(attribute_name, raw_value)
 
     def _get_raw_dimensions(self, variable: NetCDF4Variable) -> List[str]:

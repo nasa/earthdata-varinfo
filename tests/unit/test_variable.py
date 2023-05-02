@@ -161,6 +161,12 @@ class TestVariableFromDmr(TestCase):
         self.assertSetEqual(variable.references.get('subset_control_variables'),
                             {'/group/begin', '/group/count'})
 
+        # Currently the Dimension elements from the DMR, which contain the
+        # number of elements for a variable in a given dimension, are not
+        # preserved. This means the variable shape is not tracked for DMR
+        # variables.
+        self.assertIsNone(variable.shape)
+
     def test_variable_cf_override_reference(self):
         """ Ensure a CF-Convention attribute that contains references to other
             variables is overridden by the `CFConfig` value.
@@ -627,6 +633,7 @@ class TestVariableFromDmr(TestCase):
             nc4_variable = dataset.createVariable('science', float64,
                                                   dimensions=('lat', 'lon'))
             nc4_variable.setncatts({'coordinates': '/lat /lon',
+                                    'scale': 1.0,
                                     'units': 'metres',
                                     'valid_min': -10,
                                     'valid_max': 10})
@@ -636,10 +643,13 @@ class TestVariableFromDmr(TestCase):
 
         self.assertEqual(variable.full_name_path, '/science')
         self.assertEqual(variable.data_type, 'float64')
+        self.assertTupleEqual(variable.shape, (2, 2))
         self.assertSetEqual(set(variable.attributes.keys()),
                             {'coordinates', 'units', 'valid_min', 'valid_max',
-                             'collection_override', 'collection_supplement'})
+                             'scale', 'collection_override',
+                             'collection_supplement'})
         self.assertEqual(variable.attributes['units'], 'metres')
+        self.assertEqual(variable.attributes['scale'], 1.0)
         self.assertListEqual(variable.get_range(), [-10, 10])
         self.assertEqual(variable.get_valid_min(), -10)
         self.assertEqual(variable.get_valid_max(), 10)
