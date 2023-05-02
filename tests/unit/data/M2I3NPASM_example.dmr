@@ -1,0 +1,764 @@
+<Dataset xmlns="http://xml.opendap.org/ns/DAP/4.0#" xml:base="https://opendap.uat.earthdata.nasa.gov/collections/C1245663527-EEDTEST/granules/M2I3NPASM.5.12.4:MERRA2_400.inst3_3d_asm_Np.20210107.nc4" dapVersion="4.0" dmrVersion="1.0" name="MERRA2_400.inst3_3d_asm_Np.20210107.nc4">
+  <Dimension name="time" size="8"/>
+  <Dimension name="lev" size="42"/>
+  <Dimension name="lat" size="361"/>
+  <Dimension name="lon" size="576"/>
+  <Float32 name="EPV">
+    <Dim name="/time"/>
+    <Dim name="/lev"/>
+    <Dim name="/lat"/>
+    <Dim name="/lon"/>
+    <Attribute name="long_name" type="String">
+      <Value>ertels_potential_vorticity</Value>
+    </Attribute>
+    <Attribute name="units" type="String">
+      <Value>K m+2 kg-1 s-1</Value>
+    </Attribute>
+    <Attribute name="_FillValue" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="missing_value" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="fmissing_value" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="scale_factor" type="Float32">
+      <Value>1.</Value>
+    </Attribute>
+    <Attribute name="add_offset" type="Float32">
+      <Value>0.</Value>
+    </Attribute>
+    <Attribute name="standard_name" type="String">
+      <Value>ertels_potential_vorticity</Value>
+    </Attribute>
+    <Attribute name="vmax" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="vmin" type="Float32">
+      <Value>-9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="valid_range" type="Float32">
+      <Value>-9.99999987e+14</Value>
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+  </Float32>
+  <Float32 name="PHIS">
+    <Dim name="/time"/>
+    <Dim name="/lat"/>
+    <Dim name="/lon"/>
+    <Attribute name="long_name" type="String">
+      <Value>surface geopotential height</Value>
+    </Attribute>
+    <Attribute name="units" type="String">
+      <Value>m+2 s-2</Value>
+    </Attribute>
+    <Attribute name="_FillValue" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="missing_value" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="fmissing_value" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="scale_factor" type="Float32">
+      <Value>1.</Value>
+    </Attribute>
+    <Attribute name="add_offset" type="Float32">
+      <Value>0.</Value>
+    </Attribute>
+    <Attribute name="standard_name" type="String">
+      <Value>surface geopotential height</Value>
+    </Attribute>
+    <Attribute name="vmax" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="vmin" type="Float32">
+      <Value>-9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="valid_range" type="Float32">
+      <Value>-9.99999987e+14</Value>
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+  </Float32>
+  <Float32 name="RH">
+    <Dim name="/time"/>
+    <Dim name="/lev"/>
+    <Dim name="/lat"/>
+    <Dim name="/lon"/>
+    <Attribute name="long_name" type="String">
+      <Value>relative_humidity_after_moist</Value>
+    </Attribute>
+    <Attribute name="units" type="String">
+     <Value>1</Value>
+    </Attribute>
+    <Attribute name="_FillValue" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="missing_value" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="fmissing_value" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="scale_factor" type="Float32">
+      <Value>1.</Value>
+    </Attribute>
+    <Attribute name="add_offset" type="Float32">
+      <Value>0.</Value>
+    </Attribute>
+    <Attribute name="standard_name" type="String">
+      <Value>relative_humidity_after_moist</Value>
+    </Attribute>
+    <Attribute name="vmax" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="vmin" type="Float32">
+      <Value>-9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="valid_range" type="Float32">
+      <Value>-9.99999987e+14</Value>
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+  </Float32>
+  <Float64 name="lon">
+    <Dim name="/lon"/>
+    <Attribute name="long_name" type="String">
+      <Value>longitude</Value>
+    </Attribute>
+    <Attribute name="units" type="String">
+      <Value>degrees_east</Value>
+    </Attribute>
+    <Attribute name="vmax" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="vmin" type="Float32">
+      <Value>-9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="valid_range" type="Float32">
+      <Value>-9.99999987e+14</Value>
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+  </Float64>
+  <Float32 name="PS">
+    <Dim name="/time"/>
+    <Dim name="/lat"/>
+    <Dim name="/lon"/>
+    <Attribute name="long_name" type="String">
+      <Value>surface_pressure</Value>
+    </Attribute>
+    <Attribute name="units" type="String">
+      <Value>Pa</Value>
+    </Attribute>
+    <Attribute name="_FillValue" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="missing_value" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="fmissing_value" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="scale_factor" type="Float32">
+      <Value>1.</Value>
+    </Attribute>
+    <Attribute name="add_offset" type="Float32">
+      <Value>0.</Value>
+    </Attribute>
+    <Attribute name="standard_name" type="String">
+      <Value>surface_pressure</Value>
+    </Attribute>
+    <Attribute name="vmax" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="vmin" type="Float32">
+      <Value>-9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="valid_range" type="Float32">
+      <Value>-9.99999987e+14</Value>
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+  </Float32>
+  <Int32 name="time">
+    <Dim name="/time"/>
+    <Attribute name="long_name" type="String">
+      <Value>time</Value>
+    </Attribute>
+    <Attribute name="units" type="String">
+      <Value>minutes since 2021-01-07 00:00:00</Value>
+    </Attribute>
+    <Attribute name="time_increment" type="Int32">
+      <Value>30000</Value>
+    </Attribute>
+    <Attribute name="begin_date" type="Int32">
+      <Value>20210107</Value>
+    </Attribute>
+    <Attribute name="begin_time" type="Int32">
+      <Value>0</Value>
+    </Attribute>
+    <Attribute name="vmax" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="vmin" type="Float32">
+      <Value>-9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="valid_range" type="Float32">
+      <Value>-9.99999987e+14</Value>
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+  </Int32>
+  <Float32 name="V">
+    <Dim name="/time"/>
+    <Dim name="/lev"/>
+    <Dim name="/lat"/>
+    <Dim name="/lon"/>
+    <Attribute name="long_name" type="String">
+      <Value>northward_wind</Value>
+    </Attribute>
+    <Attribute name="units" type="String">
+      <Value>m s-1</Value>
+    </Attribute>
+    <Attribute name="_FillValue" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="missing_value" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="fmissing_value" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="scale_factor" type="Float32">
+      <Value>1.</Value>
+    </Attribute>
+    <Attribute name="add_offset" type="Float32">
+      <Value>0.</Value>
+    </Attribute>
+    <Attribute name="standard_name" type="String">
+      <Value>northward_wind</Value>
+    </Attribute>
+    <Attribute name="vmax" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="vmin" type="Float32">
+      <Value>-9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="valid_range" type="Float32">
+      <Value>-9.99999987e+14</Value>
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+  </Float32>
+  <Float32 name="T">
+    <Dim name="/time"/>
+    <Dim name="/lev"/>
+    <Dim name="/lat"/>
+    <Dim name="/lon"/>
+    <Attribute name="long_name" type="String">
+      <Value>air_temperature</Value>
+    </Attribute>
+    <Attribute name="units" type="String">
+      <Value>K</Value>
+    </Attribute>
+    <Attribute name="_FillValue" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="missing_value" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="fmissing_value" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="scale_factor" type="Float32">
+      <Value>1.</Value>
+    </Attribute>
+    <Attribute name="add_offset" type="Float32">
+      <Value>0.</Value>
+    </Attribute>
+    <Attribute name="standard_name" type="String">
+      <Value>air_temperature</Value>
+    </Attribute>
+    <Attribute name="vmax" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="vmin" type="Float32">
+      <Value>-9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="valid_range" type="Float32">
+      <Value>-9.99999987e+14</Value>
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+  </Float32>
+  <Float32 name="SLP">
+    <Dim name="/time"/>
+    <Dim name="/lat"/>
+    <Dim name="/lon"/>
+    <Attribute name="long_name" type="String">
+      <Value>sea_level_pressure</Value>
+    </Attribute>
+    <Attribute name="units" type="String">
+      <Value>Pa</Value>
+    </Attribute>
+    <Attribute name="_FillValue" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="missing_value" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="fmissing_value" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="scale_factor" type="Float32">
+      <Value>1.</Value>
+    </Attribute>
+    <Attribute name="add_offset" type="Float32">
+      <Value>0.</Value>
+    </Attribute>
+    <Attribute name="standard_name" type="String">
+      <Value>sea_level_pressure</Value>
+    </Attribute>
+    <Attribute name="vmax" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="vmin" type="Float32">
+      <Value>-9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="valid_range" type="Float32">
+      <Value>-9.99999987e+14</Value>
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+  </Float32>
+  <Float64 name="lat">
+    <Dim name="/lat"/>
+    <Attribute name="long_name" type="String">
+      <Value>latitude</Value>
+    </Attribute>
+    <Attribute name="units" type="String">
+      <Value>degrees_north</Value>
+    </Attribute>
+    <Attribute name="vmax" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="vmin" type="Float32">
+      <Value>-9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="valid_range" type="Float32">
+      <Value>-9.99999987e+14</Value>
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+  </Float64>
+  <Float32 name="OMEGA">
+    <Dim name="/time"/>
+    <Dim name="/lev"/>
+    <Dim name="/lat"/>
+    <Dim name="/lon"/>
+    <Attribute name="long_name" type="String">
+      <Value>vertical_pressure_velocity</Value>
+    </Attribute>
+    <Attribute name="units" type="String">
+      <Value>Pa s-1</Value>
+    </Attribute>
+    <Attribute name="_FillValue" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="missing_value" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="fmissing_value" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="scale_factor" type="Float32">
+      <Value>1.</Value>
+    </Attribute>
+    <Attribute name="add_offset" type="Float32">
+      <Value>0.</Value>
+    </Attribute>
+    <Attribute name="standard_name" type="String">
+      <Value>vertical_pressure_velocity</Value>
+    </Attribute>
+    <Attribute name="vmax" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="vmin" type="Float32">
+      <Value>-9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="valid_range" type="Float32">
+      <Value>-9.99999987e+14</Value>
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+  </Float32>
+  <Float32 name="QL">
+    <Dim name="/time"/>
+    <Dim name="/lev"/>
+    <Dim name="/lat"/>
+    <Dim name="/lon"/>
+    <Attribute name="long_name" type="String">
+      <Value>mass_fraction_of_cloud_liquid_water</Value>
+    </Attribute>
+    <Attribute name="units" type="String">
+      <Value>kg kg-1</Value>
+    </Attribute>
+    <Attribute name="_FillValue" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="missing_value" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="fmissing_value" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="scale_factor" type="Float32">
+      <Value>1.</Value>
+    </Attribute>
+    <Attribute name="add_offset" type="Float32">
+      <Value>0.</Value>
+    </Attribute>
+    <Attribute name="standard_name" type="String">
+      <Value>mass_fraction_of_cloud_liquid_water</Value>
+    </Attribute>
+    <Attribute name="vmax" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="vmin" type="Float32">
+      <Value>-9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="valid_range" type="Float32">
+      <Value>-9.99999987e+14</Value>
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+  </Float32>
+  <Float32 name="U">
+    <Dim name="/time"/>
+    <Dim name="/lev"/>
+    <Dim name="/lat"/>
+    <Dim name="/lon"/>
+    <Attribute name="long_name" type="String">
+      <Value>eastward_wind</Value>
+    </Attribute>
+    <Attribute name="units" type="String">
+      <Value>m s-1</Value>
+    </Attribute>
+    <Attribute name="_FillValue" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="missing_value" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="fmissing_value" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="scale_factor" type="Float32">
+      <Value>1.</Value>
+    </Attribute>
+    <Attribute name="add_offset" type="Float32">
+      <Value>0.</Value>
+    </Attribute>
+    <Attribute name="standard_name" type="String">
+      <Value>eastward_wind</Value>
+    </Attribute>
+    <Attribute name="vmax" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="vmin" type="Float32">
+      <Value>-9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="valid_range" type="Float32">
+      <Value>-9.99999987e+14</Value>
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+  </Float32>
+  <Float32 name="QV">
+    <Dim name="/time"/>
+    <Dim name="/lev"/>
+    <Dim name="/lat"/>
+    <Dim name="/lon"/>
+    <Attribute name="long_name" type="String">
+      <Value>specific_humidity</Value>
+    </Attribute>
+    <Attribute name="units" type="String">
+      <Value>kg kg-1</Value>
+    </Attribute>
+    <Attribute name="_FillValue" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="missing_value" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="fmissing_value" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="scale_factor" type="Float32">
+      <Value>1.</Value>
+    </Attribute>
+    <Attribute name="add_offset" type="Float32">
+      <Value>0.</Value>
+    </Attribute>
+    <Attribute name="standard_name" type="String">
+      <Value>specific_humidity</Value>
+    </Attribute>
+    <Attribute name="vmax" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="vmin" type="Float32">
+      <Value>-9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="valid_range" type="Float32">
+      <Value>-9.99999987e+14</Value>
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+  </Float32>
+  <Float32 name="QI">
+    <Dim name="/time"/>
+    <Dim name="/lev"/>
+    <Dim name="/lat"/>
+    <Dim name="/lon"/>
+    <Attribute name="long_name" type="String">
+      <Value>mass_fraction_of_cloud_ice_water</Value>
+    </Attribute>
+    <Attribute name="units" type="String">
+      <Value>kg kg-1</Value>
+    </Attribute>
+    <Attribute name="_FillValue" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="missing_value" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="fmissing_value" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="scale_factor" type="Float32">
+      <Value>1.</Value>
+    </Attribute>
+    <Attribute name="add_offset" type="Float32">
+      <Value>0.</Value>
+    </Attribute>
+    <Attribute name="standard_name" type="String">
+      <Value>mass_fraction_of_cloud_ice_water</Value>
+    </Attribute>
+    <Attribute name="vmax" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="vmin" type="Float32">
+      <Value>-9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="valid_range" type="Float32">
+      <Value>-9.99999987e+14</Value>
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+  </Float32>
+  <Float32 name="H">
+    <Dim name="/time"/>
+    <Dim name="/lev"/>
+    <Dim name="/lat"/>
+    <Dim name="/lon"/>
+    <Attribute name="long_name" type="String">
+      <Value>edge_heights</Value>
+    </Attribute>
+    <Attribute name="units" type="String">
+      <Value>m</Value>
+    </Attribute>
+    <Attribute name="_FillValue" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="missing_value" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="fmissing_value" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="scale_factor" type="Float32">
+      <Value>1.</Value>
+    </Attribute>
+    <Attribute name="add_offset" type="Float32">
+      <Value>0.</Value>
+    </Attribute>
+    <Attribute name="standard_name" type="String">
+      <Value>edge_heights</Value>
+    </Attribute>
+    <Attribute name="vmax" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="vmin" type="Float32">
+      <Value>-9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="valid_range" type="Float32">
+      <Value>-9.99999987e+14</Value>
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+  </Float32>
+  <Float32 name="O3">
+    <Dim name="/time"/>
+    <Dim name="/lev"/>
+    <Dim name="/lat"/>
+    <Dim name="/lon"/>
+    <Attribute name="long_name" type="String">
+      <Value>ozone_mass_mixing_ratio</Value>
+    </Attribute>
+    <Attribute name="units" type="String">
+      <Value>kg kg-1</Value>
+    </Attribute>
+    <Attribute name="_FillValue" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="missing_value" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="fmissing_value" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="scale_factor" type="Float32">
+      <Value>1.</Value>
+    </Attribute>
+    <Attribute name="add_offset" type="Float32">
+      <Value>0.</Value>
+    </Attribute>
+    <Attribute name="standard_name" type="String">
+      <Value>ozone_mass_mixing_ratio</Value>
+    </Attribute>
+    <Attribute name="vmax" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="vmin" type="Float32">
+      <Value>-9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="valid_range" type="Float32">
+      <Value>-9.99999987e+14</Value>
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+  </Float32>
+  <Float64 name="lev">
+    <Dim name="/lev"/>
+    <Attribute name="long_name" type="String">
+      <Value>vertical level</Value>
+    </Attribute>
+    <Attribute name="units" type="String">
+      <Value>hPa</Value>
+    </Attribute>
+    <Attribute name="positive" type="String">
+      <Value>down</Value>
+    </Attribute>
+    <Attribute name="coordinate" type="String">
+      <Value>PLE</Value>
+    </Attribute>
+    <Attribute name="standard_name" type="String">
+      <Value>PLE_level</Value>
+    </Attribute>
+    <Attribute name="vmax" type="Float32">
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="vmin" type="Float32">
+      <Value>-9.99999987e+14</Value>
+    </Attribute>
+    <Attribute name="valid_range" type="Float32">
+      <Value>-9.99999987e+14</Value>
+      <Value>9.99999987e+14</Value>
+    </Attribute>
+  </Float64>
+  <Attribute name="History" type="String">
+    <Value>Original file generated: Fri Feb 12 15:43:53 2021 GMT</Value>
+  </Attribute>
+  <Attribute name="Comment" type="String">
+    <Value>GMAO filename: d5124_m2_jan10.inst3_3d_asm_Np.20210107.nc4</Value>
+  </Attribute>
+  <Attribute name="Filename" type="String">
+    <Value>MERRA2_400.inst3_3d_asm_Np.20210107.nc4</Value>
+  </Attribute>
+  <Attribute name="Conventions" type="String">
+    <Value>CF-1</Value>
+  </Attribute>
+  <Attribute name="Institution" type="String">
+    <Value>NASA Global Modeling and Assimilation Office</Value>
+  </Attribute>
+  <Attribute name="References" type="String">
+    <Value>http://gmao.gsfc.nasa.gov</Value>
+  </Attribute>
+  <Attribute name="Format" type="String">
+    <Value>NetCDF-4/HDF-5</Value>
+  </Attribute>
+  <Attribute name="SpatialCoverage" type="String">
+    <Value>global</Value>
+  </Attribute>
+  <Attribute name="VersionID" type="String">
+    <Value>5.12.4</Value>
+  </Attribute>
+  <Attribute name="TemporalRange" type="String">
+    <Value>1980-01-01 -> 2016-12-31</Value>
+  </Attribute>
+  <Attribute name="identifier_product_doi_authority" type="String">
+    <Value>http://dx.doi.org/</Value>
+  </Attribute>
+  <Attribute name="ShortName" type="String">
+    <Value>M2I3NPASM</Value>
+  </Attribute>
+  <Attribute name="GranuleID" type="String">
+    <Value>MERRA2_400.inst3_3d_asm_Np.20210107.nc4</Value>
+  </Attribute>
+  <Attribute name="ProductionDateTime" type="String">
+    <Value>Original file generated: Fri Feb 12 15:43:53 2021 GMT</Value>
+  </Attribute>
+  <Attribute name="LongName" type="String">
+    <Value>MERRA2 inst3_3d_asm_Np: 3d,3-Hourly,Instantaneous,Pressure-Level,Assimilation,Assimilated Meteorological Fields</Value>
+  </Attribute>
+  <Attribute name="Title" type="String">
+    <Value>MERRA2 inst3_3d_asm_Np: 3d,3-Hourly,Instantaneous,Pressure-Level,Assimilation,Assimilated Meteorological Fields</Value>
+  </Attribute>
+  <Attribute name="SouthernmostLatitude" type="String">
+    <Value>-90.0</Value>
+  </Attribute>
+  <Attribute name="NorthernmostLatitude" type="String">
+    <Value>90.0</Value>
+  </Attribute>
+  <Attribute name="WesternmostLongitude" type="String">
+    <Value>-180.0</Value>
+  </Attribute>
+  <Attribute name="EasternmostLongitude" type="String">
+    <Value>179.375</Value>
+  </Attribute>
+  <Attribute name="LatitudeResolution" type="String">
+    <Value>0.5</Value>
+  </Attribute>
+  <Attribute name="LongitudeResolution" type="String">
+    <Value>0.625</Value>
+  </Attribute>
+  <Attribute name="DataResolution" type="String">
+    <Value>0.5 x 0.625 (42 pressure levels)</Value>
+  </Attribute>
+  <Attribute name="Source" type="String">
+    <Value>CVS tag: GEOSadas-5_12_4_p26_SLES12_M2-OPS</Value>
+  </Attribute>
+  <Attribute name="Contact" type="String">
+    <Value>http://gmao.gsfc.nasa.gov</Value>
+  </Attribute>
+  <Attribute name="identifier_product_doi" type="String">
+    <Value>10.5067/QBZ6MG944HW0</Value>
+  </Attribute>
+  <Attribute name="RangeBeginningDate" type="String">
+    <Value>2021-01-07</Value>
+  </Attribute>
+  <Attribute name="RangeBeginningTime" type="String">
+    <Value>00:00:00.000000</Value>
+  </Attribute>
+  <Attribute name="RangeEndingDate" type="String">
+    <Value>2021-01-07</Value>
+  </Attribute>
+  <Attribute name="RangeEndingTime" type="String">
+    <Value>21:00:00.000000</Value>
+  </Attribute>
+  <Attribute name="build_dmrpp_metadata" type="Container">
+  <Attribute name="build_dmrpp" type="String">
+    <Value>3.20.10-414</Value>
+  </Attribute>
+  <Attribute name="bes" type="String">
+    <Value>3.20.10-414</Value>
+  </Attribute>
+  <Attribute name="libdap" type="String">
+    <Value>libdap-3.20.9-83</Value>
+  </Attribute>
+  <Attribute name="configuration" type="String">
+    <Value> # TheBESKeys::get_as_config() AllowedHosts=^https?:\/\/ BES.Catalog.catalog.FollowSymLinks=Yes BES.Catalog.catalog.RootDirectory=/usr/share/hyrax BES.Catalog.catalog.TypeMatch=dmrpp:.*\.(dmrpp)$; BES.Catalog.catalog.TypeMatch+=h5:.*(\.bz2|\.gz|\.Z)?$; BES.Data.RootDirectory=/dev/null BES.LogName=./bes.log BES.UncompressCache.dir=/tmp/hyrax_ux BES.UncompressCache.prefix=ux_ BES.UncompressCache.size=500 BES.module.cmd=/usr/lib64/bes/libdap_xml_module.so BES.module.dap=/usr/lib64/bes/libdap_module.so BES.module.dmrpp=/usr/lib64/bes/libdmrpp_module.so BES.module.h5=/usr/lib64/bes/libhdf5_module.so BES.modules=dap,cmd,h5,dmrpp H5.DefaultHandleDimensions=true H5.EnableCF=false H5.EnableCheckNameClashing=true </Value>
+  </Attribute>
+  <Attribute name="invocation" type="String">
+    <Value>build_dmrpp -c /tmp/conf_cxOX -f /usr/share/hyrax/M2I3NPASM/MERRA2_400.inst3_3d_asm_Np.20210107.nc4 -r /tmp/dmr_V5hX -u OPeNDAP_DMRpp_DATA_ACCESS_URL -M</Value>
+  </Attribute>
+  </Attribute>
+</Dataset>
