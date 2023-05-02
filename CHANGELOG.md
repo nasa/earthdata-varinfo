@@ -1,5 +1,5 @@
 ## v4.1.0
-### Unreleased
+### 2023-05-02
 
 This minor version updates adds functionality to generate UMM-Var records from
 the variables contained in a VarInfo instance.
