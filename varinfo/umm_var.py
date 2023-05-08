@@ -13,7 +13,7 @@
     umm_var_records = get_all_umm_var(varinfo_gpm)
 
     # To export to disk:
-    export_all_umm_var(umm_var_records, output_dir='path/to/directory')
+    export_all_umm_var(umm_var_records.values(), output_dir='path/to/directory')
     ```
 
     To validate generated records:
@@ -51,13 +51,13 @@ UMM_VAR_DTYPES = ['byte', 'float', 'float32', 'float64', 'double', 'ubyte',
                   'uint8', 'uint16', 'uint32', 'uint64', 'OTHER']
 
 
-def get_all_umm_var(var_info: VarInfoBase) -> List[Dict]:
+def get_all_umm_var(var_info: VarInfoBase) -> Dict[str, Dict]:
     """ Iterate through all variables detected from the source granule and
         return a list of UMM-Var records for those variables.
 
     """
-    return [get_umm_var(var_info, variable)
-            for variable in var_info.variables.values()]
+    return {variable_name: get_umm_var(var_info, variable)
+            for variable_name, variable in var_info.variables.items()}
 
 
 def get_umm_var(var_info: VarInfoBase, variable: VariableBase) -> Dict:
@@ -82,8 +82,12 @@ def get_umm_var(var_info: VarInfoBase, variable: VariableBase) -> Dict:
         'Dimensions': get_dimensions(var_info, variable),
         'Units': get_first_matched_attribute(variable, ['units', 'Units']),
         'FillValues': get_fill_values(variable),
-        'Scale': get_first_matched_attribute(variable, ['scale', 'Scale']),
-        'Offset': get_first_matched_attribute(variable, ['offset', 'Offset']),
+        'Scale': get_first_matched_attribute(
+            variable, ['scale_factor', 'scale', 'Scale']
+        ),
+        'Offset': get_first_matched_attribute(
+            variable, ['add_offset', 'offset', 'Offset']
+        ),
         'ValidRanges': get_valid_ranges(variable),
         'MetadataSpecification': get_metadata_specification()
     }
@@ -94,7 +98,7 @@ def get_umm_var(var_info: VarInfoBase, variable: VariableBase) -> Dict:
             if umm_var_value is not None}
 
 
-def export_all_umm_var_to_json(umm_var_records: Dict, output_dir: str = '.'):
+def export_all_umm_var_to_json(umm_var_records: List, output_dir: str = '.'):
     """ Iterate through a list of UMM-Var JSON records and save them all to
         files (one file per record).
 
