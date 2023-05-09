@@ -320,11 +320,18 @@ class VariableBase(ABC):
         """ Take a list of local references to other variables, and produce a
             list of absolute references.
 
+            Trailing colons are removed from variable references. These might
+            occur in some CF-Convention defined formats of the grid_mapping
+            metadata attribute. E.g. "crs: grid_y crs: grid_x" (See section 5.6
+            of CF-Conventions).
+
         """
         references = []
 
         if self.group_path is not None:
             for reference in raw_references:
+                reference = reference.rstrip(':')
+
                 if reference.startswith('../'):
                     # Reference is relative, and requires manipulation
                     absolute_path = self._construct_absolute_path(reference)
@@ -342,6 +349,8 @@ class VariableBase(ABC):
 
         else:
             for reference in raw_references:
+                reference = reference.rstrip(':')
+
                 if reference.startswith('/'):
                     absolute_path = reference
                 else:
