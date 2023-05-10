@@ -75,7 +75,8 @@ def get_umm_var(var_info: VarInfoBase, variable: VariableBase) -> Dict:
                                                     ['standard_name']),
         'Definition': get_first_matched_attribute(
             variable,
-            ['description', 'Description', 'definition', 'Definition'],
+            ['description', 'Description', 'definition', 'Definition',
+             'title', 'Title'],
             variable_name
         ),
         'DataType': get_umm_var_dtype(variable.data_type),
