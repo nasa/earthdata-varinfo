@@ -300,6 +300,27 @@ class TestVariableFromDmr(TestCase):
                 self.assertSetEqual(variable.references.get('coordinates'),
                                     {qualified_reference})
 
+        with self.subTest('grid_mapping with format "crs: dim_1 crs: dim_2"'):
+            dmr_variable = ET.fromstring(
+                f'<{self.namespace}Float64 name="/global_aerosol_frac">'
+                f'  <{self.namespace}Attribute name="grid_mapping" type="String">'
+                f'    <{self.namespace}Value>crs_latlon: lat crs_latlon: lon</{self.namespace}Value>'
+                f'  </{self.namespace}Attribute>'
+                f'</{self.namespace}Float64>'
+            )
+
+            grid_mapping_variable = VariableFromDmr(dmr_variable,
+                                                    self.fakesat_config,
+                                                    self.namespace,
+                                                    root_var_name)
+
+            # The CRS and dimensions should be extracted, and the trailing
+            # colon should be stripped from 'crs_latlon:'.
+            self.assertSetEqual(
+                grid_mapping_variable.references.get('grid_mapping'),
+                {'/crs_latlon', '/lat', '/lon'}
+            )
+
     def test_variable_get_references(self):
         """ Ensure that a set of absolute paths to all variables referred to
             in the ancillary_variables, coordinates, dimensions and

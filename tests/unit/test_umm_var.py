@@ -71,7 +71,7 @@ class TestUmmVar(TestCase):
         all_records = get_all_umm_var(self.gpm_varinfo)
         self.assertEqual(len(all_records), 16)
 
-        for umm_var_record in all_records:
+        for umm_var_record in all_records.values():
             self.assertTrue(self.is_valid_umm_var(umm_var_record))
 
     def test_get_umm_var_all_fields(self):
