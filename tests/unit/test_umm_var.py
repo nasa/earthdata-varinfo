@@ -76,8 +76,8 @@ class TestUmmVar(TestCase):
 
     def test_get_umm_var_all_fields(self):
         """ Ensure that a variable with all UMM-Var fields captured by
-            sds-varinfo can translate that to a UMM-Var record. Also ensure
-            that this record is valid according to the UMM-Var schema.
+            earthdata-varinfo can translate that to a UMM-Var record. Also
+            ensure that this record is valid according to the UMM-Var schema.
 
         """
         netcdf4_file = f'{self.tmp_dir}/input.nc4'

@@ -1,12 +1,12 @@
 {
   "$schema": "http://json-schema.org/draft/2020-12/schema",
-  "title": "sds-varinfo configuration file",
-  "description": "A schema for the configuration file used by sds-varinfo to augment CF-Convention metadata in granules.",
+  "title": "earthdata-varinfo configuration file",
+  "description": "A schema for the configuration file used by earthdata-varinfo to augment CF-Convention metadata in granules.",
   "type": "object",
   "additionalProperties": false,
   "properties": {
     "Identification": {
-      "description": "A description indicating the tool for which sds-varinfo and this configuration file will be used.",
+      "description": "A description indicating the tool for which earthdata-varinfo and this configuration file will be used.",
       "type": "string",
       "minLength": 1
     },
@@ -58,7 +58,7 @@
         "type": "object",
         "properties": {
           "Grid_Mapping_Dataset_Name": {
-            "description": "A non-CF-Convention name for the grid mapping that can be used for reference by sds-varinfo, e.g., \"EASE2_Global\".",
+            "description": "A non-CF-Convention name for the grid mapping that can be used for reference by earthdata-varinfo, e.g., \"EASE2_Global\".",
             "type": "string"
           },
           "grid_mapping_name": {

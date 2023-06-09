@@ -1,4 +1,4 @@
-""" Scaffolding for the sds-varinfo package
+""" Scaffolding for the earthdata-varinfo package
 
     Note: license and classifier list:
     https://pypi.org/pypi?%3Aaction=list_classifiers
@@ -47,7 +47,7 @@ def get_semantic_version(current_directory: str) -> str:
 
 
 setup(
-    name='sds-varinfo',
+    name='earthdata-varinfo',
     version=get_semantic_version(CURRENT_DIRECTORY),
     author='NASA EOSDIS SDPS Data Services Team',
     author_email='owen.m.littlejohns@nasa.gov',
@@ -56,7 +56,7 @@ setup(
                  ' and their associated metadata, such as coordinates.'),
     long_description=get_readme(CURRENT_DIRECTORY),
     long_description_content_type='text/markdown',
-    url='https://git.earthdata.nasa.gov/projects/SITC/repos/sds-varinfo/browse',
+    url='https://github.com/nasa/earthdata-varinfo',
     packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
     include_package_data=True,
     install_requires=parse_dependencies('requirements.txt'),

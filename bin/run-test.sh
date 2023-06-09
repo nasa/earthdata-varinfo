@@ -13,4 +13,4 @@ mkdir -p tests/coverage
 docker run --rm \
 	-v $(pwd)/tests/reports:/app/tests/reports \
 	-v $(pwd)/tests/coverage:/app/tests/coverage \
-	sds/varinfo test
+	earthdata/varinfo test

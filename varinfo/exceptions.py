@@ -1,14 +1,15 @@
-""" This module contains custom exceptions specific to the `sds-varinfo` Python
-    package. These exceptions are intended to allow for easier debugging of the
-    expected errors that may occur during an invocation of the package, or any
-    third party code that uses the package.
+""" This module contains custom exceptions specific to the `earthdata-varinfo`
+    Python package. These exceptions are intended to allow for easier debugging
+    of the expected errors that may occur during an invocation of the package,
+    or any third party code that uses the package.
 
 """
 
 
 class CustomError(Exception):
-    """ Base class for exceptions in `sds-varinfo`. This base class allows for
-        future work, such as assigning exit codes for specific failure modes.
+    """ Base class for exceptions in `earthdata-varinfo`. This base class
+        allows for future work, such as assigning exit codes for specific
+        failure modes.
 
     """
     def __init__(self, exception_type, message):

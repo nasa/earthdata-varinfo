@@ -1,8 +1,12 @@
-# sds-varinfo
+# earthdata-varinfo
 
-A Python package for parsing Earth Observation science granule structure and
-extracting relations between science variables and their associated metadata,
-such as coordinates.
+A Python package developed as part of the NASA Earth Observing System Data and
+Information System (EOSDIS) for parsing Earth Observation science granule
+structure and extracting relations between science variables and their
+associated metadata, such as coordinates. This package also includes the
+capability to generate variable (UMM-Var) metadata records that are compatible
+with the NASA EOSDIS Common Metadata Repository
+([CMR](https://www.earthdata.nasa.gov/eosdis/science-system-description/eosdis-components/cmr)).
 
 ## Features:
 
@@ -64,13 +68,26 @@ used when a granule does not contain the collection short name within its
 metadata global attributes (e.g., ABoVE collections from ORNL).
 
 ```
-var_info = VarInfoFromDmr('/path/to/local/file.dmr',
-                          short_name='ATL03')
+var_info = VarInfoFromDmr('/path/to/local/file.dmr', short_name='ATL03')
 ```
 
 Note: as there are now two optional parameters, `short_name` and `config_file`,
 it is best to ensure that both are specified as named arguments upon
 instantiation.
+
+### UMM-Var generation
+
+`earthdata-varinfo` can generate variable metadata records compatible with the
+CMR UMM-Var schema:
+
+```
+from varinfo import VarInfoFromNetCDF4
+from varinfo.umm_var import export_all_umm_var_to_json, get_all_umm_var
+
+var_info = VarInfoFromNetCDF4('/path/to/local/file.nc4', short_name='ATL03')
+umm_var = get_all_umm_var(var_info)
+export_all_umm_var_to_json(list(umm_var.values()), output_dir='local_dir')
+```
 
 ## Configuration file schema:
 
@@ -84,35 +101,37 @@ provided. Additionally, notes on the schema changes should be provided in
 
 ### Using pip
 
-Install the latest version of the package from Maven using pip:
+Install the latest version of the package from PyPI using pip:
 
 ```bash
-$ pip install sds-varinfo --extra-index-url https://maven.earthdata.nasa.gov/repository/python-repo/simple
+$ pip install earthdata-varinfo
 ```
 
 ### Other methods:
 
-If using a local source tree, run the following in the root directory:
+For local development, it is possible to clone the repository and then install
+the version being developed in editable mode:
 
-```
+```bash
+$ git clone https://github.com/nasa/earthdata-varinfo
+$ cd earthdata-varinfo
 $ pip install -e .
 ```
 
+## Contributing
+
+Contributions are welcome! For more information see `CONTRIBUTING.md`.
+
 ## Developing
 
-Development on this repo should occur on a feature branch. PRs are created with
-a target of the `dev` branch before being reviewed and merged.
+Development within this repository should occur on a feature branch. Pull
+Requests (PRs) are created with a target of the `main` branch before being
+reviewed and merged.
 
-Releases are created when the `dev` branch is merged to `master`. This happens
-when the team decides to cut a release.
+Releases are created when a feature branch is merged to `main` and that branch
+also contains an update to the `VERSION` file.
 
-## Releasing:
-
-Refer to the Data Services Wiki page on the CI/CD setup for this package.
-Before triggering a release, ensure the `VERSION` and `CHANGELOG.md` files are
-updated accordingly.
-
-## Development Setup:
+### Development Setup:
 
 Prerequisites:
 
@@ -126,8 +145,8 @@ Install dependencies:
 $ make develop
 ```
 
-Run linter against package code (preferably do this prior to submitting code
-for a Pull Request review):
+Run a linter against package code (preferably do this prior to submitting code
+for a PR review):
 
 ```bash
 $ make lint
@@ -139,9 +158,15 @@ Run `unittest` suite:
 $ make test
 ```
 
-Build and publish the package (note, this should only be used by Bamboo, as a
-result of successful pull requests).
+## Releasing:
 
-```bash
-$ make publish
-```
+All CI/CD for this repository will be defined in the `.github/workflows`
+directory. Before triggering a release, ensure the `VERSION` and `CHANGELOG.md`
+files are updated accordingly.
+
+## Get in touch:
+
+You can reach out to the maintainers of this repository via email:
+
+* david.p.auty@nasa.gov
+* owen.m.littlejohns@nasa.gov

@@ -1,7 +1,7 @@
-# sds-varinfo JSON configuration file.
+# earthdata-varinfo JSON configuration file.
 
 This change log preserves the changes made between different schema versions of
-the sds-varinfo configuration file.
+the earthdata-varinfo configuration file.
 
 ## 0.0.1
 ### 2023-01-09

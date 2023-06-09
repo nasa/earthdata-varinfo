@@ -171,9 +171,9 @@ def get_dimension_information(var_info: VarInfoBase, variable: VariableBase,
         attribute of another variable, and so should exist as at least a
         dimension within the source file.
 
-        The dimension types in sds-varinfo are currently limited to horizontal
-        spatial dimensions (e.g., lat, lon, projected x or projected y), or
-        temporal dimensions based on the available heuristics in the
+        The dimension types in earthdata-varinfo are currently limited to
+        horizontal spatial dimensions (e.g., lat, lon, projected x or projected
+        y), or temporal dimensions based on the available heuristics in the
         VariableBase class.
 
         The dimension Name property is the full path to the variable, omitting

@@ -1,6 +1,6 @@
 ###############################################################################
 #
-# Installation and release commands for the `sds-varinfo` Python package.
+# Installation and release commands for the `earthdata-varinfo` Python package.
 # These can be run from within a conda or Pip based virtual environment, or
 # from within a Docker container.
 #

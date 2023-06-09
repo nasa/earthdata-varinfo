@@ -1,6 +1,6 @@
 #!/bin/bash
 
-image="sds/varinfo"
+image="earthdata/varinfo"
 tag=${1:-latest}
 
 # Look for existing versions of the image and remove
