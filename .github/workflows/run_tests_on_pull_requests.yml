@@ -1,0 +1,9 @@
+name: Run Python unit tests for pull requests against main
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build_and_test:
+    uses: ./.github/workflows/run_tests.yml

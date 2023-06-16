@@ -1,0 +1,54 @@
+name: Publish earthdata-varinfo to PyPI
+
+on:
+  push:
+    branches: [ main ]
+    paths: VERSION
+  workflow_dispatch:
+
+jobs:
+  run_tests:
+    uses: ./.github/workflows/run_tests.yml
+
+  publish_to_pypi:
+    needs: run_tests
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: write
+      id-token: write
+    strategy:
+      fail-fast: false
+
+    steps:
+      - name: Checkout earthdata-varinfo repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Extract semantic version number
+        run: echo "semantic_version=$(cat VERSION)" >> $GITHUB_ENV
+
+      - name: Extract release version notes
+        run: |
+          version_release_notes=$(./bin/extract-release-notes.sh)
+          echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+          echo "${version_release_notes}" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Build earthdata-varinfo release
+        run: make build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+      - name: Publish GitHub release
+        uses: ncipollo/release-action@v1
+        with:
+          body: ${{ env.RELEASE_NOTES }}
+          commit: main
+          name: Version ${{ env.semantic_version }}
+          tag: ${{ env.semantic_version }}

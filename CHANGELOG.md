@@ -1,5 +1,5 @@
 ## v1.0.0
-### Unreleased
+### 2023-06-16
 
 This version of `earthdata-varinfo` contains all functionality previous
 released as `sds-varinfo==4.1.1`, but resets the version number to begin
