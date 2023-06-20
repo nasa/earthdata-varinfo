@@ -156,7 +156,7 @@ Run `unittest` suite:
 
 ```bash
 $ make test
-````
+```
 
 ## Releasing:
 
