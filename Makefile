@@ -5,26 +5,23 @@
 # from within a Docker container.
 #
 ###############################################################################
-.PHONY: clean build publish test develop
-
-REPO ?= https://upload.pypi.org/legacy/
-REPO_USER ?= unset
-REPO_PASS ?= unset
+.PHONY: clean build test develop install
 
 build: clean
 	python -m pip install --upgrade pip
 	python -m pip install --upgrade --quiet setuptools wheel twine
-	python setup.py --quiet sdist bdist_wheel
-
-publish: build
-	python -m twine check dist/*
-	python -m twine upload --username "$(REPO_USER)" --password "$(REPO_PASS)" --repository-url "$(REPO)" dist/*
+	python -m pip install --upgrade --quiet build
+	python -m build
 
 clean:
 	rm -rf build dist *.egg-info || true
 
 develop:
 	pip install -e .[dev]
+
+install:
+	python -m pip install --upgrade pip
+	pip install -r requirements.txt -r dev-requirements.txt
 
 lint:
 	pylint varinfo --extension-pkg-whitelist=netCDF4

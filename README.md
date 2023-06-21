@@ -160,8 +160,26 @@ $ make test
 
 ## Releasing:
 
-All CI/CD for this repository will be defined in the `.github/workflows`
-directory. Before triggering a release, ensure the `VERSION` and `CHANGELOG.md`
+All CI/CD for this repository is defined in the `.github/workflows` directory:
+
+* run_tests.yml - A reusable workflow that runs the unit test suite under a
+  matrix of Python versions.
+* run_tests_on_pull_requests.yml - Triggered for all PRs against main. It runs
+  the workflow in run_test.yml to ensure all tests pass on the new code.
+* publish_to_pypi.yml - Triggered either manually or for commits to the main
+  branch that contain changes to the `VERSION` file.
+
+The `publish_to_pypi.yml` workflow will:
+
+* Run the full unit test suite, to prevent publication of broken code.
+* Extract the semantic version number from `VERSION`.
+* Extract the release notes for the most recent version from `CHANGELOG.md`.
+* Build the package to be published to PyPI.
+* Publish the package to PyPI.
+* Publish a GitHub release under the semantic version number, with associated
+  git tag.
+
+Before triggering a release, ensure the `VERSION` and `CHANGELOG.md`
 files are updated accordingly.
 
 ## Get in touch:
