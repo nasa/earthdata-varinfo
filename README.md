@@ -87,7 +87,7 @@ CMR UMM-Var schema:
 from varinfo import VarInfoFromNetCDF4
 from varinfo.umm_var import export_all_umm_var_to_json, get_all_umm_var
 
-# Instantiate a VarInfoNetCDF4 object for a local NetCDF-4 file.
+# Instantiate a VarInfoFromNetCDF4 object for a local NetCDF-4 file.
 var_info = VarInfoFromNetCDF4('/path/to/local/file.nc4', short_name='ATL03')
 
 # Retrieve a dictionary of UMM-Var JSON records. Keys are the full variable
