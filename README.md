@@ -8,6 +8,9 @@ capability to generate variable (UMM-Var) metadata records that are compatible
 with the NASA EOSDIS Common Metadata Repository
 ([CMR](https://www.earthdata.nasa.gov/eosdis/science-system-description/eosdis-components/cmr)).
 
+For general usage of classes and functions in `earthdata-varinfo`, see:
+<https://github.com/nasa/earthdata-varinfo/blob/main/docs/earthdata-varinfo.ipynb>.
+
 ## Features:
 
 ### CFConfig
@@ -84,8 +87,14 @@ CMR UMM-Var schema:
 from varinfo import VarInfoFromNetCDF4
 from varinfo.umm_var import export_all_umm_var_to_json, get_all_umm_var
 
+# Instantiate a VarInfoFromNetCDF4 object for a local NetCDF-4 file.
 var_info = VarInfoFromNetCDF4('/path/to/local/file.nc4', short_name='ATL03')
+
+# Retrieve a dictionary of UMM-Var JSON records. Keys are the full variable
+# paths, values are UMM-Var schema-compatible, JSON-serialisable dictionaries.
 umm_var = get_all_umm_var(var_info)
+
+# Write each UMM-Var dictionary to its own JSON file:
 export_all_umm_var_to_json(list(umm_var.values()), output_dir='local_dir')
 ```
 
