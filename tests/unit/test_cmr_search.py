@@ -7,7 +7,7 @@ from varinfo.cmr_search import (query_cmr, get_granule_link)
 class TestQuery(TestCase):
     ''' A class for testing functions in cmr_search 
     '''
-    @patch('cmr_search.GranuleQuery', spec=GranuleQuery)
+    @patch('varinfo.cmr_search.GranuleQuery', spec=GranuleQuery)
     def test_with_concept_id(self, granule_query_mock):
             ''' Check if `query_cmr` was called with parameter: `concept_id`
                 and if the expected values are returned
@@ -37,7 +37,7 @@ class TestQuery(TestCase):
             granule_query_mock.return_value.get.assert_called_once_with(10)
     
     
-    @patch('cmr_search.GranuleQuery', spec=GranuleQuery)
+    @patch('varinfo.cmr_search.GranuleQuery', spec=GranuleQuery)
     def test_with_sn_ver_provider(self, granule_query_mock):
             ''' Check if `query_cmr` was called with parameters: 
                 `short_name`, 'version` and `provider` were called
