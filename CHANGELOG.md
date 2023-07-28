@@ -1,3 +1,8 @@
+## v1.0.1
+# Added
+    `cmr_search` and `test_cmr_search.py`
+
+
 ## v1.0.0
 ### 2023-06-16
 
