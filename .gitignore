@@ -20,5 +20,8 @@ __pycache__/
 # Jupyter notebook
 .ipynb_checkpoints
 
+# Generated files
+stash
+
 # VS Code
 .vscode

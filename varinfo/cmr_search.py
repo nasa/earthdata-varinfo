@@ -1,66 +1,76 @@
 ''' This script leverages the python-cmr library to conduct a CMR search
 '''
 # Import CMR query and environment types
-from cmr import GranuleQuery, CMR_OPS, CMR_UAT, CMR_SIT
+from cmr import GranuleQuery, CMR_OPS
 
-def query_cmr(concept_id: str = None, sn: str = None, 
-             ver: str = None, provider: str = None,
-             page_size: int = 10, env: CMR_OPS = CMR_OPS) -> list:
+from varinfo.exceptions import (CMRQueryException, MissingGranuleDownloadLinks,
+                                MissingPositionalArguments)
+
+def get_granules(concept_id: str = None, 
+                 shortname: str = None, 
+                 collection_version: str = None, 
+                 provider: str = None,
+                 cmr_env: CMR_OPS = CMR_OPS, 
+                 token: str = None ) -> list:
     ''' 
     Search CMR given:
         * concept_id: a collection or granule's IDs
-        * sn/short_name: 'SNDRSNIML2CCPRET' or 'M2T1NXSLV'
-        * ver/version: a collection version (e.g. '2' or 5.12.4')
+        * shortname/short_name: 'SNDRSNIML2CCPRET' or 'M2T1NXSLV'
+        * collection_version/version: a collection version: '2' or 5.12.4'
         * provider: data center ID (e.g. GES_DISC, PODAAC, POCLOUD, EEDTEST)
-        * page_size: number of links to return, the default is 10
-        * env/environment: CMR environments (OPS, UAT, and SIT)
+        * cmr_env/mode: CMR environments (OPS, UAT, and SIT)
+    For a succesful search response concept_id or 
+    short_name, version and provider have to be entered.
     '''
-    granule_query = GranuleQuery(mode=env)
+    granule_query = GranuleQuery(mode=cmr_env)
     
-    if concept_id: # Check for concept_id
-        # Set `sort_key` = `-start_date` to get most recent granules first
-        query_parameters = {'concept_id': concept_id,
-                            'sort_key': '-start_date'}
-    
-    elif sn and ver and provider: 
-        # Check for short_name, version, and provider
-        query_parameters = {'short_name': sn, 
-                            'version': ver, 
-                            'provider': provider,
-                            'sort_key': '-start_date'}
+    # Check if bearer_token was entered
+    if token is not None:
+        granule_query.bearer_token(token)
     else:
-        # If no short_name, version and provider raise TypeErorr
-        raise TypeError(
-            'Missing required positional argument: \
-                concept_id or sn, ver, and provider')
+        raise MissingPositionalArguments('Please enter bearer '
+                                         'token for your current environment '
+                                         + str(cmr_env))
     
-    # Assign parameters to GranuleQuery:
+    if concept_id is not None: # Check for concept_id
+        # Set `sort_key` = `-start_date` to get most recent granules first
+        query_parameters = {'concept_id': concept_id}
+    
+    # Check for short_name, version, and provider
+    elif shortname and collection_version and provider is not None: 
+        query_parameters = {'short_name': shortname, 
+                            'version': collection_version, 
+                            'provider': provider}
+    else:
+        # If no short_name, version and provider raise MissingPositionalArguments
+        raise MissingPositionalArguments('Missing required positional argument: concept_id '
+                                         'or shortname, collection_version, and provider')
+    # Assign parameters to GranuleQuery
     granule_query.parameters(downloadable=True,
+                             sort_key='-start_date',
                              **query_parameters)
+    try:    
+        # .get() is the number of links to return (e.g. page_size)
+        granule_response = granule_query.get(10)
     
-    try:
-        granule_response = granule_query.get(page_size)
-        
-        # Check if granule_response is an empty list
-        if len(granule_response) == 0:
-            raise IndexError('No granules were found with selected \
-                parameters and user permissions')
-        
-        return granule_response
-
-    # Generic Exception for python-cmr
-    except Exception as err:
-        raise err
-
+    except Exception as cmr_exception:
+        # Use custom exception, CMRQueryException, if CMR fails
+        raise CMRQueryException(str(cmr_exception))
+    
+    # Check if granule_response is an empty list
+    if len(granule_response) == 0:
+        raise IndexError('No granules were found with selected '
+                         'parameters and user permissions')
+    return granule_response
 
 def get_granule_link(query_response: list) -> str:
     ''' Get the granule download link from CMR
     '''
-    for link in query_response[0].get('links', [[]]):
-        if len(link) == 0: # Check if the granule record contains `links`
-            raise IndexError('Granule record does not contain links')
-            
-        # Check if the links are download links
-        if link['rel'].endswith('/data#') and 'inherited' not in link:
-                return link['href']
-        raise KeyError('Links are not downloadable')
+    granule_link = next((link['href']
+                     for link in query_response[0].get('links', [])
+                     if link['rel'].endswith('/data#') and 'inherited' not in link), None)
+
+    if granule_link is None:
+        raise MissingGranuleDownloadLinks('Granule record does not '
+                                          'contain links to download data.')
+    return granule_link
