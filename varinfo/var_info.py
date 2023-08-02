@@ -417,9 +417,13 @@ class VarInfoBase(ABC):
         for grid_dimensions, variables in grid_groups.items():
             horizontal_dimensions = tuple(
                 dimension for dimension in grid_dimensions
-                if (self.get_variable(dimension) is not None and
-                    (self.get_variable(dimension).is_geographic() or
-                     self.get_variable(dimension).is_projection_x_or_y()))
+                if (
+                    self.get_variable(dimension) is not None
+                    and (
+                        self.get_variable(dimension).is_geographic()
+                        or self.get_variable(dimension).is_projection_x_or_y()
+                    )
+                )
             )
 
             if horizontal_dimensions in horizontal_groups:
