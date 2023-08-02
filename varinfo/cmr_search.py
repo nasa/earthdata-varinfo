@@ -13,15 +13,14 @@ def get_granules(concept_id: str = None,
                  provider: str = None,
                  cmr_env: CMR_OPS = CMR_OPS,
                  token: str = None) -> list:
-    ''' 
-    Search CMR given:
+    ''' Search CMR given:
         * concept_id: a collection or granule's IDs
         * shortname/short_name: 'SNDRSNIML2CCPRET' or 'M2T1NXSLV'
         * collection_version/version: a collection version: '2' or 5.12.4'
         * provider: data center ID (e.g. GES_DISC, PODAAC, POCLOUD, EEDTEST)
         * cmr_env/mode: CMR environments (OPS, UAT, and SIT)
-    For a succesful search response concept_id or 
-    short_name, version and provider have to be entered.
+    For a successful search response concept_id
+    or short_name, version and provider have to be entered.
     '''
     granule_query = GranuleQuery(mode=cmr_env)
 
@@ -29,9 +28,7 @@ def get_granules(concept_id: str = None,
     if token is not None:
         granule_query.bearer_token(token)
     else:
-        raise MissingPositionalArguments('Please enter bearer '
-                                         'token for your current environment '
-                                         + str(cmr_env))
+        raise MissingPositionalArguments('token')
 
     if concept_id is not None:  # Check for concept_id
         # Set `sort_key` = `-start_date` to get most recent granules first
@@ -44,7 +41,7 @@ def get_granules(concept_id: str = None,
                             'provider': provider}
     else:
         # If no short_name, version and provider raise MissingPositionalArguments
-        raise MissingPositionalArguments('Missing required positional argument: concept_id '
+        raise MissingPositionalArguments('concept_id '
                                          'or shortname, collection_version, and provider')
     # Assign parameters to GranuleQuery
     granule_query.parameters(downloadable=True,
@@ -73,6 +70,5 @@ def get_granule_link(query_response: list) -> str:
                          if link['rel'].endswith('/data#') and 'inherited' not in link), None)
 
     if granule_link is None:
-        raise MissingGranuleDownloadLinks('Granule record does not '
-                                          'contain links to download data.')
+        raise MissingGranuleDownloadLinks(query_response)
     return granule_link

@@ -91,9 +91,9 @@ class TestQuery(TestCase):
         '''
         concept_id = 'G1245662789-EEDTEST'  # EEDTEST granule in UAT
         # Mock CMR's RuntimeError
-        granule_query_mock.side_effect = RuntimeError('CMR timed out')
+        granule_query_mock.return_value.get.side_effect = RuntimeError('CMR timed out')
         # Check if CMRQueryException is raised
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(CMRQueryException):
             get_granules(concept_id, cmr_env=CMR_UAT, token='foo')
 
     @patch('varinfo.cmr_search.GranuleQuery', spec=GranuleQuery)
@@ -103,9 +103,8 @@ class TestQuery(TestCase):
         '''
         concept_id = 'G1245662789-EEDTEST'  # EEDTEST granule in UAT
         # Mock IndexError when no granules are returned
-        granule_query_mock.side_effect = IndexError('No granules were found '
-                                                    'with selected parameters '
-                                                    'and user permissions')
+        granule_query_mock.return_value.get.return_value = []
+        
         with self.assertRaises(IndexError) as cm:
             get_granules(concept_id, token='foo')
         self.assertEqual('No granules were found with selected '
@@ -123,8 +122,8 @@ class TestQuery(TestCase):
 
         # Mock IndexError when no granules are returned
         granule_query_mock.side_effect = IndexError('No granules were found '
-                                                    'with selected parameters '
-                                                    'and user permissions')
+                                                    'with selected parameters'
+                                                    ' and user permissions')
         with self.assertRaises(IndexError) as cm:
             get_granules(shortname=shortname,
                          collection_version=collection_version,
@@ -159,8 +158,7 @@ class TestQuery(TestCase):
         with self.subTest('No required positonal arguments'):
             with self.assertRaises(MissingPositionalArguments) as cm:
                 get_granules()
-            self.assertEqual('Please enter bearer token for your '
-                             'current environment ' + str(CMR_OPS),
+            self.assertEqual('Missing positional argument: token', 
                              str(cm.exception))
 
         with self.subTest('Positional arguments entered: '
@@ -168,8 +166,7 @@ class TestQuery(TestCase):
             with self.assertRaises(MissingPositionalArguments) as cm:
                 get_granules(shortname='M2T1NXSLV',
                              collection_version='5.12.4')
-            self.assertEqual('Please enter bearer token for your '
-                             'current environment ' + str(CMR_OPS),
+            self.assertEqual('Missing positional argument: token', 
                              str(cm.exception))
 
         with self.subTest('Positional arguments entered: '
@@ -178,9 +175,9 @@ class TestQuery(TestCase):
                 get_granules(shortname='M2T1NXSLV',
                              collection_version='5.12.4',
                              token='foo')
-            self.assertEqual('Missing required positional argument: concept_id'
-                             ' or shortname, collection_version, and provider',
-                             str(cm.exception))
+            self.assertEqual('Missing positional argument: concept_id ' 
+                             'or shortname, collection_version, and provider',
+                              str(cm.exception))
 
     def test_exceptions_granule_link(self):
         ''' Check if MissingGranuleDownloadLinks is raised.
@@ -212,8 +209,8 @@ class TestQuery(TestCase):
         with self.subTest('Granule has no `links` key'):
             with self.assertRaises(MissingGranuleDownloadLinks) as cm:
                 get_granule_link(granule_response_no_links)
-            self.assertEqual('Granule record does not '
-                             'contain links to download data.', str(cm.exception))
+            self.assertEqual('No links for granule record: ' + 
+                             str(granule_response_no_links), str(cm.exception))
 
         with self.subTest('Granule has `links`'
                           'but `rel` does not end with `/data#`'):

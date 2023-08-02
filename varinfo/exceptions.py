@@ -73,19 +73,21 @@ class CMRQueryException(CustomError):
                          f'CMR query failed with the following error: {cmr_exception_message}')
 
 
-class MissingGranuleDownloadLinks(CustomError):
-    ''' This exception is raised when a granule record does not contain links
-        to download data.
-    '''
-
-    def __init__(self, message):
-        super().__init__(MissingGranuleDownloadLinks, message)
-
-
 class MissingPositionalArguments(CustomError):
     ''' This exception is raised when a function is missing a required
         positonal argument.
     '''
 
-    def __init__(self, message):
-        super().__init__(MissingPositionalArguments, message)
+    def __init__(self, positonal_argument):
+        super().__init__('MissingPositionalArguments',
+                         f'Missing positional argument: {positonal_argument}')
+
+
+class MissingGranuleDownloadLinks(CustomError):
+    ''' This exception is raised when a granule record does not contain links
+        to download data.
+    '''
+
+    def __init__(self, download_link):
+        super().__init__('MissingGranuleDownloadLinks',
+                         f'No links for granule record: {download_link}')
