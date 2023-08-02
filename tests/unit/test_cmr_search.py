@@ -205,6 +205,15 @@ class TestQuery(TestCase):
         granule_response_links_empty = [{
             'links': []
         }]
+        
+        granule_response_links_correct = [{
+            'links': [{
+                'rel': 'http://esipfed.org/ns/fedsearch/1.1/data#',
+                'title': 'Download MERRA2_400.tavg1_2d_slv_Nx.20230701.nc4',
+                'hreflang': 'en-US',
+                'href': 'https://data.gesdisc.earthdata.nasa.gov/.nc4'
+            }]
+        }]
 
         with self.subTest('Granule has no `links` key'):
             with self.assertRaises(MissingGranuleDownloadLinks) as cm:
@@ -225,3 +234,8 @@ class TestQuery(TestCase):
         with self.subTest('Granule has `links` but it is an empty list'):
             with self.assertRaises(MissingGranuleDownloadLinks):
                 get_granule_link(granule_response_links_empty)
+                
+        with self.subTest('Granule has `links` and all correct attributes'):
+            self.assertEqual(get_granule_link(granule_response_links_correct),
+                             'https://data.gesdisc.earthdata.nasa.gov/.nc4')
+    
