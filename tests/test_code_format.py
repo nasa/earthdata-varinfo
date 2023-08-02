@@ -14,7 +14,7 @@ class TestCodeFormat(TestCase):
                 preferred feature of the code, but not always easily achieved.
         * W503: Break before binary operator. Have to ignore one of W503 or
                 W504 to allow for breaking of some long lines. PEP8 suggests
-                breaking the line for a binary operator is more "Pythonic".
+                breaking the line before a binary operator is more "Pythonic".
 
     """
     @classmethod
