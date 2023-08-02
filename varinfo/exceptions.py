@@ -12,6 +12,7 @@ class CustomError(Exception):
         failure modes.
 
     """
+
     def __init__(self, exception_type, message):
         self.exception_type = exception_type
         self.message = message
@@ -23,6 +24,7 @@ class DmrNamespaceError(CustomError):
         is not a fully qualified Dataset tag.
 
     """
+
     def __init__(self, tag):
         super().__init__('DmrNamespaceError', f'Unexpected root: {tag}')
 
@@ -33,6 +35,7 @@ class InvalidConfigFileFormatError(CustomError):
         extension.
 
     """
+
     def __init__(self, file_path):
         super().__init__('InvalidConfigFileFormatError',
                          f'"{file_path}" must be a JSON file.')
@@ -43,6 +46,7 @@ class InvalidExportDirectory(CustomError):
         variable record export, and a file exists at that location instead.
 
     """
+
     def __init__(self, directory_path):
         super().__init__('InvalidExportDirectory',
                          f'"{directory_path}" cannot be an existing file.')
@@ -54,6 +58,36 @@ class MissingConfigurationFileError(CustomError):
         the specified location.
 
     """
+
     def __init__(self, file_path):
         super().__init__('MissingConfigurationFileError',
                          f'No file in specified location: {file_path}')
+
+
+class CMRQueryException(CustomError):
+    ''' This exception is raised when a query to CMR fails. 
+    '''
+
+    def __init__(self, cmr_exception_message):
+        super().__init__('CMRQueryException',
+                         f'CMR query failed with the following error: {cmr_exception_message}')
+
+
+class MissingPositionalArguments(CustomError):
+    ''' This exception is raised when a function is missing a required
+        positonal argument.
+    '''
+
+    def __init__(self, positonal_argument):
+        super().__init__('MissingPositionalArguments',
+                         f'Missing positional argument: {positonal_argument}')
+
+
+class MissingGranuleDownloadLinks(CustomError):
+    ''' This exception is raised when a granule record does not contain links
+        to download data.
+    '''
+
+    def __init__(self, download_link):
+        super().__init__('MissingGranuleDownloadLinks',
+                         f'No links for granule record: {download_link}')
