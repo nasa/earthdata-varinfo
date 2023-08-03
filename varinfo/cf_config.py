@@ -125,8 +125,8 @@ class CFConfig:
         mission_matches = re.match(mission, self.mission) is not None
 
         short_name_matches = (
-            short_name is None or
-            re.match(short_name, self.short_name) is not None
+            short_name is None
+            or re.match(short_name, self.short_name) is not None
         )
 
         return mission_matches and short_name_matches
