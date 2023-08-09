@@ -1,11 +1,15 @@
-from unittest import TestCase
-from unittest.mock import patch
+from unittest import TestCase, mock
+from unittest.mock import patch, MagicMock
 
 from cmr import (GranuleQuery, CMR_UAT, CMR_OPS)
+import requests
+from requests.exceptions import HTTPError
 
-from varinfo.cmr_search import (get_granules, get_granule_link)
+
+from varinfo.cmr_search import (get_granules, get_granule_link, get_granule_name,
+                                download_granule)
 from varinfo.exceptions import (CMRQueryException, MissingGranuleDownloadLinks,
-                                MissingPositionalArguments)
+                                MissingPositionalArguments, RequestsException)
 
 
 class TestQuery(TestCase):
@@ -44,6 +48,7 @@ class TestQuery(TestCase):
         granule_query_mock.return_value.bearer_token.assert_called_once_with
         ('foo')
         granule_query_mock.return_value.get.assert_called_once_with(10)
+
 
     @patch('varinfo.cmr_search.GranuleQuery', spec=GranuleQuery)
     def test_with_shortname_version_provider(self, granule_query_mock):
@@ -84,6 +89,7 @@ class TestQuery(TestCase):
         ('foo')
         granule_query_mock.return_value.get.assert_called_once_with(10)
 
+
     @patch('varinfo.cmr_search.GranuleQuery', spec=GranuleQuery)
     def test_runtime_error(self, granule_query_mock):
         ''' Test if CMR has a RuntimeError and if the CMRQueryException
@@ -95,6 +101,7 @@ class TestQuery(TestCase):
         # Check if CMRQueryException is raised
         with self.assertRaises(CMRQueryException):
             get_granules(concept_id, cmr_env=CMR_UAT, token='foo')
+
 
     @patch('varinfo.cmr_search.GranuleQuery', spec=GranuleQuery)
     def test_exceptions_concept_id_with_mock(self, granule_query_mock):
@@ -109,6 +116,7 @@ class TestQuery(TestCase):
             get_granules(concept_id, token='foo')
         self.assertEqual('No granules were found with selected '
                          'parameters and user permissions', str(cm.exception))
+
 
     @patch('varinfo.cmr_search.GranuleQuery', spec=GranuleQuery)
     def test_exceptions_shortname_version_provider_mock(self,
@@ -132,6 +140,7 @@ class TestQuery(TestCase):
         self.assertEqual('No granules were found with selected '
                          'parameters and user permissions', str(cm.exception))
 
+
     @patch('varinfo.cmr_search.GranuleQuery', spec=GranuleQuery)
     def test_granule_response_raises_cmr_exception(self, granule_query_mock):
         ''' Check if CMRQueryException is raised with a fake token.
@@ -151,6 +160,7 @@ class TestQuery(TestCase):
                              collection_version='5.12.4',
                              provider='EEDTEST',
                              token='foo')
+
 
     def test_granule_response_raises_exception(self):
         ''' Check if get `get_granules` raises MissingPositionalArgument
@@ -178,6 +188,7 @@ class TestQuery(TestCase):
             self.assertEqual('Missing positional argument: concept_id ' 
                              'or shortname, collection_version, and provider',
                               str(cm.exception))
+
 
     def test_exceptions_granule_link(self):
         ''' Check if MissingGranuleDownloadLinks is raised.
@@ -239,3 +250,86 @@ class TestQuery(TestCase):
             self.assertEqual(get_granule_link(granule_response_links_correct),
                              'https://data.gesdisc.earthdata.nasa.gov/.nc4')
     
+    def test_granule_name(self):
+        ''' Check if get_granule_name returns expected string for response
+            with key "producer_granule_id" and raises IndexError for response
+            without a "producer_granule_id"
+        '''
+        granule_response = [{
+            'producer_granule_id': 'MERRA2_400.tavg1_2d_slv_Nx.20210601.nc4',
+            'boxes': ['-90 -180 90 180'],
+            'time_start': '2021-06-01T00:00:00.000Z'}]
+        
+        granule_response_no_producer_id = [{
+            'boxes': ['-90 -180 90 180'],
+            'time_start': '2021-06-01T00:00:00.000Z'}]
+        
+        with self.subTest('Granule has "producer_granule_id"'):
+            self.assertEqual(get_granule_name(granule_response),
+                             'MERRA2_400.tavg1_2d_slv_Nx.20210601.nc4')
+        
+        with self.subTest('Granule does not have "producer_granule_id"'):
+            with self.assertRaises(IndexError):
+                get_granule_name(granule_response_no_producer_id)
+    
+    
+    def test_download_gran_exceptions(self):
+        ''' Check if exceptions are raised for incorrect input parameters
+        '''
+            
+        with self.assertRaises(ValueError):
+            # Input parameter, `granule_link` should be string
+            download_granule(5, 'foo')
+            
+        with self.assertRaises(ValueError):
+            # Input parameter, `out_filename` should be string
+            download_granule('foo', 10)
+        
+        with self.assertRaises(ValueError):
+            # Input parameter, `out_filename` should be string
+            download_granule('foo', 10)
+        
+        with self.assertRaises(RequestsException):
+            # Not a real https link
+            download_granule('foo', 'foo.nc4')
+    
+    
+    def _mock_requests(self, status=200, content="CONTENT"):
+        '''
+        Mock requests.get module and it's methods content and status.
+        Return the mock object.
+        '''
+        mock_response = mock.Mock()
+        mock_response.status_code = status
+        mock_response.content = content
+        return mock_response
+
+    @patch('requests.get')
+    def test_download_granule(self, mock_requests_get):
+        ''' Check if `download_granules` returns the expected
+            status_code and content for the mocked response.
+        '''
+        link = 'https://harmony.uat.earthdata.nasa.gov'
+        # Set the mock_response with the `_mock_requests` object content method
+        mock_response = self._mock_requests(content=link)
+        
+        # Set the return_value of `mock_requests_get` to mock_response
+        mock_requests_get.return_value = mock_response
+        response = download_granule(link, 'foo.nc4')
+        
+        # Check if `download_granule` returns the same status_code and content
+        # as the mock_response
+        self.assertEqual(response.status_code, mock_response.status_code)
+        self.assertEqual(response.content, mock_response.content)
+        mock_requests_get.assert_called_once_with(link)
+    
+    
+    @patch('requests.get')
+    def test_requests_error(self, mock_requests_get):
+        ''' Check if the RequestsException is raised when
+            the `side_effect` for the mock request is an HTTPError
+        '''
+        link = 'https://foo.gov'
+        mock_requests_get.return_value.side_effect = HTTPError('Wrong HTTP')
+        with self.assertRaises(RequestsException):
+            download_granule(link, 'foo.nc4')

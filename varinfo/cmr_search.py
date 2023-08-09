@@ -2,9 +2,10 @@
 '''
 # Import CMR query and environment types
 from cmr import GranuleQuery, CMR_OPS
+import requests
 
 from varinfo.exceptions import (CMRQueryException, MissingGranuleDownloadLinks,
-                                MissingPositionalArguments)
+                                MissingPositionalArguments, RequestsException)
 
 
 def get_granules(concept_id: str = None,
@@ -62,13 +63,41 @@ def get_granules(concept_id: str = None,
     return granule_response
 
 
-def get_granule_link(query_response: list) -> str:
+def get_granule_link(granule_response: list) -> str:
     ''' Get the granule download link from CMR
     '''
     granule_link = next((link['href']
-                         for link in query_response[0].get('links', [])
+                         for link in granule_response[0].get('links', [])
                          if link['rel'].endswith('/data#') and 'inherited' not in link), None)
 
     if granule_link is None:
-        raise MissingGranuleDownloadLinks(query_response)
+        raise MissingGranuleDownloadLinks(granule_response)
     return granule_link
+
+
+def get_granule_name(granule_response: list) -> str:
+    ''' Syntax for extracting the granule name from the granule metadata.
+    '''
+    try:
+        return granule_response[0]['producer_granule_id']
+        # ie. MERRA2_100.tavg1_2d_slv_Nx.19800320.nc4
+    except Exception:
+        raise IndexError('No key named "producer_granule_id"')
+
+
+def download_granule(granule_link: str, out_filename: str):
+    ''' Use the requests module to download data via https.
+    '''
+    # Check if a string was entered for input parameters
+    if isinstance(granule_link, str) and isinstance(out_filename, str):
+        f = open(out_filename, 'w+')
+    else:
+        raise ValueError('Not a string')
+    # Write content of data to out_filename and return response
+    try:
+        response = requests.get(granule_link)
+        f.write(response.content)
+        f.close()
+        return response
+    except Exception as requests_exception:
+        raise RequestsException(str(requests_exception))
