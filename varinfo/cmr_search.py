@@ -1,11 +1,15 @@
-''' This script leverages the python-cmr library to conduct a CMR search
+''' This script leverages the `python-cmr` library to conduct a CMR search
+    and get a granule download URL. With the granule download URL and the
+    `requests` library a granule is downloaded via https and saved locally.
 '''
+import os.path
+
 # Import CMR query and environment types
 from cmr import GranuleQuery, CMR_OPS
 import requests
 
 from varinfo.exceptions import (CMRQueryException, MissingGranuleDownloadLinks,
-                                MissingPositionalArguments, RequestsException)
+                                MissingPositionalArguments, GranuleDownloadException)
 
 
 def get_granules(concept_id: str = None,
@@ -20,8 +24,10 @@ def get_granules(concept_id: str = None,
         * collection_version/version: a collection version: '2' or 5.12.4'
         * provider: data center ID (e.g. GES_DISC, PODAAC, POCLOUD, EEDTEST)
         * cmr_env/mode: CMR environments (OPS, UAT, and SIT)
+        * token: Earthdata Login (EDL) bearer_token
     For a successful search response concept_id
-    or short_name, version and provider have to be entered.
+    or short_name, version and provider have must be entered
+    along with a bearer_token.
     '''
     granule_query = GranuleQuery(mode=cmr_env)
 
@@ -75,29 +81,38 @@ def get_granule_link(granule_response: list) -> str:
     return granule_link
 
 
-def get_granule_name(granule_response: list) -> str:
-    ''' Syntax for extracting the granule name from the granule metadata.
-    '''
-    try:
-        return granule_response[0]['producer_granule_id']
-        # ie. MERRA2_100.tavg1_2d_slv_Nx.19800320.nc4
-    except Exception:
-        raise IndexError('No key named "producer_granule_id"')
-
-
-def download_granule(granule_link: str, out_filename: str):
+def download_granule(granule_link: str = None,
+                     out_directory: str = os.getcwd(),
+                     token: str = None) -> str:
     ''' Use the requests module to download data via https.
+        * granule_link: granule download URL.
+        * out_directory: path to save downloaded granule
+            (the default is the current directory).
+        * token: Earthdata Login (EDL) bearer_token
     '''
-    # Check if a string was entered for input parameters
-    if isinstance(granule_link, str) and isinstance(out_filename, str):
-        f = open(out_filename, 'w+')
+    if granule_link is not None:  # Check if input parameter was entered
+        if isinstance(granule_link, str):  # Check if granule link is a string
+            # Check if `out_directory` is a directory and create out_filename
+            if os.path.isdir(out_directory):
+                out_filename = out_directory + '/' + os.path.basename(granule_link)
+            else:
+                raise NotADirectoryError('Input directory '
+                                         '"out_directory" is not a directory')
+        else:
+            raise ValueError('Not a string')
     else:
-        raise ValueError('Not a string')
-    # Write content of data to out_filename and return response
-    try:
-        response = requests.get(granule_link)
-        f.write(response.content)
-        f.close()
-        return response
-    except Exception as requests_exception:
-        raise RequestsException(str(requests_exception))
+        raise MissingPositionalArguments('granule_link')
+
+    if token is not None:
+        try:  # Write content of data to out_filename and return response
+            response = requests.get(granule_link,
+                                    headers={'Authorization': f'Bearer {token}'},
+                                    timeout=10)
+            with open(out_filename, 'wb') as file_download:
+                file_download.write(response.content)
+            return out_filename
+        except Exception as requests_exception:
+            # Custom exception for error from `requests.get`
+            raise GranuleDownloadException(str(requests_exception))
+    else:
+        raise MissingPositionalArguments('token')

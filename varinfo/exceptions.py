@@ -70,7 +70,8 @@ class CMRQueryException(CustomError):
 
     def __init__(self, cmr_exception_message):
         super().__init__('CMRQueryException',
-                         f'CMR query failed with the following error: {cmr_exception_message}')
+                         'CMR query failed with the following error: '
+                         f'{cmr_exception_message}')
 
 
 class MissingPositionalArguments(CustomError):
@@ -93,10 +94,11 @@ class MissingGranuleDownloadLinks(CustomError):
                          f'No links for granule record: {download_link}')
 
 
-class RequestsException(CustomError):
+class GranuleDownloadException(CustomError):
     ''' This exception is raised when a query to CMR fails.
     '''
 
-    def __init__(self, requests_exception_message):
-        super().__init__('RequestsException',
-                         f'requests module failed with the following error: {requests_exception_message}')
+    def __init__(self, granule_download_exception_message):
+        super().__init__('GranuleDownloadException',
+                         'requests module failed with the following error: '
+                         f'{granule_download_exception_message}')

@@ -1,14 +1,8 @@
-## v1.0.2
-# Added
-    In `cmr_search.py` added functions `get_granule_name` and `download_granule`
-    In `test_cmr_search.py added functions: `test_granule_name`, `test_download_gran_exceptions`, 
-    `mock_requests`, and `test_requests_error`.
-
-
 ## v1.0.1
-# Added
-    `cmr_search` and `test_cmr_search.py`
-
+### Unreleased
+Added `cmr_search` and `test_cmr_search.py`
+#### 2023-08-23
+Added function `download_granule` to `cmr_search.py`
 
 ## v1.0.0
 ### 2023-06-16

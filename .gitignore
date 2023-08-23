@@ -23,12 +23,12 @@ __pycache__/
 # Generated files
 stash
 downloaded_granules
-*.nc4
-*.nc
-*.grb
-*.he5
-*.h5
-*.hdf5
+/*.nc4
+/*.nc
+/*.grb
+/*.he5
+/*.h5
+/*.hdf5
 
 # VS Code
 .vscode
