@@ -1,5 +1,6 @@
 from shutil import rmtree
 from tempfile import mkdtemp
+from os.path import exists
 from unittest import TestCase
 from unittest.mock import patch, Mock
 
@@ -9,8 +10,11 @@ from requests.exceptions import HTTPError
 
 from varinfo.cmr_search import (get_granules, get_granule_link,
                                 download_granule)
-from varinfo.exceptions import (CMRQueryException, MissingGranuleDownloadLinks,
-                                MissingPositionalArguments, GranuleDownloadException)
+from varinfo.exceptions import (CMRQueryException,
+                                MissingGranuleDownloadLinks,
+                                MissingPositionalArguments,
+                                GranuleDownloadException,
+                                DirectoryCreationException)
 
 
 class TestQuery(TestCase):
@@ -21,7 +25,8 @@ class TestQuery(TestCase):
         self.output_dir = mkdtemp()
 
     def tearDown(self):
-        rmtree(self.output_dir)
+        if exists(self.output_dir):
+            rmtree(self.output_dir)
     
     @patch('varinfo.cmr_search.GranuleQuery', spec=GranuleQuery)
     def test_with_concept_id(self, granule_query_mock):
@@ -260,25 +265,12 @@ class TestQuery(TestCase):
     
     def test_download_gran_exceptions(self):
         ''' Check if exceptions are raised for incorrect input parameters
-        '''
-    
-        with self.assertRaises(MissingPositionalArguments):
-            # Input parameter, token, is missing
-            download_granule(granule_link='https://foo.gov/example.nc4')
-            
-        with self.assertRaises(NotADirectoryError):
-            # Input parameter, `out_directory` should be a real directory
-            download_granule('https://foo.gov/example.nc4', 
-                             '/Usr/foo/dir',
-                             'foo')
-        
-        with self.assertRaises(MissingPositionalArguments):
-            # Missing argument, `granule_link`
-            download_granule(token='foo')
-        
-        with self.assertRaises(ValueError):
-            # `granule_link` should be str or bytes like not int
-            download_granule(granule_link=0, token='foo')
+        ''' 
+        with self.assertRaises(DirectoryCreationException):
+            # Input parameter, `out_directory` is a path that does not exist
+            download_granule(granule_link='https://foo.gov/example.nc4',
+                             token='foo',
+                             out_directory='/Usr/foo/dir')
         
         with self.assertRaises(GranuleDownloadException):
             # Not a real https link
@@ -308,12 +300,14 @@ class TestQuery(TestCase):
         mock_response = self._mock_requests(content=mock_content)
         # Set the return_value of `mock_requests_get` to mock_response
         mock_requests_get.return_value = mock_response
-        file_path = download_granule(link, self.output_dir, token='foo')
+        file_path = download_granule(link,
+                                     token="foo",
+                                     out_directory=self.output_dir)
         # Check if `download_granule` was called once with expected parameters
-        mock_requests_get.assert_called_once_with(link, headers=
-                                                  {'Authorization':
-                                                      f'Bearer {"foo"}'},
-                                                  timeout=10)
+        mock_requests_get.assert_called_once_with(
+            link,
+            headers={'Authorization': 'Bearer foo'},
+            timeout=10)
         # Check if download file contains expected content from `requests.get`
         with self.subTest('Test if the downloaded file contains '
                           'expected content'):

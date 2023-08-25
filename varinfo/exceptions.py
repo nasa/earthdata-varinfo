@@ -95,10 +95,20 @@ class MissingGranuleDownloadLinks(CustomError):
 
 
 class GranuleDownloadException(CustomError):
-    ''' This exception is raised when a query to CMR fails.
+    ''' This exception is raised when the requests modules fails.
     '''
 
     def __init__(self, granule_download_exception_message):
         super().__init__('GranuleDownloadException',
                          'requests module failed with the following error: '
                          f'{granule_download_exception_message}')
+
+
+class DirectoryCreationException(CustomError):
+    ''' This exception is raised when creating a directory fails.
+    '''
+
+    def __init__(self, directory_creation_exception_message):
+        super().__init__('DirectoryCreationException',
+                         'directory creation failed with the following error: '
+                         f'{directory_creation_exception_message}')

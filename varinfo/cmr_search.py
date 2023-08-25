@@ -8,8 +8,11 @@ import os.path
 from cmr import GranuleQuery, CMR_OPS
 import requests
 
-from varinfo.exceptions import (CMRQueryException, MissingGranuleDownloadLinks,
-                                MissingPositionalArguments, GranuleDownloadException)
+from varinfo.exceptions import (CMRQueryException,
+                                MissingGranuleDownloadLinks,
+                                MissingPositionalArguments,
+                                GranuleDownloadException,
+                                DirectoryCreationException)
 
 
 def get_granules(concept_id: str = None,
@@ -60,7 +63,7 @@ def get_granules(concept_id: str = None,
 
     except Exception as cmr_exception:
         # Use custom exception, CMRQueryException, if CMR fails
-        raise CMRQueryException(str(cmr_exception))
+        raise CMRQueryException(str(cmr_exception)) from cmr_exception
 
     # Check if granule_response is an empty list
     if len(granule_response) == 0:
@@ -81,38 +84,32 @@ def get_granule_link(granule_response: list) -> str:
     return granule_link
 
 
-def download_granule(granule_link: str = None,
-                     out_directory: str = os.getcwd(),
-                     token: str = None) -> str:
+def download_granule(granule_link: str,
+                     token: str,
+                     out_directory: str = os.getcwd()) -> str:
     ''' Use the requests module to download data via https.
         * granule_link: granule download URL.
+        * token: Earthdata Login (EDL) bearer_token
         * out_directory: path to save downloaded granule
             (the default is the current directory).
-        * token: Earthdata Login (EDL) bearer_token
     '''
-    if granule_link is not None:  # Check if input parameter was entered
-        if isinstance(granule_link, str):  # Check if granule link is a string
-            # Check if `out_directory` is a directory and create out_filename
-            if os.path.isdir(out_directory):
-                out_filename = out_directory + '/' + os.path.basename(granule_link)
-            else:
-                raise NotADirectoryError('Input directory '
-                                         '"out_directory" is not a directory')
-        else:
-            raise ValueError('Not a string')
-    else:
-        raise MissingPositionalArguments('granule_link')
+    # Create `out_directory` if it does not exist and create out_filename
+    if not os.path.isdir(out_directory):
+        try:
+            os.mkdir(out_directory)
+        except Exception as os_exception:
+            raise DirectoryCreationException(
+                str(os_exception)) from os_exception
+    out_filename = os.path.join(out_directory, os.path.basename(granule_link))
 
-    if token is not None:
-        try:  # Write content of data to out_filename and return response
-            response = requests.get(granule_link,
-                                    headers={'Authorization': f'Bearer {token}'},
-                                    timeout=10)
-            with open(out_filename, 'wb') as file_download:
-                file_download.write(response.content)
-            return out_filename
-        except Exception as requests_exception:
-            # Custom exception for error from `requests.get`
-            raise GranuleDownloadException(str(requests_exception))
-    else:
-        raise MissingPositionalArguments('token')
+    try:  # Write content of data to out_filename and return response
+        response = requests.get(granule_link,
+                                headers={'Authorization': f'Bearer {token}'},
+                                timeout=10)
+        with open(out_filename, 'wb') as file_download:
+            file_download.write(response.content)
+        return out_filename
+    except Exception as requests_exception:
+        # Custom exception for error from `requests.get`
+        raise GranuleDownloadException(
+            str(requests_exception)) from requests_exception
