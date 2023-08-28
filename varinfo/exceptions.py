@@ -65,12 +65,13 @@ class MissingConfigurationFileError(CustomError):
 
 
 class CMRQueryException(CustomError):
-    ''' This exception is raised when a query to CMR fails. 
+    ''' This exception is raised when a query to CMR fails.
     '''
 
     def __init__(self, cmr_exception_message):
         super().__init__('CMRQueryException',
-                         f'CMR query failed with the following error: {cmr_exception_message}')
+                         'CMR query failed with the following error: '
+                         f'{cmr_exception_message}')
 
 
 class MissingPositionalArguments(CustomError):
@@ -91,3 +92,23 @@ class MissingGranuleDownloadLinks(CustomError):
     def __init__(self, download_link):
         super().__init__('MissingGranuleDownloadLinks',
                          f'No links for granule record: {download_link}')
+
+
+class GranuleDownloadException(CustomError):
+    ''' This exception is raised when the requests modules fails.
+    '''
+
+    def __init__(self, granule_download_exception_message):
+        super().__init__('GranuleDownloadException',
+                         'requests module failed with the following error: '
+                         f'{granule_download_exception_message}')
+
+
+class DirectoryCreationException(CustomError):
+    ''' This exception is raised when creating a directory fails.
+    '''
+
+    def __init__(self, directory_creation_exception_message):
+        super().__init__('DirectoryCreationException',
+                         'directory creation failed with the following error: '
+                         f'{directory_creation_exception_message}')

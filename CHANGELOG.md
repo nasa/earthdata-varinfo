@@ -1,7 +1,8 @@
 ## v1.0.1
-# Added
-    `cmr_search` and `test_cmr_search.py`
-
+### Unreleased
+Added `cmr_search` and `test_cmr_search.py`
+#### 2023-08-23
+Added function `download_granule` to `cmr_search.py`
 
 ## v1.0.0
 ### 2023-06-16
