@@ -3,16 +3,20 @@ from shutil import rmtree
 from tempfile import mkdtemp
 from typing import Dict
 from unittest import TestCase
+from unittest.mock import patch, Mock
 import json
 import xml.etree.ElementTree as ET
 
 from jsonschema import validate as validate_json, ValidationError
 from netCDF4 import Dataset
 from numpy import int32, float64
+import requests
+from requests.exceptions import RequestException
+from cmr import CMR_UAT
 
 from varinfo import CFConfig
 from varinfo import VarInfoFromDmr, VarInfoFromNetCDF4, VariableFromDmr
-from varinfo.exceptions import InvalidExportDirectory
+from varinfo.exceptions import InvalidExportDirectory, UmmVarPublicationException
 from varinfo.umm_var import (export_all_umm_var_to_json,
                              export_umm_var_to_json,get_all_umm_var,
                              get_dimension_information, get_dimension_size,
@@ -20,7 +24,8 @@ from varinfo.umm_var import (export_all_umm_var_to_json,
                              get_first_matched_attribute,
                              get_json_serializable_value,
                              get_metadata_specification, get_umm_var,
-                             get_umm_var_dtype, get_valid_ranges)
+                             get_umm_var_dtype, get_valid_ranges,
+                             publish_umm_var, publish_all_umm_var)
 
 from tests.utilities import is_dictionary_subset, write_skeleton_netcdf4
 
@@ -758,3 +763,51 @@ class TestUmmVar(TestCase):
                 saved_json = json.load(file_handler)
 
             self.assertDictEqual(saved_json, umm_var_records[umm_var_index])
+
+
+    def _mock_requests(self, status=200, content='VFOO-EEDTEST'):
+        '''
+        Mock requests.put module and it's methods content and status.
+        Return the mock object.
+        '''
+        mock_response = Mock(spec=requests.Response)
+        mock_response.status_code = status
+        mock_response.content = content
+        return mock_response
+
+
+    @patch('requests.put')
+    def test_publish_umm_var(self, mock_requests_put):
+        ''' Check if `publish_umm_var` returns the expected
+            content for the mocked response.
+        '''
+        umm_var_dict = {'Name': 'Test', 
+                        'MetadataSpecification':{
+                            'URL': 'https://foo.gov/umm/variable/v1.8.2',
+                            'Name': 'UMM-Var',
+                            'Version': '1.8.2'}}
+        
+        # Set the mock_response with the `_mock_requests` object content method'
+        mock_response = self._mock_requests('VFOO-EEDTEST')
+        
+        # Set the return_value of `mock_requests_put` to mock_response
+        mock_requests_put.return_value = mock_response
+        
+        concept_id = 'C1256535511-EEDTEST'
+        cmr_env = CMR_UAT
+        token = 'foo'
+        headers_umm_var = {
+            'Content-type': 'application/vnd.nasa.cmr.umm+json;version='
+            + f'{umm_var_dict["MetadataSpecification"]["Version"]}',
+            'Authorization': f'Bearer {token}',
+            'Accept': 'application/json'}
+        url_endpoint = (cmr_env.replace('search', 'ingest') + 'collections/'
+                    f'{concept_id}/variables/{umm_var_dict["Name"]}')
+        
+        response = publish_umm_var(concept_id, umm_var_dict, 'foo', cmr_env)
+        
+        # Check if `publish_umm_var` was called once with expected parameters
+        mock_requests_put.assert_called_once_with(url_endpoint,
+                                                  json=umm_var_dict,
+                                                  headers=headers_umm_var,
+                                                  timeout=10)

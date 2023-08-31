@@ -95,7 +95,8 @@ class MissingGranuleDownloadLinks(CustomError):
 
 
 class GranuleDownloadException(CustomError):
-    ''' This exception is raised when the requests modules fails.
+    ''' This exception is raised when the `requests.get` modules fails
+        to download a variable locally.
     '''
 
     def __init__(self, granule_download_exception_message):
@@ -111,4 +112,15 @@ class DirectoryCreationException(CustomError):
     def __init__(self, directory_creation_exception_message):
         super().__init__('DirectoryCreationException',
                          'directory creation failed with the following error: '
+                         f'{directory_creation_exception_message}')
+
+
+class UmmVarPublicationException(CustomError):
+    ''' This exception is raised when the `request.put` module fails to
+        publish a UMM-Var entry to CMR.
+    '''
+
+    def __init__(self, directory_creation_exception_message):
+        super().__init__('UmmVarPublicationException',
+                         'UMM-Var publication failed with the following error: '
                          f'{directory_creation_exception_message}')

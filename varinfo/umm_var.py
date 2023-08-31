@@ -34,10 +34,14 @@ from os import makedirs
 from os.path import isfile, join as join_path
 from typing import Any, Dict, List, Optional, Union
 import json
+import requests
 
 from numpy import floating as np_floating, integer as np_integer
+from cmr import CMR_UAT
 
-from varinfo.exceptions import InvalidExportDirectory
+
+from varinfo.exceptions import (InvalidExportDirectory,
+                                UmmVarPublicationException)
 from varinfo.var_info import VarInfoBase
 from varinfo.variable import VariableBase
 
@@ -338,3 +342,54 @@ def get_json_serializable_value(input_value: Any) -> Any:
         output_value = input_value
 
     return output_value
+
+
+def publish_umm_var(collection_id: str,
+                    umm_var_dict: Dict,
+                    token: str,
+                    cmr_env: CMR_UAT) -> str:
+    """" Publish a single UMM-Var entry to CMR given:
+        * collection_id: a collection's concept_id
+        * umm_var_dict: a dictionary of a single UMM-Var entry for a collection
+        * token: Earthdata Login (EDL) bearer_token
+        * cmr_env/mode: CMR environments (OPS, UAT, and SIT)
+    For a successful publication response all of these fields must be entered
+
+    """
+    # Required UMM-Var headers for ingestiong variable entries
+    headers_umm_var = {
+        'Content-type': 'application/vnd.nasa.cmr.umm+json;version='
+        + f'{umm_var_dict["MetadataSpecification"]["Version"]}',
+        'Authorization': f'Bearer {token}',
+        'Accept': 'application/json'}
+
+    url_endpoint = (cmr_env.replace('search', 'ingest') + 'collections/'
+                    f'{collection_id}/variables/{umm_var_dict["Name"]}')
+    try:
+        response = requests.put(url_endpoint,
+                                json=umm_var_dict,
+                                headers=headers_umm_var,
+                                timeout=10)
+        if response.status_code == 200:
+            return response.json()['concept-id']
+        else:
+            return response.json()
+    except Exception as requests_exception:
+        raise UmmVarPublicationException(
+            str(requests_exception)) from requests_exception
+
+
+def publish_all_umm_var(collection_id: str,
+                        all_umm_var_dict: Dict,
+                        token: str,
+                        cmr_env: CMR_UAT) -> List:
+    """ Publish all UMM-Var entries associated with a collection to CMR given:
+        * collection_id: a collection's concept_id
+        * all_umm_var_dict: a nested dictionary containing
+            dictionaries of all UMM-Var entries for a collection
+        * token: Earthdata Login (EDL) bearer_token
+        * cmr_env/mode: CMR environments (OPS, UAT, and SIT)
+    For a successful publication response all of these fields must be entered
+    """
+    return [publish_umm_var(collection_id, umm_var, token, cmr_env)
+            for umm_var in all_umm_var_dict.values()]
