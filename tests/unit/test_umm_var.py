@@ -811,3 +811,62 @@ class TestUmmVar(TestCase):
                                                   json=umm_var_dict,
                                                   headers=headers_umm_var,
                                                   timeout=10)
+        # print(response)
+        # print(mock_response.status_code)
+    
+    # @patch('requests.put')
+    # def test_publish_umm_var_status_code(self, mock_requests_put):
+    #     mock_response = Mock(spec=requests.Response)
+    #     mock_response.status_code = 200
+    #     umm_var_dict = {'Name': 'Test', 
+    #                     'MetadataSpecification':{
+    #                         'URL': 'https://foo.gov/umm/variable/v1.8.2',
+    #                         'Name': 'UMM-Var',
+    #                         'Version': '1.8.2'}}
+        
+    #     # Set the mock_response with the `_mock_requests` object content method'
+    #     mock_response.status_code = 400
+        
+    #     # Set the return_value of `mock_requests_put` to mock_response
+    #     mock_requests_put.return_value = 'VFOO-EEDTEST'
+        
+    #     concept_id = 'C1256535511-EEDTEST'
+    #     cmr_env = CMR_UAT
+    #     token = 'foo'
+    #     headers_umm_var = {
+    #         'Content-type': 'application/vnd.nasa.cmr.umm+json;version='
+    #         + f'{umm_var_dict["MetadataSpecification"]["Version"]}',
+    #         'Authorization': f'Bearer {token}',
+    #         'Accept': 'application/json'}
+    #     url_endpoint = (cmr_env.replace('search', 'ingest') + 'collections/'
+    #                 f'{concept_id}/variables/{umm_var_dict["Name"]}')
+        
+    #     print(mock_response.status_code)
+    #     response = publish_umm_var(concept_id, umm_var_dict, 'foo', cmr_env)
+    #     print(response)
+        #self.assertEqual(response, mock_response.status_code)
+        
+        # Check if the UmmVarPublicationException is raised when 
+        # the `side_effect` for the mock request is an HTTPError
+        # mock_requests_put.reset_mock()
+        # with self.subTest('Test if the downloaded file contains '
+        #                   'expected content'):
+        #     mock_requests_put.return_value.side_effect = RequestException('Wrong HTTP')
+        #     with self.assertRaises(UmmVarPublicationException):
+        #         publish_umm_var(concept_id, umm_var_dict, 'foo', cmr_env)
+    
+    
+    # @patch('requests.put')
+    # def test_requests_error(self, mock_requests_put):
+    #     ''' Check if the UmmVarPublicationException is raised when
+    #         the `side_effect` for the mock request is an HTTPError
+    #     '''
+    #     link = 'https://foo.gov/example.nc4'
+    #     mock_requests_put.return_value.side_effect = HTTPError('Wrong HTTP')
+    #     with self.assertRaises(UmmVarPublicationException):
+    #         publish_umm_var(link, token='foo')
+
+
+# import unittest
+# if __name__ == "__main__":
+#     unittest.main()
