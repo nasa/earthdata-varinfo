@@ -1,3 +1,7 @@
+## v1.0.2
+### Unreleased
+#### 2023-09-06
+Added functions `publish_umm_var` and `publish_all_umm_var` to `umm_var.py`
 ## v1.0.1
 ### Unreleased
 Added `cmr_search` and `test_cmr_search.py`
