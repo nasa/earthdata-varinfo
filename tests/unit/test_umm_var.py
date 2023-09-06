@@ -11,12 +11,12 @@ from jsonschema import validate as validate_json, ValidationError
 from netCDF4 import Dataset
 from numpy import int32, float64
 import requests
-from requests.exceptions import RequestException
+from requests.exceptions import Timeout
 from cmr import CMR_UAT
 
 from varinfo import CFConfig
 from varinfo import VarInfoFromDmr, VarInfoFromNetCDF4, VariableFromDmr
-from varinfo.exceptions import InvalidExportDirectory, UmmVarPublicationException
+from varinfo.exceptions import InvalidExportDirectory
 from varinfo.umm_var import (export_all_umm_var_to_json,
                              export_umm_var_to_json,get_all_umm_var,
                              get_dimension_information, get_dimension_size,
@@ -765,34 +765,25 @@ class TestUmmVar(TestCase):
             self.assertDictEqual(saved_json, umm_var_records[umm_var_index])
 
 
-    def _mock_requests(self, status=200, content='VFOO-EEDTEST'):
-        '''
-        Mock requests.put module and it's methods content and status.
-        Return the mock object.
-        '''
-        mock_response = Mock(spec=requests.Response)
-        mock_response.status_code = status
-        mock_response.content = content
-        return mock_response
-
-
     @patch('requests.put')
     def test_publish_umm_var(self, mock_requests_put):
         ''' Check if `publish_umm_var` returns the expected
             content for the mocked response.
         '''
+        # Set the `mock_response` and its status_code
+        mock_response = Mock(spec=requests.Response)
+        mock_response.status_code = 400
+        
+        # Set the return_value of `mock_response` 
+        # And set the return_value of `mock_requests_put` to mock_response
+        mock_response.json.return_value = {'concept-id': 'FOO-EEDTEST'}
+        mock_requests_put.return_value = mock_response
         umm_var_dict = {'Name': 'Test', 
-                        'MetadataSpecification':{
-                            'URL': 'https://foo.gov/umm/variable/v1.8.2',
+                        'MetadataSpecification':
+                            {'URL': 'https://foo.gov/umm/variable/v1.8.2',
                             'Name': 'UMM-Var',
                             'Version': '1.8.2'}}
-        
-        # Set the mock_response with the `_mock_requests` object content method'
-        mock_response = self._mock_requests('VFOO-EEDTEST')
-        
-        # Set the return_value of `mock_requests_put` to mock_response
-        mock_requests_put.return_value = mock_response
-        
+                
         concept_id = 'C1256535511-EEDTEST'
         cmr_env = CMR_UAT
         token = 'foo'
@@ -801,72 +792,45 @@ class TestUmmVar(TestCase):
             + f'{umm_var_dict["MetadataSpecification"]["Version"]}',
             'Authorization': f'Bearer {token}',
             'Accept': 'application/json'}
+        
         url_endpoint = (cmr_env.replace('search', 'ingest') + 'collections/'
                     f'{concept_id}/variables/{umm_var_dict["Name"]}')
         
-        response = publish_umm_var(concept_id, umm_var_dict, 'foo', cmr_env)
+        response = publish_umm_var(concept_id, umm_var_dict, token, cmr_env)
         
         # Check if `publish_umm_var` was called once with expected parameters
         mock_requests_put.assert_called_once_with(url_endpoint,
                                                   json=umm_var_dict,
                                                   headers=headers_umm_var,
                                                   timeout=10)
-        # print(response)
-        # print(mock_response.status_code)
-    
-    # @patch('requests.put')
-    # def test_publish_umm_var_status_code(self, mock_requests_put):
-    #     mock_response = Mock(spec=requests.Response)
-    #     mock_response.status_code = 200
-    #     umm_var_dict = {'Name': 'Test', 
-    #                     'MetadataSpecification':{
-    #                         'URL': 'https://foo.gov/umm/variable/v1.8.2',
-    #                         'Name': 'UMM-Var',
-    #                         'Version': '1.8.2'}}
         
-    #     # Set the mock_response with the `_mock_requests` object content method'
-    #     mock_response.status_code = 400
+        with self.subTest('Check response when the status code is 400'):
+            self.assertEqual(response.status_code, 400)
+            self.assertEqual(response.json(), {'concept-id': 'FOO-EEDTEST'})
         
-    #     # Set the return_value of `mock_requests_put` to mock_response
-    #     mock_requests_put.return_value = 'VFOO-EEDTEST'
-        
-    #     concept_id = 'C1256535511-EEDTEST'
-    #     cmr_env = CMR_UAT
-    #     token = 'foo'
-    #     headers_umm_var = {
-    #         'Content-type': 'application/vnd.nasa.cmr.umm+json;version='
-    #         + f'{umm_var_dict["MetadataSpecification"]["Version"]}',
-    #         'Authorization': f'Bearer {token}',
-    #         'Accept': 'application/json'}
-    #     url_endpoint = (cmr_env.replace('search', 'ingest') + 'collections/'
-    #                 f'{concept_id}/variables/{umm_var_dict["Name"]}')
-        
-    #     print(mock_response.status_code)
-    #     response = publish_umm_var(concept_id, umm_var_dict, 'foo', cmr_env)
-    #     print(response)
-        #self.assertEqual(response, mock_response.status_code)
-        
-        # Check if the UmmVarPublicationException is raised when 
-        # the `side_effect` for the mock request is an HTTPError
-        # mock_requests_put.reset_mock()
-        # with self.subTest('Test if the downloaded file contains '
-        #                   'expected content'):
-        #     mock_requests_put.return_value.side_effect = RequestException('Wrong HTTP')
-        #     with self.assertRaises(UmmVarPublicationException):
-        #         publish_umm_var(concept_id, umm_var_dict, 'foo', cmr_env)
-    
-    
-    # @patch('requests.put')
-    # def test_requests_error(self, mock_requests_put):
-    #     ''' Check if the UmmVarPublicationException is raised when
-    #         the `side_effect` for the mock request is an HTTPError
-    #     '''
-    #     link = 'https://foo.gov/example.nc4'
-    #     mock_requests_put.return_value.side_effect = HTTPError('Wrong HTTP')
-    #     with self.assertRaises(UmmVarPublicationException):
-    #         publish_umm_var(link, token='foo')
+        with self.subTest('Check response when the status code is 200'):
+            mock_response.status_code = 200
+            response = publish_umm_var(concept_id, umm_var_dict, token, cmr_env)
+            self.assertEqual(response, 'FOO-EEDTEST')
 
 
-# import unittest
-# if __name__ == "__main__":
-#     unittest.main()
+    def test_publish_all_umm_var(self):
+        ''' Check if `publish_all_umm_var` returns expected number of
+            published UMM-Var entries.
+        '''
+        umm_var_dict = {'Test_1': {'Name': 'Test_1', 
+                        'MetadataSpecification':
+                            {'URL': 'https://foo.gov/umm/variable/v1.8.2',
+                            'Name': 'UMM-Var',
+                            'Version': '1.8.2'}},
+                        'Test_2': {'Name': 'Test_2', 
+                        'MetadataSpecification':
+                            {'URL': 'https://foo.gov/umm/variable/v1.8.2',
+                            'Name': 'UMM-Var',
+                            'Version': '1.8.2'}}}
+                
+        variable_ids = publish_all_umm_var('C1256535511-EEDTEST',
+                                           umm_var_dict,
+                                           'foo',
+                                           CMR_UAT)
+        self.assertEqual(len(variable_ids), 2)

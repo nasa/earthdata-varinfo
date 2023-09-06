@@ -113,14 +113,3 @@ class DirectoryCreationException(CustomError):
         super().__init__('DirectoryCreationException',
                          'directory creation failed with the following error: '
                          f'{directory_creation_exception_message}')
-
-
-class UmmVarPublicationException(CustomError):
-    ''' This exception is raised when the `request.put` module fails to
-        publish a UMM-Var entry to CMR.
-    '''
-
-    def __init__(self, directory_creation_exception_message):
-        super().__init__('UmmVarPublicationException',
-                         'UMM-Var publication failed with the following error: '
-                         f'{directory_creation_exception_message}')

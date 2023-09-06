@@ -40,8 +40,7 @@ from numpy import floating as np_floating, integer as np_integer
 from cmr import CMR_UAT
 
 
-from varinfo.exceptions import (InvalidExportDirectory,
-                                UmmVarPublicationException)
+from varinfo.exceptions import InvalidExportDirectory
 from varinfo.var_info import VarInfoBase
 from varinfo.variable import VariableBase
 
@@ -365,18 +364,17 @@ def publish_umm_var(collection_id: str,
 
     url_endpoint = (cmr_env.replace('search', 'ingest') + 'collections/'
                     f'{collection_id}/variables/{umm_var_dict["Name"]}')
-    try:
-        response = requests.put(url_endpoint,
-                                json=umm_var_dict,
-                                headers=headers_umm_var,
-                                timeout=10)
-        if response.status_code == 200:
-            return response.json()['concept-id']
-        else:
-            return response.json()
-    except Exception as requests_exception:
-        raise UmmVarPublicationException(
-            str(requests_exception)) from requests_exception
+
+    response = requests.put(url_endpoint,
+                            json=umm_var_dict,
+                            headers=headers_umm_var,
+                            timeout=10)
+    # Check the status_code of the response
+    # Return the variable concept-id if response is 200
+    if response.status_code == 200:
+        return response.json()['concept-id']
+    # Return the response if there was an error (response != 200)
+    return response
 
 
 def publish_all_umm_var(collection_id: str,
