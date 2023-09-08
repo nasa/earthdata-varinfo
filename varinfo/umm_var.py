@@ -346,7 +346,7 @@ def get_json_serializable_value(input_value: Any) -> Any:
 def publish_umm_var(collection_id: str,
                     umm_var_dict: Dict,
                     auth_header: str,
-                    cmr_env: CMR_UAT = CMR_UAT) -> str | Dict:
+                    cmr_env: CMR_UAT = CMR_UAT) -> Union[str, Dict]:
     """" Publish a single UMM-Var entry to CMR given:
         * collection_id: a collection's concept_id
         * umm_var_dict: a dictionary of a single UMM-Var entry for a collection
