@@ -5,7 +5,7 @@ This update to `earthdata_varinfo` has two changes in `umm_var.py`:
 * `publish_all_umm_var` ingests all of the UMM-Var entries from a given collection to CMR
 
 ## v1.0.1
-### 2023-08-23
+### 2023-08-28
 
 This version of `earthdata-varinfo` includes preliminary functionality to
 streamline the process of creating UMM-Var records given information about a
