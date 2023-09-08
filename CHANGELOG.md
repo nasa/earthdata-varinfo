@@ -6,8 +6,14 @@ This update to `earthdata_varinfo` has two changes in `umm_var.py`:
 
 ## v1.0.1
 ### 2023-08-23
-Added `cmr_search` and `test_cmr_search.py`
-Added function `download_granule` to `cmr_search.py`
+
+This version of `earthdata-varinfo` includes preliminary functionality to
+streamline the process of creating UMM-Var records given information about a
+collection in CMR:
+* Added `cmr_search.py` to search CMR for granule URLs given collection
+  information.
+* Added function `download_granule` to `cmr_search.py`, to download a granule
+  from a specified URL.
 
 ## v1.0.0
 ### 2023-06-16
