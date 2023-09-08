@@ -29,7 +29,7 @@ def get_granules(concept_id: str = None,
         * cmr_env/mode: CMR environments (OPS, UAT, and SIT)
         * token: Earthdata Login (EDL) bearer_token
     For a successful search response concept_id
-    or short_name, version and provider have must be entered
+    or short_name, version and provider must be entered
     along with a bearer_token.
     '''
     granule_query = GranuleQuery(mode=cmr_env)

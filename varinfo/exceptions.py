@@ -95,7 +95,8 @@ class MissingGranuleDownloadLinks(CustomError):
 
 
 class GranuleDownloadException(CustomError):
-    ''' This exception is raised when the requests modules fails.
+    ''' This exception is raised when the `requests.get` modules fails
+        to download a variable locally.
     '''
 
     def __init__(self, granule_download_exception_message):
