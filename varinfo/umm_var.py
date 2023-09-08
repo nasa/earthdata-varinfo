@@ -346,17 +346,17 @@ def get_json_serializable_value(input_value: Any) -> Any:
 def publish_umm_var(collection_id: str,
                     umm_var_dict: Dict,
                     auth_header: str,
-                    cmr_env: CMR_UAT = CMR_UAT) -> str | requests.Response:
+                    cmr_env: CMR_UAT = CMR_UAT) -> str | Dict:
     """" Publish a single UMM-Var entry to CMR given:
         * collection_id: a collection's concept_id
         * umm_var_dict: a dictionary of a single UMM-Var entry for a collection
         * auth_header: Earthdata Login (EDL) bearer_token or LaunchPad token
             with their respective headers
         * cmr_env: CMR environments (OPS, UAT, and SIT) default is CMR_UAT
-    For a successful publication response all of these fields must be entered
+    For a successful requests all of these fields must be entered
 
     """
-    # Required UMM-Var headers for ingestiong variable entries
+    # Required UMM-Var headers for ingesting variable entries
     headers_umm_var = {
         'Content-type': 'application/vnd.nasa.cmr.umm+json;version='
         + f'{umm_var_dict["MetadataSpecification"]["Version"]}',
@@ -370,11 +370,13 @@ def publish_umm_var(collection_id: str,
                             json=umm_var_dict,
                             headers=headers_umm_var,
                             timeout=10)
-    # Check the status_code of the response
-    # Return the variable concept-id if the response passes
+
+    # A successful request returns the variable concept-id
+    # e.g.'V1259791517-EEDTEST'
     if response.ok:
         return response.json()['concept-id']
-    # Return the response object if there was an error
+    # A failed request returns the response dict with the error message
+    # e.g. {'errors': ['#: required key [LongName] not found']}
     return response.json()
 
 
@@ -388,8 +390,8 @@ def publish_all_umm_var(collection_id: str,
             dictionaries of all UMM-Var entries for a collection
         * auth_header: Earthdata Login (EDL) bearer_token or LaunchPad token
             with their respective headers
-        * cmr_env/mode: CMR environments (OPS, UAT, and SIT)
-    For a successful publication response all of these fields must be entered
+        * cmr_env: CMR environments (OPS, UAT, and SIT)
+    For a successful requests all of these fields must be entered
     """
     return {
         var_name: publish_umm_var(collection_id, umm_var, auth_header, cmr_env)
