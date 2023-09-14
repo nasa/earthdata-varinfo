@@ -778,7 +778,7 @@ class TestUmmVar(TestCase):
         mock_requests_put.return_value = mock_response
 
         # Input parameters
-        umm_var_dict = {'Name': 'Test', 
+        umm_var_dict = {'Name': 'Test',
                         'MetadataSpecification':
                             {'URL': 'https://foo.gov/umm/variable/v1.8.2',
                             'Name': 'UMM-Var',
@@ -820,10 +820,11 @@ class TestUmmVar(TestCase):
 
         # Create `mock_failed_response` for a failed request
         # and set its return_value
+        failure_json = {'errors': ['Failed request']}
         mock_failed_response = Mock(spec=requests.Response)
         mock_failed_response.ok = False
         mock_failed_response.status_code = 400
-        mock_failed_response.json.return_value = {'errors': 'Failed request'}
+        mock_failed_response.json.return_value = failure_json
 
         # Set the side_effect so the mock returns the correct response
         # depending on the test case
@@ -831,11 +832,15 @@ class TestUmmVar(TestCase):
                                          mock_failed_response]
 
         # Request inputs
-        umm_var_dict = {'Name': 'Successful', 
-                        'MetadataSpecification':
-                            {'URL': 'https://foo.gov/umm/variable/v1.8.2',
-                            'Name': 'UMM-Var',
-                            'Version': '1.8.2'}}
+        umm_var_dict = {
+            'Name': 'Successful',
+            'MetadataSpecification': {
+                'URL': 'https://foo.gov/umm/variable/v1.8.2',
+                'Name': 'UMM-Var',
+                'Version': '1.8.2'
+            }
+        }
+
         # Sucessful request concept-id
         concept_id = 'C1256535511-EEDTEST'
         cmr_env = CMR_UAT
@@ -855,7 +860,10 @@ class TestUmmVar(TestCase):
                                           umm_var_dict,
                                           auth_header,
                                           cmr_env)
-        self.assertEqual(failed_response, {'errors': 'Failed request'})
+
+        # Failure has a single error, so the expected output is just that one
+        # error string.
+        self.assertEqual(failed_response, failure_json['errors'][0])
 
 
     @patch('requests.put')
@@ -875,19 +883,19 @@ class TestUmmVar(TestCase):
         mock_failed_response = Mock(spec=requests.Response)
         mock_failed_response.ok = False
         mock_failed_response.status_code = 400
-        mock_failed_response.json.return_value = {'errors': 'Failed request'}
+        mock_failed_response.json.return_value = {'errors': ['Failed request']}
 
         # Set the side_effect so the mock returns the correct response
         # depending on the test case
         mock_requests_put.side_effect = [mock_successful_response,
                                          mock_failed_response]
 
-        umm_var_dict = {'Variable_1': {'Name': 'Variable_1', 
+        umm_var_dict = {'Variable_1': {'Name': 'Variable_1',
                         'MetadataSpecification':
                             {'URL': 'https://foo.gov/umm/variable/v1.8.2',
                             'Name': 'UMM-Var',
                             'Version': '1.8.2'}},
-                        'Variable_2': {'Name': 'Variable_2', 
+                        'Variable_2': {'Name': 'Variable_2',
                         'MetadataSpecification':
                             {'URL': 'https://foo.gov/umm/variable/v1.8.2',
                             'Name': 'UMM-Var',
@@ -895,13 +903,14 @@ class TestUmmVar(TestCase):
 
         auth_header = 'Bearer foo'
 
-        variable_ids = publish_all_umm_var('C1256535511-EEDTEST',
-                                           umm_var_dict,
-                                           auth_header,
-                                           CMR_UAT)
+        actual_output = publish_all_umm_var('C1256535511-EEDTEST',
+                                            umm_var_dict,
+                                            auth_header,
+                                            CMR_UAT)
 
         # Check that the expected amount of content and the
         # expected content was returned
-        self.assertEqual(len(variable_ids), 2)
-        self.assertEqual(variable_ids, {'Variable_1': 'Variable-ID',
-                                        'Variable_2': {'errors': 'Failed request'}})
+        expected_output = {'Variable_1': 'Variable-ID',
+                           'Variable_2': 'Failed request'}
+        self.assertEqual(len(actual_output), 2)
+        self.assertEqual(actual_output, expected_output)
