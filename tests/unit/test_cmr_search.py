@@ -109,6 +109,38 @@ class TestQuery(TestCase):
         granule_query_mock.return_value.get.assert_called_once_with(10)
 
     @patch('varinfo.cmr_search.GranuleQuery', spec=GranuleQuery)
+    def test_with_launcpad_token(self, granule_query_mock):
+        ''' Test when `get_granules` is called with an Authorization header
+            that contains a LaunchPad token (e.g., no 'Bearer ' prefix), that
+            header is propagated as expected to the `GranuleQuery` instance.
+
+        '''
+        granule_response = [
+            {
+                'links': [
+                    {'rel': 'http://esipfed.org/ns/fedsearch/1.1/s3#'},
+                    {'rel': 'http://esipfed.org/ns/fedsearch/1.1/data#'}
+                ]
+            }
+        ]
+
+        # Set return_value of `granule_query_mock` to `granule_response`
+        granule_query_mock.return_value.get.return_value = granule_response
+        query_response = get_granules(self.collection_concept_id,
+                                      cmr_env=CMR_UAT,
+                                      auth_header=self.launchpad_token_header)
+
+        # Check if `get_granules` returns the CMR GranuleQuery output
+        self.assertListEqual(query_response, granule_response)
+
+        # Check if the `GranuleQuery` object was instantiated with the correct
+        # environment, Authorization header, and expected page size
+        granule_query_mock.assert_called_once_with(mode=CMR_UAT)
+        self.assertDictEqual(granule_query_mock.return_value.headers,
+                             {'Authorization': self.launchpad_token_header})
+        granule_query_mock.return_value.get.assert_called_once_with(10)
+
+    @patch('varinfo.cmr_search.GranuleQuery', spec=GranuleQuery)
     def test_runtime_error(self, granule_query_mock):
         ''' Test if CMR has a RuntimeError and if the CMRQueryException
             is invoked.
@@ -314,6 +346,37 @@ class TestQuery(TestCase):
         mock_requests_get.assert_called_once_with(
             link,
             headers={'Authorization': self.bearer_token_header},
+            timeout=10
+        )
+        # Check if download file contains expected content from `requests.get`
+        with self.subTest('Test if downloaded file contains expected content'):
+            with open(file_path, 'r', encoding='utf-8') as file:
+                data = file.read()
+
+            self.assertEqual(data, link)
+
+    @patch('requests.get')
+    def test_download_granule_with_launchpad_token(self, mock_requests_get):
+        ''' Ensure an Authorization header containing a LaunchPad token is
+            correctly used in the `requests.get` call. This header does not
+            contain a 'Bearer ' prefix, and the HTTPS call made by `requests`
+            should not have that prefix either.
+
+        '''
+        link = 'https://foo.gov/example.nc4'
+        # Set mock_content as bytes for writing
+        mock_content = bytes(link, encoding='utf-8')
+        # Set the mock_response with the `_mock_requests` object content method
+        mock_response = self._mock_requests(content=mock_content)
+        # Set the return_value of `mock_requests_get` to mock_response
+        mock_requests_get.return_value = mock_response
+        file_path = download_granule(link,
+                                     auth_header=self.launchpad_token_header,
+                                     out_directory=self.output_dir)
+        # Check if `download_granule` was called once with expected parameters
+        mock_requests_get.assert_called_once_with(
+            link,
+            headers={'Authorization': self.launchpad_token_header},
             timeout=10
         )
         # Check if download file contains expected content from `requests.get`

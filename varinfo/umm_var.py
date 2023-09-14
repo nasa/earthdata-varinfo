@@ -365,9 +365,11 @@ def publish_umm_var(collection_id: str,
         'Authorization': auth_header,
         'Accept': 'application/json'
     }
+    variable_native_id = generate_variable_native_id(collection_id,
+                                                     umm_var_dict)
 
     url_endpoint = (cmr_env.replace('search', 'ingest') + 'collections/'
-                    f'{collection_id}/variables/{umm_var_dict["Name"]}')
+                    f'{collection_id}/variables/{variable_native_id}')
 
     response = requests.put(url_endpoint,
                             json=umm_var_dict,
@@ -404,3 +406,16 @@ def publish_all_umm_var(collection_id: str,
         var_name: publish_umm_var(collection_id, umm_var, auth_header, cmr_env)
         for var_name, umm_var in all_umm_var_dict.items()
     }
+
+
+def generate_variable_native_id(collection_concept_id: str,
+                                umm_var_record: Dict) -> str:
+    """ A helper function to create a CMR native ID given the collection
+        concept ID and the variable UMM-Var JSON. This native ID must be unique
+        within the entire provider. The initial implementation will be to
+        concatenate the collection concept ID and the long name of the variable
+        while removing slashes that CMR will interpret as part of the URL path.
+
+    """
+    return '-'.join([collection_concept_id,
+                     umm_var_record['LongName'].replace('/', '_').lstrip('_')])

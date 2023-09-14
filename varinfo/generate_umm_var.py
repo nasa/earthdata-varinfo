@@ -11,6 +11,7 @@
 '''
 from tempfile import TemporaryDirectory
 from typing import Dict, List, Union
+import re
 
 from cmr import CMR_UAT
 
@@ -29,7 +30,7 @@ def generate_collection_umm_var(collection_concept_id: str,
                                 auth_header: str,
                                 cmr_env: CmrEnvType = CMR_UAT,
                                 publish: bool = False) -> UmmVarReturnType:
-    ''' Run all the of the functions for downloading and publishing
+    """ Run all the of the functions for downloading and publishing
         a UMM-Var entry to CMR given:
 
         * collection_concept_id: Concept ID for collection that variables have
@@ -42,7 +43,9 @@ def generate_collection_umm_var(collection_concept_id: str,
           generated UMM-Var records to the indicated CMR instance. Defaults to
           False.
 
-    '''
+       Note - if attempting to publish to CMR, a LaunchPad token must be used.
+
+    """
     granule_response = get_granules(collection_concept_id, cmr_env=cmr_env,
                                     auth_header=auth_header)
 
@@ -70,7 +73,7 @@ def generate_collection_umm_var(collection_concept_id: str,
                                                    auth_header, cmr_env)
 
         return_value = [variable_response
-                        if variable_response.startswith('V')
+                        if is_variable_concept_id(variable_response)
                         else ': '.join([variable_name, variable_response])
                         for variable_name, variable_response
                         in publication_response.items()]
@@ -79,3 +82,11 @@ def generate_collection_umm_var(collection_concept_id: str,
         return_value = list(all_umm_var_records.values())
 
     return return_value
+
+
+def is_variable_concept_id(possible_concept_id: str) -> bool:
+    """ A helper function to identify if a given string conforms to the
+        expected structure of a variable concept ID.
+
+    """
+    return bool(re.match(r'^V\d{10}-\w+$', possible_concept_id))

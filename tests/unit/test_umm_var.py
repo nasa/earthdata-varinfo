@@ -11,7 +11,6 @@ from jsonschema import validate as validate_json, ValidationError
 from netCDF4 import Dataset
 from numpy import int32, float64
 import requests
-from requests.exceptions import Timeout
 from cmr import CMR_UAT
 
 from varinfo import CFConfig
@@ -19,6 +18,7 @@ from varinfo import VarInfoFromDmr, VarInfoFromNetCDF4, VariableFromDmr
 from varinfo.exceptions import InvalidExportDirectory
 from varinfo.umm_var import (export_all_umm_var_to_json,
                              export_umm_var_to_json,get_all_umm_var,
+                             generate_variable_native_id,
                              get_dimension_information, get_dimension_size,
                              get_dimensions, get_fill_values,
                              get_first_matched_attribute,
@@ -39,6 +39,8 @@ class TestUmmVar(TestCase):
             tests.
 
         """
+        cls.bearer_token_header = 'Bearer this-is-a-token'
+        cls.collection_concept_id = 'C1234567890-PROV'
         cls.atl03_varinfo = VarInfoFromDmr('tests/unit/data/ATL03_example.dmr',
                                            short_name='ATL03')
         cls.atl03_config = CFConfig('ICESat-2', 'ATL03',
@@ -778,27 +780,31 @@ class TestUmmVar(TestCase):
         mock_requests_put.return_value = mock_response
 
         # Input parameters
-        umm_var_dict = {'Name': 'Test',
-                        'MetadataSpecification':
-                            {'URL': 'https://foo.gov/umm/variable/v1.8.2',
-                            'Name': 'UMM-Var',
-                            'Version': '1.8.2'}}
-
-        concept_id = 'C1256535511-EEDTEST'
-        cmr_env = CMR_UAT
-        auth_header = 'Bearer foo'
+        umm_var_dict = {
+            'LongName': 'test_variable',
+            'Name': 'Test',
+            'MetadataSpecification': {
+                'URL': 'https://foo.gov/umm/variable/v1.8.2',
+                'Name': 'UMM-Var',
+                'Version': '1.8.2'
+            }
+        }
 
         # Expected parameters
         expected_headers_umm_var = {
             'Content-type': 'application/vnd.nasa.cmr.umm+json;version='
             + f'{umm_var_dict["MetadataSpecification"]["Version"]}',
-            'Authorization': auth_header,
+            'Authorization': self.bearer_token_header,
             'Accept': 'application/json'}
 
-        expected_url_endpoint = (cmr_env.replace('search', 'ingest') + 'collections/'
-                    f'{concept_id}/variables/{umm_var_dict["Name"]}')
+        expected_native_id = f'{self.collection_concept_id}-test_variable'
+        expected_url_endpoint = (
+            f'{CMR_UAT.replace("search", "ingest")}collections/'
+            f'{self.collection_concept_id}/variables/{expected_native_id}'
+        )
 
-        publish_umm_var(concept_id, umm_var_dict, auth_header, cmr_env)
+        publish_umm_var(self.collection_concept_id, umm_var_dict,
+                        self.bearer_token_header, CMR_UAT)
 
         # Check if `publish_umm_var` was called once with expected parameters
         mock_requests_put.assert_called_once_with(expected_url_endpoint,
@@ -833,6 +839,7 @@ class TestUmmVar(TestCase):
 
         # Request inputs
         umm_var_dict = {
+            'LongName': 'Successful',
             'Name': 'Successful',
             'MetadataSpecification': {
                 'URL': 'https://foo.gov/umm/variable/v1.8.2',
@@ -841,16 +848,11 @@ class TestUmmVar(TestCase):
             }
         }
 
-        # Sucessful request concept-id
-        concept_id = 'C1256535511-EEDTEST'
-        cmr_env = CMR_UAT
-        auth_header = 'Bearer foo'
-
         # Test successful request
-        successful_response = publish_umm_var(concept_id,
+        successful_response = publish_umm_var(self.collection_concept_id,
                                               umm_var_dict,
-                                              auth_header,
-                                              cmr_env)
+                                              self.bearer_token_header,
+                                              CMR_UAT)
         self.assertEqual(successful_response, 'Variable-ID')
 
         # Test failed request
@@ -858,13 +860,12 @@ class TestUmmVar(TestCase):
         # to test failed request
         failed_response = publish_umm_var('Failed-Variable-Concept-ID',
                                           umm_var_dict,
-                                          auth_header,
-                                          cmr_env)
+                                          self.bearer_token_header,
+                                          CMR_UAT)
 
         # Failure has a single error, so the expected output is just that one
         # error string.
         self.assertEqual(failed_response, failure_json['errors'][0])
-
 
     @patch('requests.put')
     def test_publish_all_umm_var(self, mock_requests_put):
@@ -890,22 +891,30 @@ class TestUmmVar(TestCase):
         mock_requests_put.side_effect = [mock_successful_response,
                                          mock_failed_response]
 
-        umm_var_dict = {'Variable_1': {'Name': 'Variable_1',
-                        'MetadataSpecification':
-                            {'URL': 'https://foo.gov/umm/variable/v1.8.2',
-                            'Name': 'UMM-Var',
-                            'Version': '1.8.2'}},
-                        'Variable_2': {'Name': 'Variable_2',
-                        'MetadataSpecification':
-                            {'URL': 'https://foo.gov/umm/variable/v1.8.2',
-                            'Name': 'UMM-Var',
-                            'Version': '1.8.2'}}}
+        umm_var_dict = {
+            'Variable_1': {
+                'LongName': 'Variable_1',
+                'Name': 'Variable_1',
+                'MetadataSpecification': {
+                    'URL': 'https://foo.gov/umm/variable/v1.8.2',
+                    'Name': 'UMM-Var',
+                    'Version': '1.8.2'
+                }
+            },
+            'Variable_2': {
+                'LongName': 'Variable_2',
+                'Name': 'Variable_2',
+                'MetadataSpecification': {
+                    'URL': 'https://foo.gov/umm/variable/v1.8.2',
+                    'Name': 'UMM-Var',
+                    'Version': '1.8.2'
+                }
+            }
+        }
 
-        auth_header = 'Bearer foo'
-
-        actual_output = publish_all_umm_var('C1256535511-EEDTEST',
+        actual_output = publish_all_umm_var(self.collection_concept_id,
                                             umm_var_dict,
-                                            auth_header,
+                                            self.bearer_token_header,
                                             CMR_UAT)
 
         # Check that the expected amount of content and the
@@ -914,3 +923,30 @@ class TestUmmVar(TestCase):
                            'Variable_2': 'Failed request'}
         self.assertEqual(len(actual_output), 2)
         self.assertEqual(actual_output, expected_output)
+
+    def test_generate_variable_native_id(self):
+        """ Ensure a native ID is created as expected. The concept ID is
+            explicitly typed out here, to avoid just recreating the function
+            itself in the test.
+
+        """
+        with self.subTest('Variable in flat file'):
+            umm_var_json = {'LongName': 'time'}
+            self.assertEqual(
+                generate_variable_native_id('C1234567890-PROV', umm_var_json),
+                'C1234567890-PROV-time'
+            )
+
+        with self.subTest('Variable in hierarchical file'):
+            umm_var_json = {'LongName': 'Grid/time'}
+            self.assertEqual(
+                generate_variable_native_id('C1234567890-PROV', umm_var_json),
+                'C1234567890-PROV-Grid_time'
+            )
+
+        with self.subTest('No leading slashes affect name.'):
+            umm_var_json = {'LongName': '/Grid/time'}
+            self.assertEqual(
+                generate_variable_native_id('C1234567890-PROV', umm_var_json),
+                'C1234567890-PROV-Grid_time'
+            )
