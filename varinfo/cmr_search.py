@@ -18,7 +18,7 @@ from varinfo.exceptions import (CMRQueryException,
 CmrEnvType = Literal[CMR_OPS, CMR_UAT, CMR_SIT]
 
 
-def get_granules(collection_concept_id: str = None,
+def get_granules(concept_id: str = None,
                  collection_shortname: str = None,
                  collection_version: str = None,
                  provider: str = None,
@@ -26,7 +26,11 @@ def get_granules(collection_concept_id: str = None,
                  auth_header: str = None) -> list:
     ''' Search CMR to retrieve granules for a specific collection given:
 
-        * collection_concept_id: a CMR collection concept ID
+        * concept_id: a CMR collection or granule concept ID. For most
+          workflows, including the generateVariableDrafts within the CMR
+          GraphQL interface, this is anticipated to be a collection concept ID,
+          but the `GranuleQuery` object can also make queries with a granule
+          concept IDs.
         * shortname/short_name: e.g., 'SNDRSNIML2CCPRET' or 'M2T1NXSLV'
         * collection_version/version: a collection version: '2' or 5.12.4'
         * provider: data center ID (e.g. GES_DISC, PODAAC, POCLOUD, EEDTEST)
@@ -47,9 +51,10 @@ def get_granules(collection_concept_id: str = None,
     else:
         raise MissingPositionalArguments('auth_header')
 
-    if collection_concept_id is not None:
-        # If the collection concept ID is specified, can query CMR using it
-        query_parameters = {'concept_id': collection_concept_id}
+    if concept_id is not None:
+        # If a collection or granule concept ID is specified, can query CMR
+        # just using that parameter.
+        query_parameters = {'concept_id': concept_id}
     elif collection_shortname and collection_version and provider is not None:
         # Otherwise use the combination of short_name, version, and provider
         query_parameters = {'short_name': collection_shortname,
@@ -58,8 +63,7 @@ def get_granules(collection_concept_id: str = None,
     else:
         # If neither condition is met, there aren't enough CMR query parameters
         # to identify the collection.
-        raise MissingPositionalArguments('collection_concept_id or '
-                                         'collection_shortname, '
+        raise MissingPositionalArguments('concept_id or collection_shortname, '
                                          'collection_version, and provider')
 
     # Assign parameters to GranuleQuery

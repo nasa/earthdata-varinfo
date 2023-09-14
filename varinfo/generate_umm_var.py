@@ -43,8 +43,8 @@ def generate_collection_umm_var(collection_concept_id: str,
           False.
 
     '''
-    granule_response = get_granules(collection_concept_id, cmr_env,
-                                    auth_header)
+    granule_response = get_granules(collection_concept_id, cmr_env=cmr_env,
+                                    auth_header=auth_header)
 
     # Get the data download URL for the most recent granule (NetCDF-4 file)
     granule_link = get_granule_link(granule_response)

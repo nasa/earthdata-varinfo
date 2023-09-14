@@ -203,9 +203,8 @@ class TestQuery(TestCase):
                              auth_header=self.bearer_token_header)
 
             expected_exception = ('Missing positional argument: '
-                                  'collection_concept_id or '
-                                  'collection_shortname, collection_version, '
-                                  'and provider')
+                                  'concept_id or collection_shortname, '
+                                  'collection_version, and provider')
             self.assertEqual(expected_exception,
                              str(context_manager.exception))
 
