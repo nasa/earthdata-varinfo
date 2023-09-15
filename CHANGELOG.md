@@ -1,8 +1,21 @@
-## v1.0.2
-### Unreleased
-This update to `earthdata_varinfo` has two changes in `umm_var.py`:
-* `publish_umm_var` ingests a single UMM-Var entry to CMR
-* `publish_all_umm_var` ingests all of the UMM-Var entries from a given collection to CMR
+## v2.0.0
+### 2023-09-15
+
+This version of `earthdata-varinfo` adds functionality to publish records to
+CMR, along with a single overarching function that wraps the search, download
+and publication functionality into a single function for the convenience of the
+end-user. Additionally, the function signatures for `cmr_search.get_granules`
+and `cmr_search.download_granule` have been updated to accept the full
+`Authorization` header, instead of a bearer token, so that they are also
+compatible with LaunchPad tokens.
+
+* `generate_umm_var.generate_collection_umm_var` is designed to be a single
+  call for local workflows to find appropriate granules for a collection,
+  download them, parse them and generate UMM-Var JSON, which can be optionally
+  published to CMR.
+* `umm_var.publish_umm_var` ingests a single UMM-Var entry to CMR
+* `umm_var.publish_all_umm_var` ingests all of the UMM-Var entries from a given
+  collection to CMR
 
 ## v1.0.1
 ### 2023-08-28
