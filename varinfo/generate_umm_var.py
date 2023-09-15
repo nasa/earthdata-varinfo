@@ -74,7 +74,7 @@ def generate_collection_umm_var(collection_concept_id: str,
         # Produce a list indicating publication information for all variables.
         # Variables that were successfully published will have a list element
         # providing their variable concept ID. Any variables that were
-        # unsuccessfully published instead will have an element containing
+        # not successfully published will instead have an element containing
         # the variable name and the CMR error (e.g., 'variable: CMR error...').
         return_value = [variable_response
                         if is_variable_concept_id(variable_response)
