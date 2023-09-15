@@ -109,7 +109,7 @@ class TestQuery(TestCase):
         granule_query_mock.return_value.get.assert_called_once_with(10)
 
     @patch('varinfo.cmr_search.GranuleQuery', spec=GranuleQuery)
-    def test_with_launcpad_token(self, granule_query_mock):
+    def test_with_launchpad_token(self, granule_query_mock):
         ''' Test when `get_granules` is called with an Authorization header
             that contains a LaunchPad token (e.g., no 'Bearer ' prefix), that
             header is propagated as expected to the `GranuleQuery` instance.
@@ -333,8 +333,10 @@ class TestQuery(TestCase):
             content for the mocked response.
         '''
         link = 'https://foo.gov/example.nc4'
+        expected_file_contents = 'Fake NetCDF-4 content'
+
         # Set mock_content as bytes for writing
-        mock_content = bytes(link, encoding='utf-8')
+        mock_content = bytes(expected_file_contents, encoding='utf-8')
         # Set the mock_response with the `_mock_requests` object content method
         mock_response = self._mock_requests(content=mock_content)
         # Set the return_value of `mock_requests_get` to mock_response
@@ -351,9 +353,9 @@ class TestQuery(TestCase):
         # Check if download file contains expected content from `requests.get`
         with self.subTest('Test if downloaded file contains expected content'):
             with open(file_path, 'r', encoding='utf-8') as file:
-                data = file.read()
+                actual_file_contents = file.read()
 
-            self.assertEqual(data, link)
+            self.assertEqual(actual_file_contents, expected_file_contents)
 
     @patch('requests.get')
     def test_download_granule_with_launchpad_token(self, mock_requests_get):
@@ -364,8 +366,10 @@ class TestQuery(TestCase):
 
         '''
         link = 'https://foo.gov/example.nc4'
+        expected_file_contents = 'Fake NetCDF-4 content'
+
         # Set mock_content as bytes for writing
-        mock_content = bytes(link, encoding='utf-8')
+        mock_content = bytes(expected_file_contents, encoding='utf-8')
         # Set the mock_response with the `_mock_requests` object content method
         mock_response = self._mock_requests(content=mock_content)
         # Set the return_value of `mock_requests_get` to mock_response
@@ -382,9 +386,9 @@ class TestQuery(TestCase):
         # Check if download file contains expected content from `requests.get`
         with self.subTest('Test if downloaded file contains expected content'):
             with open(file_path, 'r', encoding='utf-8') as file:
-                data = file.read()
+                actual_file_contents = file.read()
 
-            self.assertEqual(data, link)
+            self.assertEqual(actual_file_contents, expected_file_contents)
 
     @patch('requests.get')
     def test_requests_error(self, mock_requests_get):

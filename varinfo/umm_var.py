@@ -380,10 +380,11 @@ def publish_umm_var(collection_id: str,
         # e.g., 'V1259791517-EEDTEST'
         return response.json()['concept-id']
     else:
-        # A failed request returns the response dict with the error message
-        # e.g., {'errors': ['#: required key [LongName] not found']}
+        # A failed request returns the response containing a list of error
+        # message, e.g., {'errors': ['#: required key [LongName] not found']}.
         # This will be converted into a single string that can be returned to
-        # the end-user.
+        # the end-user. Multiple errors will be combined into a single string,
+        # e.g.: '#: CMR error 1\n  #: CMR error 2'
         return '\n  '.join(response.json()['errors'])
 
 

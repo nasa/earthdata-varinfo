@@ -36,9 +36,8 @@ def generate_collection_umm_var(collection_concept_id: str,
         * collection_concept_id: Concept ID for collection that variables have
           been generated for.
         * cmr_env: URLs for CMR environments (OPS, UAT, and SIT)
-        * auth_header: Authorization HTTP header, containing either:
-          - A LaunchPad token: 'Authorization: <token>'
-          - An EDL bearer token: 'Authorization: Bearer <token>'
+        * auth_header: Authorization HTTP header, containing a LaunchPad
+          token: 'Authorization: <token>'
         * publish: Optional argument determining whether to publish the
           generated UMM-Var records to the indicated CMR instance. Defaults to
           False.
@@ -72,6 +71,11 @@ def generate_collection_umm_var(collection_concept_id: str,
                                                    all_umm_var_records,
                                                    auth_header, cmr_env)
 
+        # Produce a list indicating publication information for all variables.
+        # Variables that were successfully published will have a list element
+        # providing their variable concept ID. Any variables that were
+        # unsuccessfully published instead will have an element containing
+        # the variable name and the CMR error (e.g., 'variable: CMR error...').
         return_value = [variable_response
                         if is_variable_concept_id(variable_response)
                         else ': '.join([variable_name, variable_response])
@@ -86,7 +90,7 @@ def generate_collection_umm_var(collection_concept_id: str,
 
 def is_variable_concept_id(possible_concept_id: str) -> bool:
     """ A helper function to identify if a given string conforms to the
-        expected structure of a variable concept ID.
+        expected structure of a variable concept ID, e.g., 'V1234567890-PROV'.
 
     """
     return bool(re.match(r'^V\d{10}-\w+$', possible_concept_id))

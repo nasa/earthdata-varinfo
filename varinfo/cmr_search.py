@@ -35,9 +35,9 @@ def get_granules(concept_id: str = None,
         * collection_version/version: a collection version: '2' or 5.12.4'
         * provider: data center ID (e.g. GES_DISC, PODAAC, POCLOUD, EEDTEST)
         * cmr_env/mode: CMR environments (OPS, UAT, and SIT)
-        * auth_header: Authorization HTTP header, containing either:
-          - A LaunchPad token: 'Authorization: <token>'
-          - An EDL bearer token: 'Authorization: Bearer <token>'
+        * auth_header: Authorization HTTP header, either:
+          - A header with a LaunchPad token: 'Authorization: <token>'
+          - An header with an EDL bearer token: 'Authorization: Bearer <token>'
 
         For a successful search response concept_id or short_name, version and
         provider must be entered along with a bearer_token.
@@ -104,9 +104,9 @@ def download_granule(granule_link: str,
                      out_directory: str = os.getcwd()) -> str:
     ''' Use the requests module to download data via https.
         * granule_link: granule download URL.
-        * auth_header: Authorization HTTP header, containing either:
-          - A LaunchPad token: 'Authorization: <token>'
-          - An EDL bearer token: 'Authorization: Bearer <token>'
+        * auth_header: Authorization HTTP header, either:
+          - A header with a LaunchPad token: 'Authorization: <token>'
+          - An header with an EDL bearer token: 'Authorization: Bearer <token>'
         * out_directory: path to save downloaded granule
             (the default is the current directory).
     '''

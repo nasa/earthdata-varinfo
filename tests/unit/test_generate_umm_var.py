@@ -157,7 +157,7 @@ class TestGenerateUmmVar(TestCase):
     def test_error_from_search_is_raised(self, mock_download_granule,
                                          mock_granule_query,
                                          mock_publish_umm_var):
-        """ Ensure an error raised iduring search is propagated out to the
+        """ Ensure an error raised during search is propagated out to the
             user.
 
         """
@@ -201,6 +201,9 @@ class TestGenerateUmmVar(TestCase):
             'V0000000004-PROV', 'V0000000005-PROV', 'V0000000006-PROV',
             'V0000000007-PROV'
         ]
+
+        # Create combined list of concept IDs and one error:
+        # ['V0000000001-PROV', 'V0000000002-PROV', ..., 'Invalid JSON']
         concept_ids_and_error = concept_ids + [error_message]
 
         mock_granule_query.return_value.get.return_value = [
@@ -248,10 +251,21 @@ class TestGenerateUmmVar(TestCase):
         # e.g.: '/variable_name: Error Message'.
         # This is done in pieces, in case dictionary ordering means the
         # variable associated with the error varies between test runs.
+
+        # First get any element that isn't a UMM-Var concept ID:
         error_messages = set(published_umm_var).difference(concept_ids)
+
+        # Check there is only one error, as expected
         self.assertEqual(len(error_messages), 1)
+
+        # Split the error string: ['/variable_name', 'Error message']
         error_pieces = list(error_messages)[0].split(': ')
+
+        # Confirm the second half of the error string was the error from CMR
         self.assertEqual(error_pieces[1], error_message)
+
+        # Check the first half of the error string (without the leading slash)
+        # is one of the known variables in RSSMIF16D
         self.assertIn(error_pieces[0].lstrip('/'),
                       self.rssmif16d_variables)
 

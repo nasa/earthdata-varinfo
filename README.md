@@ -102,7 +102,7 @@ export_all_umm_var_to_json(list(umm_var.values()), output_dir='local_dir')
 
 ```
 from cmr import CMR_OPS
-from varinfo import generate_collection_umm_var
+from varinfo.generate_umm_var import generate_collection_umm_var
 
 # Defaults to UAT, and not to publish:
 umm_var_json = generate_collection_umm_var(<UAT collection concept ID>,
