@@ -43,7 +43,7 @@ def generate_collection_umm_var(collection_concept_id: str,
           generated UMM-Var records to the indicated CMR instance. Defaults to
           False.
 
-       Note - if attempting to publish to CMR, a LaunchPad token must be used.
+        Note - if attempting to publish to CMR, a LaunchPad token must be used.
 
     """
     granule_response = get_granules(collection_concept_id, cmr_env=cmr_env,

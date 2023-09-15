@@ -350,9 +350,8 @@ def publish_umm_var(collection_id: str,
     """" Publish a single UMM-Var entry to CMR given:
         * collection_id: a collection's concept_id
         * umm_var_dict: a dictionary of a single UMM-Var entry for a collection
-        * auth_header: Authorization HTTP header, containing either:
-          - A LaunchPad token: 'Authorization: <token>'
-          - An EDL bearer token: 'Authorization: Bearer <token>'
+        * auth_header: Authorization HTTP header, containing a LaunchPad
+          token: 'Authorization: <token>'
         * cmr_env: CMR environments (OPS, UAT, and SIT) default is CMR_UAT
 
         For a successful requests all of these fields must be entered
@@ -396,9 +395,8 @@ def publish_all_umm_var(collection_id: str,
         * collection_id: a collection's concept_id
         * all_umm_var_dict: a nested dictionary containing
             dictionaries of all UMM-Var entries for a collection
-        * auth_header: Authorization HTTP header, containing either:
-          - A LaunchPad token: 'Authorization: <token>'
-          - An EDL bearer token: 'Authorization: Bearer <token>'
+        * auth_header: Authorization HTTP header, containing a LaunchPad
+          token: 'Authorization: <token>'
         * cmr_env: CMR environments (OPS, UAT, and SIT)
     For a successful requests all of these fields must be entered
     """
