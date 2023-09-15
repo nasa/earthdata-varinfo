@@ -12,7 +12,7 @@ jobs:
       fail-fast: false
 
     steps:
-      - name: Checkout harmony-gdal-adapter repository
+      - name: Checkout earthdata-varinfo repository
         uses: actions/checkout@v3
 
       - name: Set up Python ${{ matrix.python-version }}
