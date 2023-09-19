@@ -36,10 +36,10 @@ from typing import Any, Dict, List, Optional, Union
 import json
 import requests
 
-from numpy import floating as np_floating, integer as np_integer
 from cmr import CMR_UAT
+from numpy import floating as np_floating, integer as np_integer
 
-
+from varinfo.cmr_search import CmrEnvType
 from varinfo.exceptions import InvalidExportDirectory
 from varinfo.var_info import VarInfoBase
 from varinfo.variable import VariableBase
@@ -343,17 +343,31 @@ def get_json_serializable_value(input_value: Any) -> Any:
     return output_value
 
 
+def generate_variable_native_id(collection_concept_id: str,
+                                umm_var_record: Dict) -> str:
+    """ A helper function to create a CMR native ID given the collection
+        concept ID and the variable UMM-Var JSON. This native ID must be unique
+        within the entire provider. The initial implementation will be to
+        concatenate the collection concept ID and the long name of the variable
+        while removing slashes that CMR will interpret as part of the URL path.
+
+    """
+    return '-'.join([collection_concept_id,
+                     umm_var_record['LongName'].replace('/', '_').lstrip('_')])
+
+
 def publish_umm_var(collection_id: str,
                     umm_var_dict: Dict,
                     auth_header: str,
-                    cmr_env: CMR_UAT = CMR_UAT) -> Union[str, Dict]:
+                    cmr_env: CmrEnvType = CMR_UAT) -> str:
     """" Publish a single UMM-Var entry to CMR given:
         * collection_id: a collection's concept_id
         * umm_var_dict: a dictionary of a single UMM-Var entry for a collection
-        * auth_header: Earthdata Login (EDL) bearer_token or LaunchPad token
-            with their respective headers
+        * auth_header: Authorization HTTP header, containing a LaunchPad
+          token: 'Authorization: <token>'
         * cmr_env: CMR environments (OPS, UAT, and SIT) default is CMR_UAT
-    For a successful requests all of these fields must be entered
+
+        For a successful requests all of these fields must be entered
 
     """
     # Required UMM-Var headers for ingesting variable entries
@@ -361,38 +375,46 @@ def publish_umm_var(collection_id: str,
         'Content-type': 'application/vnd.nasa.cmr.umm+json;version='
         + f'{umm_var_dict["MetadataSpecification"]["Version"]}',
         'Authorization': auth_header,
-        'Accept': 'application/json'}
+        'Accept': 'application/json'
+    }
+    variable_native_id = generate_variable_native_id(collection_id,
+                                                     umm_var_dict)
 
     url_endpoint = (cmr_env.replace('search', 'ingest') + 'collections/'
-                    f'{collection_id}/variables/{umm_var_dict["Name"]}')
+                    f'{collection_id}/variables/{variable_native_id}')
 
     response = requests.put(url_endpoint,
                             json=umm_var_dict,
                             headers=headers_umm_var,
                             timeout=10)
 
-    # A successful request returns the variable concept-id
-    # e.g.'V1259791517-EEDTEST'
     if response.ok:
+        # A successful request returns the variable concept-id
+        # e.g., 'V1259791517-EEDTEST'
         return response.json()['concept-id']
-    # A failed request returns the response dict with the error message
-    # e.g. {'errors': ['#: required key [LongName] not found']}
-    return response.json()
+    else:
+        # A failed request returns the response containing a list of error
+        # message, e.g., {'errors': ['#: required key [LongName] not found']}.
+        # This will be converted into a single string that can be returned to
+        # the end-user. Multiple errors will be combined into a single string,
+        # e.g.: '#: CMR error 1\n  #: CMR error 2'
+        return '\n  '.join(response.json()['errors'])
 
 
 def publish_all_umm_var(collection_id: str,
                         all_umm_var_dict: Dict,
                         auth_header: str,
-                        cmr_env: CMR_UAT = CMR_UAT) -> Dict:
+                        cmr_env: CmrEnvType = CMR_UAT) -> Dict[str, str]:
     """ Publish all UMM-Var entries associated with a collection to CMR given:
         * collection_id: a collection's concept_id
         * all_umm_var_dict: a nested dictionary containing
             dictionaries of all UMM-Var entries for a collection
-        * auth_header: Earthdata Login (EDL) bearer_token or LaunchPad token
-            with their respective headers
+        * auth_header: Authorization HTTP header, containing a LaunchPad
+          token: 'Authorization: <token>'
         * cmr_env: CMR environments (OPS, UAT, and SIT)
     For a successful requests all of these fields must be entered
     """
     return {
         var_name: publish_umm_var(collection_id, umm_var, auth_header, cmr_env)
-        for var_name, umm_var in all_umm_var_dict.items()}
+        for var_name, umm_var in all_umm_var_dict.items()
+    }

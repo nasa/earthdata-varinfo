@@ -98,6 +98,45 @@ umm_var = get_all_umm_var(var_info)
 export_all_umm_var_to_json(list(umm_var.values()), output_dir='local_dir')
 ```
 
+### End-to-end UMM-Var generation and publication:
+
+```
+from cmr import CMR_OPS
+from varinfo.generate_umm_var import generate_collection_umm_var
+
+# Defaults to UAT, and not to publish:
+umm_var_json = generate_collection_umm_var(<UAT collection concept ID>,
+                                           <authorization header>)
+
+# To use a production collection:
+umm_var_json = generate_collection_umm_var(<Production collection concept ID>,
+                                           <authorization header>,
+                                           cmr_env=CMR_OPS)
+
+# To generate and publish records for a UAT collection (note the authorization
+# header must contain a LaunchPad token):
+umm_var_json = generate_collection_umm_var(<UAT collection concept ID>,
+                                           <authorization header>,
+                                           publish=True)
+```
+
+Expected outputs:
+
+* `publish=False`, or not specifying a value will result in JSON output
+  containing the UMM-Var JSON for each identified variable.
+* `publish=True` will return a list of strings. Each string is either the
+  concept ID of a new  UMM-Var record, or a string including the full path of
+  a variable that failed to publish and the error messages returned from CMR.
+
+Native IDs for generated UMM-Var records will be of format:
+
+```
+<collection concept ID>-<variable LongName>
+```
+
+For variables that are hierarchical, slashes will be converted to underscores,
+to ensure the native ID is compatible with the CMR API.
+
 ## Configuration file schema:
 
 The configuration file schema is defined as a JSON schema file in the `config`
