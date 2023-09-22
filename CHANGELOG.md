@@ -1,9 +1,3 @@
-## v2.0.1
-### Unreleased
-
-This version of `earthdata-varinfo` adds the notebook, `how_to_publish_to_cmr_with_earthdata_varinfo.ipynb`,
-to the documentation directory.
-
 ## v2.0.0
 ### 2023-09-15
 
