@@ -325,6 +325,7 @@ class TestVarInfoFromDmr(TestCase):
                                  config_file=self.config_file)
 
         science_variables = dataset.get_science_variables()
+        print('here', science_variables)
         self.assertEqual(science_variables, {'/science/interesting_thing'})
 
     def test_var_info_get_metadata_variables(self):

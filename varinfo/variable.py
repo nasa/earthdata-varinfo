@@ -241,16 +241,16 @@ class VariableBase(ABC):
             Or if the variable has a coordinates or a grid_mapping attribute.
 
         """
-        if (self.is_geographic() or self.is_temporal() or
-            self.is_projection_x_or_y()):
+        if (self.is_geographic()
+            or self.is_temporal()
+                or self.is_projection_x_or_y()):
             return False
 
-        if (self.references.get('coordinates') or
-            self.references.get('grid_mapping')) is not None:
+        if (self.references.get('coordinates')
+                or self.references.get('grid_mapping')) is not None:
             return False
 
         return True
-
 
     def _get_all_cf_references(self) -> Dict[str, Set[str]]:
         """ Retrieve a dictionary containing all CF-Convention attributes
