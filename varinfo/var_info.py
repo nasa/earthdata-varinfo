@@ -204,7 +204,7 @@ class VarInfoBase(ABC):
             for variable_path, variable
             in self.variables.items()
             if variable_path is not None
-            and variable.references.get('coordinates') is not None
+            and variable.is_science()
             and not self.variable_is_excluded(variable_path,
                                               exclusions_pattern)
         }
@@ -231,7 +231,7 @@ class VarInfoBase(ABC):
             in self.variables.items()
             if variable_path is not None
             and (self.variable_is_excluded(variable_path, exclusions_pattern)
-                 or variable.references.get('coordinates') is None)
+                 and not variable.is_science())
         }
 
         return non_coordinate_variables - self.references
