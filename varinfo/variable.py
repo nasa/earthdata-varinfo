@@ -236,9 +236,11 @@ class VariableBase(ABC):
         return ' since ' in self.attributes.get('units', '')
 
     def is_science(self) -> bool:
-        """ Determine if a variable is a science variable if it has temporal
-            or spatial dimensions or projected spatial dimensions in meters.
-            Or if the variable has a coordinates or a grid_mapping attribute.
+        """ Determine if a variable is a science variable.
+            A science variable is classified as a variable that is not a
+            geographic, temporal, or a projected spatial dimension variable,
+            or if it does not have a coordinate or grid mapping reference
+            attribute.
 
         """
         if (self.is_geographic()

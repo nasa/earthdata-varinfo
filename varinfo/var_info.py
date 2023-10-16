@@ -214,7 +214,8 @@ class VarInfoBase(ABC):
     def get_metadata_variables(self) -> Set[str]:
         """ Retrieve set of names for all variables that do no have
             coordinates references, that are not themselves used as dimensions,
-            coordinates or ancillary data for another variable.
+            coordinates, ancillary data for another variable, or are
+            science variables.
 
             Additionally, any excluded science variables, that are contained
             in the variables class attribute should be considered a metadata
