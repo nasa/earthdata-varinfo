@@ -1,3 +1,11 @@
+## v2.0.1
+### Unreleased
+This version of `earthdata-varinfo` improves the functionality of the
+`varinfo.get_science_variables` function with `variables.is_science()` method.
+This method returns true if a variable is a science variable by checking if
+a variable is dimension scale variable or if it contains coordinate references
+or grid mapping attributes.
+
 ## v2.0.0
 ### 2023-09-15
 
