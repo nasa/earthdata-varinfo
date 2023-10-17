@@ -134,7 +134,7 @@ class TestUmmVar(TestCase):
             set(umm_var_record.keys()),
             {'Name', 'LongName', 'Definition', 'StandardName', 'DataType',
              'Dimensions', 'FillValues', 'Units', 'Scale', 'Offset',
-             'ValidRanges', 'MetadataSpecification'}
+             'ValidRanges', 'VariableType', 'MetadataSpecification'}
         )
 
         # Ensure all data fields have expected values:
@@ -218,7 +218,7 @@ class TestUmmVar(TestCase):
         # values have been removed from the record):
         self.assertSetEqual(
             set(umm_var_record.keys()),
-            {'Name', 'LongName', 'Definition', 'DataType',
+            {'Name', 'LongName', 'Definition', 'DataType', 'VariableType',
              'MetadataSpecification'}
         )
 

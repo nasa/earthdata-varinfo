@@ -71,6 +71,10 @@ def get_umm_var(var_info: VarInfoBase, variable: VariableBase) -> Dict:
 
     """
     variable_name = variable.full_name_path.lstrip('/')
+    if variable.is_science():
+        science_variable_type = 'SCIENCE_VARIABLE'
+    else:
+        science_variable_type = None
     umm_var_record = {
         'Name': variable_name,
         'LongName': variable_name,
@@ -93,6 +97,7 @@ def get_umm_var(var_info: VarInfoBase, variable: VariableBase) -> Dict:
             variable, ['add_offset', 'offset', 'Offset']
         ),
         'ValidRanges': get_valid_ranges(variable),
+        'VariableType': science_variable_type,
         'MetadataSpecification': get_metadata_specification()
     }
 
