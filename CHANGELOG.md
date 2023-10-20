@@ -1,5 +1,5 @@
-## v2.0.1
-### Unreleased
+## v2.1.0
+### 2023-10-20
 This version of `earthdata-varinfo` improves the functionality of the
 `varinfo.get_science_variables` function with `variables.is_science()` method.
 This method returns true if a variable is a science variable by checking if

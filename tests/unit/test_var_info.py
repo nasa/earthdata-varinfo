@@ -326,8 +326,7 @@ class TestVarInfoFromDmr(TestCase):
 
         science_variables = dataset.get_science_variables()
         self.assertEqual(science_variables,
-                         {'/science/lat_bnds',
-                          '/required_group/has_no_coordinates'})
+                         {'/science/interesting_thing'})
 
     def test_var_info_get_metadata_variables(self):
         """ Ensure the correct set of metadata variables (those without
@@ -343,8 +342,7 @@ class TestVarInfoFromDmr(TestCase):
                                  config_file=self.config_file)
 
         metadata_variables = dataset.get_metadata_variables()
-        self.assertEqual(metadata_variables,
-                         {'/exclude_one/has_coordinates'})
+        self.assertSetEqual(metadata_variables, set())
 
     def test_var_info_get_required_variables(self):
         """ Ensure a full list of variables is returned when the VarInfo
@@ -749,11 +747,16 @@ class TestVarInfoFromDmr(TestCase):
         netcdf4_path = write_skeleton_netcdf4(self.output_dir)
         dataset = VarInfoFromNetCDF4(netcdf4_path,
                                      config_file=self.config_file)
-
         self.assertSetEqual(dataset.get_science_variables(),
-                            {'/scalar1', '/group/scalar2'})
+                            {'/group/science2', '/science1'})
 
         self.assertSetEqual(dataset.get_metadata_variables(), set())
 
         self.assertDictEqual(dataset.global_attributes,
                              netcdf4_global_attributes)
+
+    def test_is_spatial_temporal_dimension(self):
+        """ Ensure that a spatial or temporal dimension is
+            correctly recognized.
+        """
+        

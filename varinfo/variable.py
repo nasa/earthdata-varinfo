@@ -235,25 +235,6 @@ class VariableBase(ABC):
         """
         return ' since ' in self.attributes.get('units', '')
 
-    def is_science(self) -> bool:
-        """ Determine if a variable is a science variable.
-            A science variable is classified as a variable that is not a
-            geographic, temporal, or a projected spatial dimension variable,
-            or if it does not have a coordinate or grid mapping reference
-            attribute.
-
-        """
-        if (self.is_geographic()
-            or self.is_temporal()
-                or self.is_projection_x_or_y()):
-            return False
-
-        if (self.references.get('coordinates')
-                or self.references.get('grid_mapping')) is not None:
-            return False
-
-        return True
-
     def _get_all_cf_references(self) -> Dict[str, Set[str]]:
         """ Retrieve a dictionary containing all CF-Convention attributes
             within the variable that have references to other variables in the

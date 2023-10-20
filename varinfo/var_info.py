@@ -189,6 +189,38 @@ class VarInfoBase(ABC):
                 if variable.references.get('coordinates') is not None
                 and not self.variable_is_excluded(variable, exclusion_pattern)}
 
+    def _is_spatial_temporal_dimension(self, dimension_path: str) -> bool:
+        """ A helper method simplifying the list comprehension in
+            `is_science_variable`.
+        """
+        dimension = self.get_variable(dimension_path)
+        return (dimension is not None
+                and (dimension.is_geographic() or dimension.is_temporal()
+                     or dimension.is_projection_x_or_y()))
+
+    def is_science_variable(self, variable: OutputVariableType) -> bool:
+        """ Determine if a variable is a science variable.
+            A science variable is classified as a variable that is NOT
+            a spatial temporal dimension variable. But contains
+            geographic, temporal, and or projected spatial dimensions, or
+            a coordinate or grid mapping reference attribute.
+
+        """
+        if any(
+            self._is_spatial_temporal_dimension(dimension)
+            for dimension in variable.dimensions
+            if dimension != variable.full_name_path
+            and not variable.full_name_path.endswith('_bnds')
+        ):
+            return True
+
+        if (
+            variable.references.get('coordinates') is not None
+                or variable.references.get('grid_mapping')) is not None:
+            return True
+
+        return False
+
     def get_science_variables(self) -> Set[str]:
         """ Retrieve a set of names for all variables that have coordinate
             references, that are not themselves used as dimensions, coordinates
@@ -204,7 +236,7 @@ class VarInfoBase(ABC):
             for variable_path, variable
             in self.variables.items()
             if variable_path is not None
-            and variable.is_science()
+            and self.is_science_variable(variable)
             and not self.variable_is_excluded(variable_path,
                                               exclusions_pattern)
         }
@@ -232,7 +264,7 @@ class VarInfoBase(ABC):
             in self.variables.items()
             if variable_path is not None
             and (self.variable_is_excluded(variable_path, exclusions_pattern)
-                 and not variable.is_science())
+                 and not self.is_science_variable(variable))
         }
 
         return non_coordinate_variables - self.references
