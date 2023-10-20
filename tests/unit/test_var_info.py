@@ -26,6 +26,8 @@ class TestVarInfoFromDmr(TestCase):
         cls.mock_dmr_two = 'tests/unit/data/mock_dataset_two.dmr'
         cls.mock_geo_and_projected_dmr = 'tests/unit/data/mock_geo_and_projected.dmr'
         cls.dimension_grouping_dmr = 'tests/unit/data/dimension_grouping.dmr'
+        cls.merra_varinfo = VarInfoFromDmr('tests/unit/data/M2I3NPASM_example.dmr',
+                                           short_name='M2I3NPASM')
 
     def setUp(self):
         self.output_dir = mkdtemp()
@@ -759,4 +761,7 @@ class TestVarInfoFromDmr(TestCase):
         """ Ensure that a spatial or temporal dimension is
             correctly recognized.
         """
+        """ stopped here add test here and is_science() test
+        """
+        self.merra_varinfo
         
