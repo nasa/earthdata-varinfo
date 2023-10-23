@@ -214,7 +214,6 @@ class TestUmmVar(TestCase):
 
         # Ensure that the record adheres to the UMM-Var schema:
         self.assertTrue(self.is_valid_umm_var(umm_var_record))
-
         # Ensure that only the expected keys are present (and that None-type
         # values have been removed from the record):
         self.assertSetEqual(

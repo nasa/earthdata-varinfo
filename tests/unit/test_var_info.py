@@ -757,11 +757,20 @@ class TestVarInfoFromDmr(TestCase):
         self.assertDictEqual(dataset.global_attributes,
                              netcdf4_global_attributes)
 
-    def test_is_spatial_temporal_dimension(self):
-        """ Ensure that a spatial or temporal dimension is
-            correctly recognized.
+    def test_is_science_variable(self):
+        """ Ensure that a science variable is correctly recognized and
+            a spatial or temporal variable is correctly excluded.
         """
-        """ stopped here add test here and is_science() test
-        """
-        self.merra_varinfo
-        
+
+        dataset = self.merra_varinfo
+
+        # Get time, spatial, and science variable from VarInfoFromDmr dataset
+        time_variable = dataset.get_variable('/time')
+        lat_variable = dataset.get_variable('/lat')
+        science_variable = dataset.get_variable('/EPV')
+
+        # Check that temporal and spatial variable returns False
+        self.assertFalse(dataset.is_science_variable(time_variable))
+        self.assertFalse(dataset.is_science_variable(lat_variable))
+        # Check that a science variable returns True
+        self.assertTrue(dataset.is_science_variable(science_variable))
