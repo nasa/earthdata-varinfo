@@ -1,11 +1,12 @@
 ## v2.1.0
 ### 2023-10-20
 This version of `earthdata-varinfo` improves the functionality of the
-`varinfo.get_science_variables` function with `variables.is_science()` method.
+`varinfo.get_science_variables` function with `varinfo.is_science_variable()` method.
 This method returns true if a variable is a science variable by checking if
-a variable is dimension scale variable or if it contains coordinate references
-or grid mapping attributes. Also updates `umm_var.get_umm_var` to include the
-UMM-Var field "VariableType" if a science variable exists.
+a variable contains dimension scale variables or if it contains coordinate references
+or grid mapping attribute variables. This version also updates `umm_var.get_umm_var`
+with `get_umm_var_type`. This function adds the UMM-Var field "VariableType"
+to a UMM-Var record if a variable is a science variable.
 
 ## v2.0.0
 ### 2023-09-15
