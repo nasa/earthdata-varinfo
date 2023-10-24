@@ -18,8 +18,14 @@
       </Attribute>
     </Float64>
     <Float64 name="latitude">
+      <Attribute name="units" type="String">
+        <Value>degree_north</Value>
+      </Attribute>
     </Float64>
     <Float64 name="longitude">
+      <Attribute name="units" type="String">
+        <Value>degree_east</Value>
+      </Attribute>
     </Float64>
     <Float64 name="lat_bnds">
       <Dim name="/science/latitude"/>

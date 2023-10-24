@@ -215,8 +215,9 @@ class VarInfoBase(ABC):
             return True
 
         if (
-            variable.references.get('coordinates') is not None
-                or variable.references.get('grid_mapping')) is not None:
+                variable.references.get('coordinates') is not None
+                or variable.references.get('grid_mapping') is not None
+        ):
             return True
 
         return False
@@ -263,8 +264,11 @@ class VarInfoBase(ABC):
             for variable_path, variable
             in self.variables.items()
             if variable_path is not None
-            and (self.variable_is_excluded(variable_path, exclusions_pattern)
-                 and not self.is_science_variable(variable))
+            and (
+                not self.variable_is_excluded(variable_path, exclusions_pattern)
+                and not self.is_science_variable(variable)
+                and not variable.full_name_path.endswith('_bnds')
+            )
         }
 
         return non_coordinate_variables - self.references

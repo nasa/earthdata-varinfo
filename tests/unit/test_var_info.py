@@ -344,7 +344,7 @@ class TestVarInfoFromDmr(TestCase):
                                  config_file=self.config_file)
 
         metadata_variables = dataset.get_metadata_variables()
-        self.assertSetEqual(metadata_variables, set())
+        self.assertSetEqual(metadata_variables, {'/required_group/has_no_coordinates'})
 
     def test_var_info_get_required_variables(self):
         """ Ensure a full list of variables is returned when the VarInfo
@@ -752,7 +752,10 @@ class TestVarInfoFromDmr(TestCase):
         self.assertSetEqual(dataset.get_science_variables(),
                             {'/group/science2', '/science1'})
 
-        self.assertSetEqual(dataset.get_metadata_variables(), set())
+        self.assertSetEqual(
+            dataset.get_metadata_variables(),
+            {'/scalar1', '/group/scalar2'}
+        )
 
         self.assertDictEqual(dataset.global_attributes,
                              netcdf4_global_attributes)
