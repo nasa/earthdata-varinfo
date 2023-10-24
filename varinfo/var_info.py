@@ -194,9 +194,11 @@ class VarInfoBase(ABC):
             `is_science_variable`.
         """
         dimension = self.get_variable(dimension_path)
-        return (dimension is not None
-                and (dimension.is_geographic() or dimension.is_temporal()
-                     or dimension.is_projection_x_or_y()))
+        return dimension is not None and (
+            dimension.is_geographic()
+            or dimension.is_temporal()
+            or dimension.is_projection_x_or_y()
+        )
 
     def is_science_variable(self, variable: OutputVariableType) -> bool:
         """ Determine if a variable is a science variable.

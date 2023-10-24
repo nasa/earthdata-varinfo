@@ -964,4 +964,4 @@ class TestUmmVar(TestCase):
             self.merra_varinfo.variables.get('/time'))
 
         self.assertEqual('SCIENCE_VARIABLE', science_variable_type)
-        self.assertFalse(not_science_variable_type)
+        self.assertIsNone(not_science_variable_type)
