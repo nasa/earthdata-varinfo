@@ -1,3 +1,7 @@
+## v2.1.1
+### 2023-10-24
+Fixed deployment issues
+
 ## v2.1.0
 ### 2023-10-20
 This version of `earthdata-varinfo` improves the functionality of the
