@@ -25,7 +25,8 @@ from varinfo.umm_var import (export_all_umm_var_to_json,
                              get_json_serializable_value,
                              get_metadata_specification, get_umm_var,
                              get_umm_var_dtype, get_valid_ranges,
-                             publish_umm_var, publish_all_umm_var)
+                             publish_umm_var, publish_all_umm_var,
+                             get_variable_type)
 
 from tests.utilities import is_dictionary_subset, write_skeleton_netcdf4
 
@@ -134,9 +135,8 @@ class TestUmmVar(TestCase):
             set(umm_var_record.keys()),
             {'Name', 'LongName', 'Definition', 'StandardName', 'DataType',
              'Dimensions', 'FillValues', 'Units', 'Scale', 'Offset',
-             'ValidRanges', 'MetadataSpecification'}
+             'ValidRanges', 'VariableType', 'MetadataSpecification'}
         )
-
         # Ensure all data fields have expected values:
         self.assertTrue(
             is_dictionary_subset(
@@ -167,7 +167,8 @@ class TestUmmVar(TestCase):
                     'Units': 'mm/hr',
                     'Scale': 1.0,
                     'Offset': 0.0,
-                    'ValidRanges': [{'Max': 1000, 'Min': 0}]
+                    'ValidRanges': [{'Max': 1000, 'Min': 0}],
+                    'VariableType': 'SCIENCE_VARIABLE'
                 },
                 umm_var_record
             )
@@ -213,7 +214,6 @@ class TestUmmVar(TestCase):
 
         # Ensure that the record adheres to the UMM-Var schema:
         self.assertTrue(self.is_valid_umm_var(umm_var_record))
-
         # Ensure that only the expected keys are present (and that None-type
         # values have been removed from the record):
         self.assertSetEqual(
@@ -950,3 +950,18 @@ class TestUmmVar(TestCase):
                 generate_variable_native_id('C1234567890-PROV', umm_var_json),
                 'C1234567890-PROV-Grid_time'
             )
+
+    def test_get_variable_type(self):
+        """ Test that 'VariableType' in a UMM-Var record is set to
+            'SCIENCE_VARIABLE', when a variable is a science variable.
+            Check that 'VariableType' is None when a variable is NOT
+            a science variable.
+        """
+        science_variable_type = get_variable_type(self.merra_varinfo,
+            self.merra_varinfo.variables.get('/EPV'))
+
+        not_science_variable_type = get_variable_type(self.merra_varinfo,
+            self.merra_varinfo.variables.get('/time'))
+
+        self.assertEqual('SCIENCE_VARIABLE', science_variable_type)
+        self.assertIsNone(not_science_variable_type)

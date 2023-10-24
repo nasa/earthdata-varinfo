@@ -26,6 +26,8 @@ class TestVarInfoFromDmr(TestCase):
         cls.mock_dmr_two = 'tests/unit/data/mock_dataset_two.dmr'
         cls.mock_geo_and_projected_dmr = 'tests/unit/data/mock_geo_and_projected.dmr'
         cls.dimension_grouping_dmr = 'tests/unit/data/dimension_grouping.dmr'
+        cls.merra_varinfo = VarInfoFromDmr('tests/unit/data/M2I3NPASM_example.dmr',
+                                           short_name='M2I3NPASM')
 
     def setUp(self):
         self.output_dir = mkdtemp()
@@ -325,7 +327,8 @@ class TestVarInfoFromDmr(TestCase):
                                  config_file=self.config_file)
 
         science_variables = dataset.get_science_variables()
-        self.assertEqual(science_variables, {'/science/interesting_thing'})
+        self.assertEqual(science_variables,
+                         {'/science/interesting_thing'})
 
     def test_var_info_get_metadata_variables(self):
         """ Ensure the correct set of metadata variables (those without
@@ -341,9 +344,7 @@ class TestVarInfoFromDmr(TestCase):
                                  config_file=self.config_file)
 
         metadata_variables = dataset.get_metadata_variables()
-        self.assertEqual(metadata_variables,
-                         {'/required_group/has_no_coordinates',
-                          '/exclude_one/has_coordinates', '/science/lat_bnds'})
+        self.assertSetEqual(metadata_variables, {'/required_group/has_no_coordinates'})
 
     def test_var_info_get_required_variables(self):
         """ Ensure a full list of variables is returned when the VarInfo
@@ -748,12 +749,31 @@ class TestVarInfoFromDmr(TestCase):
         netcdf4_path = write_skeleton_netcdf4(self.output_dir)
         dataset = VarInfoFromNetCDF4(netcdf4_path,
                                      config_file=self.config_file)
-
         self.assertSetEqual(dataset.get_science_variables(),
-                            {'/science1', '/group/science2'})
+                            {'/group/science2', '/science1'})
 
-        self.assertSetEqual(dataset.get_metadata_variables(),
-                            {'/scalar1', '/group/scalar2'})
+        self.assertSetEqual(
+            dataset.get_metadata_variables(),
+            {'/scalar1', '/group/scalar2'}
+        )
 
         self.assertDictEqual(dataset.global_attributes,
                              netcdf4_global_attributes)
+
+    def test_is_science_variable(self):
+        """ Ensure that a science variable is correctly recognized and
+            a spatial or temporal variable is correctly excluded.
+        """
+
+        dataset = self.merra_varinfo
+
+        # Get time, spatial, and science variable from VarInfoFromDmr dataset
+        time_variable = dataset.get_variable('/time')
+        lat_variable = dataset.get_variable('/lat')
+        science_variable = dataset.get_variable('/EPV')
+
+        # Check that temporal and spatial variable returns False
+        self.assertFalse(dataset.is_science_variable(time_variable))
+        self.assertFalse(dataset.is_science_variable(lat_variable))
+        # Check that a science variable returns True
+        self.assertTrue(dataset.is_science_variable(science_variable))

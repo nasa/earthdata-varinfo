@@ -93,6 +93,7 @@ def get_umm_var(var_info: VarInfoBase, variable: VariableBase) -> Dict:
             variable, ['add_offset', 'offset', 'Offset']
         ),
         'ValidRanges': get_valid_ranges(variable),
+        'VariableType': get_variable_type(var_info, variable),
         'MetadataSpecification': get_metadata_specification()
     }
 
@@ -354,6 +355,18 @@ def generate_variable_native_id(collection_concept_id: str,
     """
     return '-'.join([collection_concept_id,
                      umm_var_record['LongName'].replace('/', '_').lstrip('_')])
+
+
+def get_variable_type(var_info: VarInfoBase, variable: VariableBase) -> str:
+    """ Check if a variable is a science variable and
+        map it to a 'SCIENCE_VARIABLE' if it is.
+    """
+    if var_info.is_science_variable(variable):
+        variable_type = 'SCIENCE_VARIABLE'
+    else:
+        variable_type = None
+
+    return variable_type
 
 
 def publish_umm_var(collection_id: str,
