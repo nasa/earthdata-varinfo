@@ -188,6 +188,44 @@ class TestUmmVar(TestCase):
             r'https://cdn.earthdata.nasa.gov/umm/variable/v\d+\.\d+\.\d+$'
         )
 
+    def test_get_umm_var_cf_long_name(self):
+        """ Ensure that if a variable in a granule has the `long_name`
+            CF-Convention attribute, the value of that attribute is used in
+            place of the variable full path. Otherwise, the `LongName` in the
+            UMM-Var record should default to that full path.
+
+        """
+        netcdf4_file = f'{self.tmp_dir}/input.nc4'
+        with Dataset(netcdf4_file, 'w') as dataset:
+            dataset.setncatts({'short_name': 'test'})
+            long_name_variable = dataset.createVariable('long_name', float64)
+            long_name_variable.setncatts({'long_name': 'this is really long'})
+
+            no_long_name_variable = dataset.createVariable('no_long_name',
+                                                           float64)
+
+        nc_varinfo = VarInfoFromNetCDF4(netcdf4_file)
+
+        with self.subTest('CF-Convention long_name is used'):
+            long_name_umm_var = get_umm_var(
+                nc_varinfo, nc_varinfo.get_variable('/long_name')
+            )
+
+            self.assertEqual(
+                long_name_umm_var['LongName'],
+                'this is really long'
+            )
+
+        with self.subTest('No CF-Convention long_name attribute'):
+            no_long_name_umm_var = get_umm_var(
+                nc_varinfo, nc_varinfo.get_variable('/no_long_name')
+            )
+
+            self.assertEqual(
+                no_long_name_umm_var['LongName'],
+                'no_long_name'
+            )
+
     def test_get_umm_var_absent_fields_removed(self):
         """ Ensure that a variable with minimal information populates the
             minimum fields required by the UMM-Var schema, and that any fields
@@ -781,8 +819,8 @@ class TestUmmVar(TestCase):
 
         # Input parameters
         umm_var_dict = {
-            'LongName': 'test_variable',
-            'Name': 'Test',
+            'LongName': 'This is a test variable',
+            'Name': 'test_variable',
             'MetadataSpecification': {
                 'URL': 'https://foo.gov/umm/variable/v1.8.2',
                 'Name': 'UMM-Var',
@@ -931,21 +969,21 @@ class TestUmmVar(TestCase):
 
         """
         with self.subTest('Variable in flat file'):
-            umm_var_json = {'LongName': 'time'}
+            umm_var_json = {'Name': 'time'}
             self.assertEqual(
                 generate_variable_native_id('C1234567890-PROV', umm_var_json),
                 'C1234567890-PROV-time'
             )
 
         with self.subTest('Variable in hierarchical file'):
-            umm_var_json = {'LongName': 'Grid/time'}
+            umm_var_json = {'Name': 'Grid/time'}
             self.assertEqual(
                 generate_variable_native_id('C1234567890-PROV', umm_var_json),
                 'C1234567890-PROV-Grid_time'
             )
 
         with self.subTest('No leading slashes affect name.'):
-            umm_var_json = {'LongName': '/Grid/time'}
+            umm_var_json = {'Name': '/Grid/time'}
             self.assertEqual(
                 generate_variable_native_id('C1234567890-PROV', umm_var_json),
                 'C1234567890-PROV-Grid_time'
