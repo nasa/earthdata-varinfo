@@ -90,7 +90,7 @@ class TestGenerateUmmVar(TestCase):
         # not performed to avoid test brittleness.
         expected_variables = set(self.rssmif16d_variables)
 
-        actual_variables = set([record['LongName']
+        actual_variables = set([record['Name']
                                 for record in generated_umm_var])
 
         self.assertSetEqual(actual_variables, expected_variables)

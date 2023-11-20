@@ -131,7 +131,7 @@ Expected outputs:
 Native IDs for generated UMM-Var records will be of format:
 
 ```
-<collection concept ID>-<variable LongName>
+<collection concept ID>-<variable Name>
 ```
 
 For variables that are hierarchical, slashes will be converted to underscores,

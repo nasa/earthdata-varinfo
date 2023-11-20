@@ -73,7 +73,8 @@ def get_umm_var(var_info: VarInfoBase, variable: VariableBase) -> Dict:
     variable_name = variable.full_name_path.lstrip('/')
     umm_var_record = {
         'Name': variable_name,
-        'LongName': variable_name,
+        'LongName': get_first_matched_attribute(variable, ['long_name'],
+                                                variable_name),
         'StandardName': get_first_matched_attribute(variable,
                                                     ['standard_name']),
         'Definition': get_first_matched_attribute(
@@ -349,12 +350,15 @@ def generate_variable_native_id(collection_concept_id: str,
     """ A helper function to create a CMR native ID given the collection
         concept ID and the variable UMM-Var JSON. This native ID must be unique
         within the entire provider. The initial implementation will be to
-        concatenate the collection concept ID and the long name of the variable
+        concatenate the collection concept ID and the name of the variable
         while removing slashes that CMR will interpret as part of the URL path.
+
+        Note - the `Name` attribute of the generated UMM-Var record is the full
+        path of the variable.
 
     """
     return '-'.join([collection_concept_id,
-                     umm_var_record['LongName'].replace('/', '_').lstrip('_')])
+                     umm_var_record['Name'].replace('/', '_').lstrip('_')])
 
 
 def get_variable_type(var_info: VarInfoBase, variable: VariableBase) -> str:

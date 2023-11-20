@@ -1,9 +1,20 @@
+## v2.1.2
+### 2023-11-14
+
+This version of `earthdata-varinfo` updates the value of the `LongName`
+attribute in generated UMM-Var records to use the value of the CF-Convention
+`long_name` attribute for a variable, if it is present in the file. If this
+attribute is not present in the in-file metadata, then the full path to the
+variable (without the leading `/`) is used as before.
+
 ## v2.1.1
 ### 2023-10-24
+
 Fixed deployment issues
 
 ## v2.1.0
 ### 2023-10-20
+
 This version of `earthdata-varinfo` improves the functionality of the
 `varinfo.get_science_variables` function with `varinfo.is_science_variable()` method.
 This method returns true if a variable is a science variable by checking if
