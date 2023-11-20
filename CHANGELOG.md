@@ -5,7 +5,7 @@ This version of `earthdata-varinfo` updates the value of the `LongName`
 attribute in generated UMM-Var records to use the value of the CF-Convention
 `long_name` attribute for a variable, if it is present in the file. If this
 attribute is not present in the in-file metadata, then the full path to the
-variable is used as before.
+variable (without the leading `/`) is used as before.
 
 ## v2.1.1
 ### 2023-10-24
