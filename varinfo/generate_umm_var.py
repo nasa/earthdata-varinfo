@@ -17,7 +17,8 @@ from cmr import CMR_UAT
 
 from varinfo import VarInfoFromNetCDF4
 from varinfo.cmr_search import (CmrEnvType, download_granule, get_granule_link,
-                                get_granules)
+                                get_granules, get_edl_token_from_launchpad,
+                                get_edl_token_header)
 from varinfo.umm_var import get_all_umm_var, publish_all_umm_var
 
 
@@ -27,7 +28,7 @@ UmmVarReturnType = List[Union[Dict, str]]
 
 
 def generate_collection_umm_var(collection_concept_id: str,
-                                auth_header: str,
+                                launchpad_token: str,
                                 cmr_env: CmrEnvType = CMR_UAT,
                                 publish: bool = False) -> UmmVarReturnType:
     """ Run all the of the functions for downloading and publishing
@@ -36,8 +37,8 @@ def generate_collection_umm_var(collection_concept_id: str,
         * collection_concept_id: Concept ID for collection that variables have
           been generated for.
         * cmr_env: URLs for CMR environments (OPS, UAT, and SIT)
-        * auth_header: Authorization HTTP header, containing a LaunchPad
-          token: 'Authorization: <token>'
+        * launchpad_token: A LaunchPad token with no header prefixes,
+            e.g. <Launchpad token>
         * publish: Optional argument determining whether to publish the
           generated UMM-Var records to the indicated CMR instance. Defaults to
           False.
@@ -45,8 +46,14 @@ def generate_collection_umm_var(collection_concept_id: str,
         Note - if attempting to publish to CMR, a LaunchPad token must be used.
 
     """
+    # Get an EDL token given a LaunchPad token
+    edl_token = get_edl_token_from_launchpad(launchpad_token, cmr_env)
+
+    # Get an EDL token's authorization header
+    auth_header_edl_token = get_edl_token_header(edl_token, cmr_env)
+
     granule_response = get_granules(collection_concept_id, cmr_env=cmr_env,
-                                    auth_header=auth_header)
+                                    auth_header=auth_header_edl_token)
 
     # Get the data download URL for the most recent granule (NetCDF-4 file)
     granule_link = get_granule_link(granule_response)
@@ -54,7 +61,7 @@ def generate_collection_umm_var(collection_concept_id: str,
     with TemporaryDirectory() as temp_dir:
         # Download file to runtime environment
         local_granule = download_granule(granule_link,
-                                         auth_header,
+                                         auth_header_edl_token,
                                          out_directory=temp_dir)
 
         # Parse the granule with VarInfo to map all variables and relations:
@@ -69,7 +76,7 @@ def generate_collection_umm_var(collection_concept_id: str,
         # error messages returned from CMR.
         publication_response = publish_all_umm_var(collection_concept_id,
                                                    all_umm_var_records,
-                                                   auth_header, cmr_env)
+                                                   launchpad_token, cmr_env)
 
         # Produce a list indicating publication information for all variables.
         # Variables that were successfully published will have a list element

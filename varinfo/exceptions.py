@@ -76,12 +76,12 @@ class CMRQueryException(CustomError):
 
 class MissingPositionalArguments(CustomError):
     ''' This exception is raised when a function is missing a required
-        positonal argument.
+        positional argument.
     '''
 
-    def __init__(self, positonal_argument):
+    def __init__(self, positional_argument):
         super().__init__('MissingPositionalArguments',
-                         f'Missing positional argument: {positonal_argument}')
+                         f'Missing positional argument: {positional_argument}')
 
 
 class MissingGranuleDownloadLinks(CustomError):
@@ -113,3 +113,13 @@ class DirectoryCreationException(CustomError):
         super().__init__('DirectoryCreationException',
                          'directory creation failed with the following error: '
                          f'{directory_creation_exception_message}')
+
+
+class GetEdlTokenException(CustomError):
+    ''' This exception is raised when `requests.post` fails to get an
+        EDL token given a LaunchPad token
+    '''
+    def __init__(self, get_edl_token_exception_message):
+        super().__init__('GetEdlTokenException',
+                         'requests module failed with the following error: '
+                         f'{get_edl_token_exception_message}')

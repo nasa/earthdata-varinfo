@@ -9,12 +9,16 @@ import requests
 from requests.exceptions import HTTPError
 
 from varinfo.cmr_search import (get_granules, get_granule_link,
-                                download_granule)
+                                download_granule,
+                                get_edl_token_from_launchpad,
+                                get_edl_token_header,
+                                UrsEnvsEdlTokenEndpoints)
 from varinfo.exceptions import (CMRQueryException,
                                 MissingGranuleDownloadLinks,
                                 MissingPositionalArguments,
                                 GranuleDownloadException,
-                                DirectoryCreationException)
+                                DirectoryCreationException,
+                                GetEdlTokenException)
 
 
 class TestQuery(TestCase):
@@ -399,3 +403,82 @@ class TestQuery(TestCase):
         mock_requests_get.return_value.side_effect = HTTPError('Wrong HTTP')
         with self.assertRaises(GranuleDownloadException):
             download_granule(link, auth_header=self.bearer_token_header)
+
+
+    @patch('requests.post')
+    def test_get_edl_token_from_launchpad(self, mock_requests_post):
+        ''' Check if `get_edl_token_from_launchpad` is called with
+            expected parameters.
+        '''
+        # Set `mock_response`, the return_value of `mock_response`,
+        # and the return_value of `mock_requests_post` to mock_response
+        mock_response = Mock(spec=requests.Response)
+        mock_response.json.return_value = {'access_token': 'edl-token'}
+        mock_requests_post.return_value = mock_response
+
+        # Input parameters
+        urs_uat_edl_token_endpoint = UrsEnvsEdlTokenEndpoints.get(CMR_UAT)
+        edl_token_from_launchpad_response = get_edl_token_from_launchpad(
+            self.launchpad_token_header, CMR_UAT)
+
+        self.assertEqual(edl_token_from_launchpad_response, 'edl-token')
+
+        # Check if `get_edl_token_from_launchpad` was called once
+        # with expected parameters.
+        mock_requests_post.assert_called_once_with(
+            url=urs_uat_edl_token_endpoint,
+            data=f'token={self.launchpad_token_header}',
+            timeout=10)
+
+    @patch('requests.post')
+    def test_success_edl_token_from_launchpad_response(self,
+                                                       mock_requests_post):
+        ''' Check if the `get_edl_token_from_launchpad_response` contains
+            the expected content for successful response.
+        '''
+        # Create `mock_requests_post` for a successful request
+        # and set its return_value
+        mock_response = Mock(spec=requests.Response)
+        mock_response.ok = True
+        mock_response.json.return_value = {'access_token': 'edl-token'}
+        mock_requests_post.return_value = mock_response
+
+        # Test successful request
+        successful_response = get_edl_token_from_launchpad(
+            self.launchpad_token_header, CMR_UAT)
+
+        self.assertEqual(successful_response, 'edl-token')
+
+    @patch('requests.post')
+    def test_bad_edl_token_from_launchpad_response(self, mock_requests_post):
+        ''' Check if the `get_edl_token_from_launchpad_response` contains
+            the expected content for unsuccessful response.
+        '''
+        # Create `mock_requests_post` for a successful request
+        # and set its return_value
+        mock_response = Mock(spec=requests.Response)
+        mock_response.ok = False
+        mock_response.json.return_value = {'Bad request': 'error'}
+        mock_requests_post.return_value = mock_response
+        with self.assertRaises(GetEdlTokenException) as context_manager:
+            get_edl_token_from_launchpad(self.launchpad_token_header, CMR_UAT)
+
+        self.assertEqual(str(context_manager.exception),
+                         str(GetEdlTokenException('Request timed out')))
+
+
+    @patch('requests.post', side_effect=Exception('Request timed out'))
+    def test_request_exception(self, mock_requests_post):
+        ''' Check if `GetEdlTokenException` is raised if `requests.post`
+            fails.
+        '''
+        #mock_requests_post.return_value.side_effect = TimeoutError('Request timed out')
+        with self.assertRaises(GetEdlTokenException) as context_manager:
+            get_edl_token_from_launchpad(self.launchpad_token_header, CMR_UAT)
+
+        self.assertEqual(str(context_manager.exception),
+                         str(GetEdlTokenException('Request timed out')))
+
+import unittest
+if __name__ == "__main__":
+    unittest.main()

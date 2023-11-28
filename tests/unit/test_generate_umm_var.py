@@ -154,6 +154,8 @@ class TestGenerateUmmVar(TestCase):
     @patch('varinfo.umm_var.publish_umm_var')
     @patch('varinfo.cmr_search.GranuleQuery')
     @patch('varinfo.generate_umm_var.download_granule')
+    #@patch('varinfo.cmr_search.get_edl_token_from_launchpad')
+    #@patch('varinfo.cmr_search.get_edl_token_header')
     def test_error_from_search_is_raised(self, mock_download_granule,
                                          mock_granule_query,
                                          mock_publish_umm_var):
@@ -163,11 +165,11 @@ class TestGenerateUmmVar(TestCase):
         """
         # Simulate no results found to trigger an IndexError
         mock_granule_query.return_value.get.return_value = []
-
+        print(self.launchpad_token_header)
         # Run the test, ensuring expected exception is raised:
         with self.assertRaises(IndexError) as context_manager:
             generate_collection_umm_var(self.collection_concept_id,
-                                        self.bearer_token_header)
+                                        self.launchpad_token_header)
 
         self.assertEqual(str(context_manager.exception),
                          'No granules were found with selected parameters '
@@ -288,3 +290,7 @@ class TestGenerateUmmVar(TestCase):
 
         with self.subTest('Random string returns False'):
             self.assertFalse(is_variable_concept_id('Random string'))
+    
+    # @patch('varinfo.cmr_search.get_edl_token_from_launchpad')
+    # def test_get_edl_token_from_launchpad(self, )
+    # #@patch('varinfo.cmr_search.get_edl_token_header')
