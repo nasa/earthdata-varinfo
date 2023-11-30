@@ -3,7 +3,7 @@
     `requests` library a granule is downloaded via https and saved locally.
 '''
 
-from typing import Literal
+from typing import Literal, Union
 import os.path
 
 from cmr import GranuleQuery, CMR_OPS, CMR_SIT, CMR_UAT
@@ -146,7 +146,7 @@ def download_granule(granule_link: str,
 
 
 def get_edl_token_from_launchpad(launchpad_token: str,
-                                 cmr_env: CmrEnvType = None) -> str | None:
+                                 cmr_env: CmrEnvType) -> Union[str, None]:
     ''' Retrieve an EDL token given a LaunchPad token.
         * launchpad_token: A LaunchPad token with no header prefixes:
             <Launchpad token>
