@@ -288,14 +288,3 @@ class TestGenerateUmmVar(TestCase):
 
         with self.subTest('Random string returns False'):
             self.assertFalse(is_variable_concept_id('Random string'))
-    
-    # @patch('varinfo.cmr_search.get_edl_token_from_launchpad')
-    # def test_get_edl_token_from_launchpad(self, )
-    # #@patch('varinfo.cmr_search.get_edl_token_header')
-
-        
-
-
-import unittest
-if __name__ == "__main__":
-    unittest.main()
