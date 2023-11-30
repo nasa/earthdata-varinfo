@@ -148,8 +148,8 @@ def download_granule(granule_link: str,
 def get_edl_token_from_launchpad(launchpad_token: str,
                                  cmr_env: CmrEnvType = None) -> str | None:
     ''' Retrieve an EDL token given a LaunchPad token.
-        * launchpad_token: A LaunchPad token with no header prefixes,
-            e.g. <Launchpad token>
+        * launchpad_token: A LaunchPad token with no header prefixes:
+            <Launchpad token>
         * cmr_env/mode: CMR environments (OPS, UAT, and SIT)
     '''
     url_urs_endpoint = UrsEnvsEdlTokenEndpoints.get(cmr_env)
@@ -168,11 +168,11 @@ def get_edl_token_from_launchpad(launchpad_token: str,
 
 def get_edl_token_header(auth_header: str, cmr_env: CmrEnvType) -> str:
     ''' Helper function for getting the header for an EDL token.
-
-    * auth_header: Authorization HTTP header, either:
-        - A header with a LaunchPad token: 'Authorization: <token>'
-        - An header with an EDL bearer token: 'Authorization: Bearer <token>'
-    * cmr_env/mode: CMR environments (OPS, UAT, and SIT)
+        * auth_header: Authorization HTTP header, either:
+            - A header with a LaunchPad token: 'Authorization: <token>'
+            - An header with an EDL bearer token:
+                'Authorization: Bearer <token>'
+        * cmr_env/mode: CMR environments (OPS, UAT, and SIT)
     '''
     if 'Bearer ' not in auth_header:
         edl_auth_header = ('Bearer '

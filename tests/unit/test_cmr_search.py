@@ -430,11 +430,12 @@ class TestQuery(TestCase):
             data=f'token={self.launchpad_token_header}',
             timeout=10)
 
+
     @patch('requests.post')
     def test_success_edl_token_from_launchpad_response(self,
                                                        mock_requests_post):
-        ''' Check if the `get_edl_token_from_launchpad_response` contains
-            the expected content for successful response.
+        ''' Check if the `get_edl_token_from_launchpad` response contains
+            the expected content for a successful response.
         '''
         # Create `mock_requests_post` for a successful request
         # and set its return_value
@@ -501,8 +502,8 @@ class TestQuery(TestCase):
 
 
     def test_get_edl_token_header_with_edl_token(self):
-        ''' Test if a user enters an EDL token with its "Bearer" header
-            the same EDL token is returned.
+        ''' Test if an EDL token is entered with its "Bearer" header prefix.
+            If it is the same EDL token is returned.
         '''
         test_bearer_token = get_edl_token_header(self.bearer_token_header,
                                                  CMR_UAT)
