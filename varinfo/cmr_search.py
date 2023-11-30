@@ -175,9 +175,9 @@ def get_edl_token_header(auth_header: str, cmr_env: CmrEnvType) -> str:
         * cmr_env/mode: CMR environments (OPS, UAT, and SIT)
     '''
     if 'Bearer ' not in auth_header:
-        edl_auth_header = ('Bearer '
-                           f'''{get_edl_token_from_launchpad(auth_header,
-                           cmr_env)}''')
+        edl_auth_header = (
+            f'Bearer {get_edl_token_from_launchpad(auth_header, cmr_env)}'
+        )
     else:
         edl_auth_header = auth_header
     return edl_auth_header

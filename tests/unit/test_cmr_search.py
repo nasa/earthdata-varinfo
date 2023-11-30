@@ -410,8 +410,7 @@ class TestQuery(TestCase):
         ''' Check if `get_edl_token_from_launchpad` is called with
             expected parameters.
         '''
-        # Set `mock_response`, the return_value of `mock_response`,
-        # and the return_value of `mock_requests_post` to mock_response
+        # Mock the `request.post` call
         mock_response = Mock(spec=requests.Response)
         mock_response.json.return_value = {'access_token': 'edl-token'}
         mock_requests_post.return_value = mock_response
@@ -423,8 +422,6 @@ class TestQuery(TestCase):
 
         self.assertEqual(edl_token_from_launchpad_response, 'edl-token')
 
-        # Check if `get_edl_token_from_launchpad` was called once
-        # with expected parameters.
         mock_requests_post.assert_called_once_with(
             url=urs_uat_edl_token_endpoint,
             data=f'token={self.launchpad_token_header}',
@@ -459,14 +456,14 @@ class TestQuery(TestCase):
         # and set its return_value
         mock_response = Mock(spec=requests.Response)
         mock_response.status_code = 400
-        mock_response.raise_for_status.side_effect = HTTPError(response=mock_response)
+        mock_response.raise_for_status.side_effect = HTTPError()
         mock_requests_post.return_value = mock_response
 
         with self.assertRaises(GetEdlTokenException):
             get_edl_token_from_launchpad(self.launchpad_token_header, CMR_UAT)
 
 
-    @patch('requests.post', side_effect=Exception('Request timed out'))
+    @patch('requests.post', side_effect=Timeout('Request timed out'))
     def test_request_exception(self, mock_requests_post):
         ''' Check if `GetEdlTokenException` is raised if `requests.post`
             fails.
