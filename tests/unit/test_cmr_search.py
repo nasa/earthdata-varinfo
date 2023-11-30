@@ -408,7 +408,8 @@ class TestQuery(TestCase):
     @patch('requests.post')
     def test_get_edl_token_from_launchpad(self, mock_requests_post):
         ''' Check if `get_edl_token_from_launchpad` is called with
-            expected parameters.
+            expected parameters and if its response contains
+            the expected content.
         '''
         # Mock the `request.post` call
         mock_response = Mock(spec=requests.Response)
@@ -427,25 +428,6 @@ class TestQuery(TestCase):
             data=f'token={self.launchpad_token_header}',
             timeout=10)
 
-
-    @patch('requests.post')
-    def test_success_edl_token_from_launchpad_response(self,
-                                                       mock_requests_post):
-        ''' Check if the `get_edl_token_from_launchpad` response contains
-            the expected content for a successful response.
-        '''
-        # Create `mock_requests_post` for a successful request
-        # and set its return_value
-        mock_response = Mock(spec=requests.Response)
-        mock_response.ok = True
-        mock_response.json.return_value = {'access_token': 'edl-token'}
-        mock_requests_post.return_value = mock_response
-
-        # Test successful request
-        successful_response = get_edl_token_from_launchpad(
-            self.launchpad_token_header, CMR_UAT)
-
-        self.assertEqual(successful_response, 'edl-token')
 
     @patch('requests.post')
     def test_bad_edl_token_from_launchpad_response(self, mock_requests_post):
@@ -468,13 +450,6 @@ class TestQuery(TestCase):
         ''' Check if `GetEdlTokenException` is raised if `requests.post`
             fails.
         '''
-        # Create `mock_requests_post` for a unsuccessful request
-        # and set its return_value and side effect
-        mock_response = Mock(spec=requests.Response)
-        mock_response.status_code = 400
-        mock_response.raise_for_status.side_effect = Timeout(response=mock_response)
-        mock_requests_post.return_value = mock_response
-
         with self.assertRaises(GetEdlTokenException) as context_manager:
             get_edl_token_from_launchpad(self.launchpad_token_header, CMR_UAT)
 
