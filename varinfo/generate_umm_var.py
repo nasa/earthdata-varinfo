@@ -17,8 +17,7 @@ from cmr import CMR_UAT
 
 from varinfo import VarInfoFromNetCDF4
 from varinfo.cmr_search import (CmrEnvType, download_granule, get_granule_link,
-                                get_granules, get_edl_token_from_launchpad,
-                                get_edl_token_header)
+                                get_granules, get_edl_token_header)
 from varinfo.umm_var import get_all_umm_var, publish_all_umm_var
 
 
@@ -46,11 +45,8 @@ def generate_collection_umm_var(collection_concept_id: str,
         Note - if attempting to publish to CMR, a LaunchPad token must be used.
 
     """
-    # Get an EDL token given a LaunchPad token
-    edl_token = get_edl_token_from_launchpad(launchpad_token, cmr_env)
-
-    # Get an EDL token's authorization header
-    auth_header_edl_token = get_edl_token_header(edl_token, cmr_env)
+    # Get an EDL token and its header given a LaunchPad token
+    auth_header_edl_token = get_edl_token_header(launchpad_token, cmr_env)
 
     granule_response = get_granules(collection_concept_id, cmr_env=cmr_env,
                                     auth_header=auth_header_edl_token)
