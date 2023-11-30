@@ -36,8 +36,8 @@ def generate_collection_umm_var(collection_concept_id: str,
         * collection_concept_id: Concept ID for collection that variables have
           been generated for.
         * cmr_env: URLs for CMR environments (OPS, UAT, and SIT)
-        * launchpad_token: A LaunchPad token with no header prefixes,
-            e.g. <Launchpad token>
+        * launchpad_token: A LaunchPad token with no header prefixes:
+            <Launchpad token>
         * publish: Optional argument determining whether to publish the
           generated UMM-Var records to the indicated CMR instance. Defaults to
           False.
