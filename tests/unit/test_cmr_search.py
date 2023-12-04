@@ -11,8 +11,8 @@ from requests.exceptions import HTTPError, Timeout
 from varinfo.cmr_search import (get_granules, get_granule_link,
                                 download_granule,
                                 get_edl_token_from_launchpad,
-                                get_edl_token_header,
-                                UrsEnvsEdlTokenEndpoints)
+                                get_edl_token_header, urs_token_endpoints)
+
 from varinfo.exceptions import (CMRQueryException,
                                 MissingGranuleDownloadLinks,
                                 MissingPositionalArguments,
@@ -417,7 +417,7 @@ class TestQuery(TestCase):
         mock_requests_post.return_value = mock_response
 
         # Input parameters
-        urs_uat_edl_token_endpoint = UrsEnvsEdlTokenEndpoints.get(CMR_UAT)
+        urs_uat_edl_token_endpoint = urs_token_endpoints.get(CMR_UAT)
         edl_token_from_launchpad_response = get_edl_token_from_launchpad(
             self.launchpad_token_header, CMR_UAT)
 
