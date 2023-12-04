@@ -43,7 +43,7 @@ def get_granules(concept_id: str = None,
         * cmr_env/mode: CMR environments (OPS, UAT, and SIT)
         * auth_header: Authorization HTTP header, either:
           - A header with a LaunchPad token: 'Authorization: <token>'
-          - An header with an EDL bearer token: 'Authorization: Bearer <token>'
+          - A header with an EDL bearer token: 'Authorization: Bearer <token>'
 
         For a successful search response concept_id or short_name, version and
         provider must be entered along with a bearer_token.
@@ -112,7 +112,7 @@ def download_granule(granule_link: str,
         * granule_link: granule download URL.
         * auth_header: Authorization HTTP header, either:
           - A header with a LaunchPad token: 'Authorization: <token>'
-          - An header with an EDL bearer token: 'Authorization: Bearer <token>'
+          - A header with an EDL bearer token: 'Authorization: Bearer <token>'
         * out_directory: path to save downloaded granule
             (the default is the current directory).
     '''
@@ -146,7 +146,7 @@ def get_edl_token_from_launchpad(launchpad_token: str,
                                  cmr_env: CmrEnvType) -> Union[str, None]:
     ''' Retrieve an EDL token given a LaunchPad token.
         * launchpad_token: A LaunchPad token with no header prefixes:
-            <Launchpad token>
+          <Launchpad token>
         * cmr_env/mode: CMR environments (OPS, UAT, and SIT)
     '''
     url_urs_endpoint = urs_token_endpoints.get(cmr_env)
@@ -166,9 +166,8 @@ def get_edl_token_from_launchpad(launchpad_token: str,
 def get_edl_token_header(auth_header: str, cmr_env: CmrEnvType) -> str:
     ''' Helper function for getting the header for an EDL token.
         * auth_header: Authorization HTTP header, either:
-            - A header with a LaunchPad token: 'Authorization: <token>'
-            - A header with an EDL bearer token:
-                'Authorization: Bearer <token>'
+          - A header with a LaunchPad token: 'Authorization: <token>'
+          - A header with an EDL bearer token: 'Authorization: Bearer <token>'
         * cmr_env/mode: CMR environments (OPS, UAT, and SIT)
     '''
     if 'Bearer ' not in auth_header:
