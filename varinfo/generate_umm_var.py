@@ -27,7 +27,7 @@ UmmVarReturnType = List[Union[Dict, str]]
 
 
 def generate_collection_umm_var(collection_concept_id: str,
-                                launchpad_token: str,
+                                auth_header: str,
                                 cmr_env: CmrEnvType = CMR_UAT,
                                 publish: bool = False) -> UmmVarReturnType:
     """ Run all the of the functions for downloading and publishing
@@ -36,8 +36,8 @@ def generate_collection_umm_var(collection_concept_id: str,
         * collection_concept_id: Concept ID for collection that variables have
           been generated for.
         * cmr_env: URLs for CMR environments (OPS, UAT, and SIT)
-        * launchpad_token: A LaunchPad token with no header prefixes:
-            <Launchpad token>
+        * auth_header: Authorization HTTP header, containing a LaunchPad
+          token: 'Authorization: <token>'
         * publish: Optional argument determining whether to publish the
           generated UMM-Var records to the indicated CMR instance. Defaults to
           False.
@@ -46,7 +46,7 @@ def generate_collection_umm_var(collection_concept_id: str,
 
     """
     # Get an EDL token and its header given a LaunchPad token
-    auth_header_edl_token = get_edl_token_header(launchpad_token, cmr_env)
+    auth_header_edl_token = get_edl_token_header(auth_header, cmr_env)
 
     granule_response = get_granules(collection_concept_id, cmr_env=cmr_env,
                                     auth_header=auth_header_edl_token)
@@ -72,7 +72,7 @@ def generate_collection_umm_var(collection_concept_id: str,
         # error messages returned from CMR.
         publication_response = publish_all_umm_var(collection_concept_id,
                                                    all_umm_var_records,
-                                                   launchpad_token, cmr_env)
+                                                   auth_header, cmr_env)
 
         # Produce a list indicating publication information for all variables.
         # Variables that were successfully published will have a list element

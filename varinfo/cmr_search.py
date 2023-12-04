@@ -18,13 +18,10 @@ from varinfo.exceptions import (CMRQueryException,
 
 
 CmrEnvType = Literal[CMR_OPS, CMR_UAT, CMR_SIT]
-UrsEdlTokenEndpoints = [
-    'https://urs.earthdata.nasa.gov/api/nams/edl_user_token',
-    'https://uat.urs.earthdata.nasa.gov/api/nams/edl_user_token',
-    'https://sit.urs.earthdata.nasa.gov/api/nams/edl_user_token']
-
-UrsEnvsEdlTokenEndpoints = dict(zip([CMR_OPS, CMR_UAT, CMR_SIT],
-                                    UrsEdlTokenEndpoints))
+urs_token_endpoints = {
+    CMR_OPS: 'https://urs.earthdata.nasa.gov/api/nams/edl_user_token',
+    CMR_UAT: 'https://uat.urs.earthdata.nasa.gov/api/nams/edl_user_token',
+    CMR_SIT: 'https://sit.urs.earthdata.nasa.gov/api/nams/edl_user_token'}
 
 
 def get_granules(concept_id: str = None,
@@ -152,7 +149,7 @@ def get_edl_token_from_launchpad(launchpad_token: str,
             <Launchpad token>
         * cmr_env/mode: CMR environments (OPS, UAT, and SIT)
     '''
-    url_urs_endpoint = UrsEnvsEdlTokenEndpoints.get(cmr_env)
+    url_urs_endpoint = urs_token_endpoints.get(cmr_env)
     try:
         response = requests.post(url=url_urs_endpoint,
                                  data=f'token={launchpad_token}',
@@ -170,7 +167,7 @@ def get_edl_token_header(auth_header: str, cmr_env: CmrEnvType) -> str:
     ''' Helper function for getting the header for an EDL token.
         * auth_header: Authorization HTTP header, either:
             - A header with a LaunchPad token: 'Authorization: <token>'
-            - An header with an EDL bearer token:
+            - A header with an EDL bearer token:
                 'Authorization: Bearer <token>'
         * cmr_env/mode: CMR environments (OPS, UAT, and SIT)
     '''
