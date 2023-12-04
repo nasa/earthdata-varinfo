@@ -1,3 +1,13 @@
+## v2.2.0
+### 2023-11-30
+
+This version of `earthdata-varinfo` updates `varinfo.cmr_search` to include
+functionality to get a users EDL token given a LaunchPad token with
+`get_edl_token_from_launchpad` and `get_edl_token_header`.
+`get_edl_token_from_launchpad` returns a users EDL token given a LaunchPad
+token and CMR environment and `get_edl_token_header` returns the appropriate header
+prefix for each respective token.
+
 ## v2.1.2
 ### 2023-11-14
 

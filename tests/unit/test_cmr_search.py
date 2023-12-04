@@ -6,15 +6,19 @@ from unittest.mock import patch, Mock
 
 from cmr import (GranuleQuery, CMR_UAT)
 import requests
-from requests.exceptions import HTTPError
+from requests.exceptions import HTTPError, Timeout
 
 from varinfo.cmr_search import (get_granules, get_granule_link,
-                                download_granule)
+                                download_granule,
+                                get_edl_token_from_launchpad,
+                                get_edl_token_header, urs_token_endpoints)
+
 from varinfo.exceptions import (CMRQueryException,
                                 MissingGranuleDownloadLinks,
                                 MissingPositionalArguments,
                                 GranuleDownloadException,
-                                DirectoryCreationException)
+                                DirectoryCreationException,
+                                GetEdlTokenException)
 
 
 class TestQuery(TestCase):
@@ -399,3 +403,80 @@ class TestQuery(TestCase):
         mock_requests_get.return_value.side_effect = HTTPError('Wrong HTTP')
         with self.assertRaises(GranuleDownloadException):
             download_granule(link, auth_header=self.bearer_token_header)
+
+
+    @patch('requests.post')
+    def test_get_edl_token_from_launchpad(self, mock_requests_post):
+        ''' Check if `get_edl_token_from_launchpad` is called with
+            expected parameters and if its response contains
+            the expected content.
+        '''
+        # Mock the `request.post` call
+        mock_response = Mock(spec=requests.Response)
+        mock_response.json.return_value = {'access_token': 'edl-token'}
+        mock_requests_post.return_value = mock_response
+
+        # Input parameters
+        urs_uat_edl_token_endpoint = urs_token_endpoints.get(CMR_UAT)
+        edl_token_from_launchpad_response = get_edl_token_from_launchpad(
+            self.launchpad_token_header, CMR_UAT)
+
+        self.assertEqual(edl_token_from_launchpad_response, 'edl-token')
+
+        mock_requests_post.assert_called_once_with(
+            url=urs_uat_edl_token_endpoint,
+            data=f'token={self.launchpad_token_header}',
+            timeout=10)
+
+
+    @patch('requests.post')
+    def test_bad_edl_token_from_launchpad_response(self, mock_requests_post):
+        ''' Check if the `get_edl_token_from_launchpad_response` contains
+            the expected content for unsuccessful response.
+        '''
+        # Create `mock_requests_post` for a unsuccessful request
+        # and set its return_value
+        mock_response = Mock(spec=requests.Response)
+        mock_response.status_code = 400
+        mock_response.raise_for_status.side_effect = HTTPError()
+        mock_requests_post.return_value = mock_response
+
+        with self.assertRaises(GetEdlTokenException):
+            get_edl_token_from_launchpad(self.launchpad_token_header, CMR_UAT)
+
+
+    @patch('requests.post', side_effect=Timeout('Request timed out'))
+    def test_request_exception(self, mock_requests_post):
+        ''' Check if `GetEdlTokenException` is raised if `requests.post`
+            fails.
+        '''
+        with self.assertRaises(GetEdlTokenException) as context_manager:
+            get_edl_token_from_launchpad(self.launchpad_token_header, CMR_UAT)
+
+        self.assertEqual(str(context_manager.exception),
+                         str(GetEdlTokenException('Request timed out')))
+
+
+    @patch('requests.post')
+    def test_get_edl_token_header_with_launchpad(self, mock_requests_post):
+        ''' Test if an EDL token and its appropriate header is returned given
+            a LaunchPad token.
+        '''
+        # Create successful mock response
+        mock_response = Mock(spec=requests.Response)
+        mock_response.ok = True
+        mock_response.json.return_value = {'access_token': 'edl-token'}
+        mock_requests_post.return_value = mock_response
+
+        test_bearer_token  = get_edl_token_header(self.launchpad_token_header,
+                                                  CMR_UAT)
+        self.assertEqual(test_bearer_token, 'Bearer edl-token')
+
+
+    def test_get_edl_token_header_with_edl_token(self):
+        ''' Test if an EDL token is entered with its "Bearer" header prefix.
+            If it is the same EDL token is returned.
+        '''
+        test_bearer_token = get_edl_token_header(self.bearer_token_header,
+                                                 CMR_UAT)
+        self.assertEqual(test_bearer_token, self.bearer_token_header)

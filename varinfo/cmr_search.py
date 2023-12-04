@@ -2,7 +2,8 @@
     and get a granule download URL. With the granule download URL and the
     `requests` library a granule is downloaded via https and saved locally.
 '''
-from typing import Literal
+
+from typing import Literal, Union
 import os.path
 
 from cmr import GranuleQuery, CMR_OPS, CMR_SIT, CMR_UAT
@@ -12,10 +13,15 @@ from varinfo.exceptions import (CMRQueryException,
                                 MissingGranuleDownloadLinks,
                                 MissingPositionalArguments,
                                 GranuleDownloadException,
-                                DirectoryCreationException)
+                                DirectoryCreationException,
+                                GetEdlTokenException)
 
 
 CmrEnvType = Literal[CMR_OPS, CMR_UAT, CMR_SIT]
+urs_token_endpoints = {
+    CMR_OPS: 'https://urs.earthdata.nasa.gov/api/nams/edl_user_token',
+    CMR_UAT: 'https://uat.urs.earthdata.nasa.gov/api/nams/edl_user_token',
+    CMR_SIT: 'https://sit.urs.earthdata.nasa.gov/api/nams/edl_user_token'}
 
 
 def get_granules(concept_id: str = None,
@@ -37,7 +43,7 @@ def get_granules(concept_id: str = None,
         * cmr_env/mode: CMR environments (OPS, UAT, and SIT)
         * auth_header: Authorization HTTP header, either:
           - A header with a LaunchPad token: 'Authorization: <token>'
-          - An header with an EDL bearer token: 'Authorization: Bearer <token>'
+          - A header with an EDL bearer token: 'Authorization: Bearer <token>'
 
         For a successful search response concept_id or short_name, version and
         provider must be entered along with a bearer_token.
@@ -106,7 +112,7 @@ def download_granule(granule_link: str,
         * granule_link: granule download URL.
         * auth_header: Authorization HTTP header, either:
           - A header with a LaunchPad token: 'Authorization: <token>'
-          - An header with an EDL bearer token: 'Authorization: Bearer <token>'
+          - A header with an EDL bearer token: 'Authorization: Bearer <token>'
         * out_directory: path to save downloaded granule
             (the default is the current directory).
     '''
@@ -134,3 +140,40 @@ def download_granule(granule_link: str,
         # Custom exception for error from `requests.get`
         raise GranuleDownloadException(
             str(requests_exception)) from requests_exception
+
+
+def get_edl_token_from_launchpad(launchpad_token: str,
+                                 cmr_env: CmrEnvType) -> Union[str, None]:
+    ''' Retrieve an EDL token given a LaunchPad token.
+        * launchpad_token: A LaunchPad token with no header prefixes:
+          <Launchpad token>
+        * cmr_env/mode: CMR environments (OPS, UAT, and SIT)
+    '''
+    url_urs_endpoint = urs_token_endpoints.get(cmr_env)
+    try:
+        response = requests.post(url=url_urs_endpoint,
+                                 data=f'token={launchpad_token}',
+                                 timeout=10)
+        response.raise_for_status()
+
+    except Exception as requests_exception:
+        raise GetEdlTokenException(
+            str(requests_exception)) from requests_exception
+
+    return response.json().get('access_token')
+
+
+def get_edl_token_header(auth_header: str, cmr_env: CmrEnvType) -> str:
+    ''' Helper function for getting the header for an EDL token.
+        * auth_header: Authorization HTTP header, either:
+          - A header with a LaunchPad token: 'Authorization: <token>'
+          - A header with an EDL bearer token: 'Authorization: Bearer <token>'
+        * cmr_env/mode: CMR environments (OPS, UAT, and SIT)
+    '''
+    if 'Bearer ' not in auth_header:
+        edl_auth_header = (
+            f'Bearer {get_edl_token_from_launchpad(auth_header, cmr_env)}'
+        )
+    else:
+        edl_auth_header = auth_header
+    return edl_auth_header
