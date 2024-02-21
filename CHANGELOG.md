@@ -1,3 +1,8 @@
+## vX.Y.Z
+### Unreleased
+
+The `requests` package has been added as an explicit dependency of the package.
+
 ## v2.2.0
 ### 2023-11-30
 
