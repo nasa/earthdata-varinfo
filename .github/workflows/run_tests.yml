@@ -24,7 +24,7 @@ jobs:
         run: make install
 
       - name: Run tests
-        run: make test 
+        run: make test
 
       - name: Archive test results
         uses: actions/upload-artifact@v3

@@ -1,9 +1,6 @@
-from os.path import exists
-from shutil import copy, rmtree
-from tempfile import TemporaryDirectory
+from shutil import copy
 from unittest import TestCase
 from unittest.mock import ANY, patch
-import json
 
 from varinfo.generate_umm_var import (generate_collection_umm_var,
                                       is_variable_concept_id)

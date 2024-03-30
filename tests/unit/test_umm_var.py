@@ -201,8 +201,7 @@ class TestUmmVar(TestCase):
             long_name_variable = dataset.createVariable('long_name', float64)
             long_name_variable.setncatts({'long_name': 'this is really long'})
 
-            no_long_name_variable = dataset.createVariable('no_long_name',
-                                                           float64)
+            dataset.createVariable('no_long_name', float64)
 
         nc_varinfo = VarInfoFromNetCDF4(netcdf4_file)
 
