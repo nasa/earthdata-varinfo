@@ -1,7 +1,8 @@
-## vX.Y.Z
+## v2.2.1
 ### Unreleased
 
 The `requests` package has been added as an explicit dependency of the package.
+Additionally, black code formatting has been applied to the entire repository.
 
 ## v2.2.0
 ### 2023-11-30
