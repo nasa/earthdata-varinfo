@@ -222,7 +222,7 @@ To enable these checks:
 
 ```bash
 # Install pre-commit Python package as part of test requirements:
-pip install -r tests/pip_test_requirements.txt
+pip install -r dev-requirements.txt
 
 # Install the git hook scripts:
 pre-commit install
