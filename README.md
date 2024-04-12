@@ -239,6 +239,9 @@ review and `git add` the changes before you can make a commit.
 It is planned to implement additional hooks, possibly including tools such as
 `mypy`.
 
+[pre-commit.ci](pre-commit.ci) is configured such that these same hooks will be
+automatically run for every pull request.
+
 ## Releasing:
 
 All CI/CD for this repository is defined in the `.github/workflows` directory:
