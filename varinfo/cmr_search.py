@@ -3,7 +3,9 @@
     `requests` library a granule is downloaded via https and saved locally.
 """
 
-from typing import Literal, Union
+from __future__ import annotations
+
+from typing import Literal
 import os.path
 
 from cmr import GranuleQuery, CMR_OPS, CMR_SIT, CMR_UAT
@@ -28,12 +30,12 @@ urs_token_endpoints = {
 
 
 def get_granules(
-    concept_id: str = None,
-    collection_shortname: str = None,
-    collection_version: str = None,
-    provider: str = None,
+    concept_id: str | None = None,
+    collection_shortname: str | None = None,
+    collection_version: str | None = None,
+    provider: str | None = None,
     cmr_env: CmrEnvType = CMR_OPS,
-    auth_header: str = None,
+    auth_header: str | None = None,
 ) -> list:
     """Search CMR to retrieve granules for a specific collection given:
 
@@ -156,7 +158,7 @@ def download_granule(
 
 def get_edl_token_from_launchpad(
     launchpad_token: str, cmr_env: CmrEnvType
-) -> Union[str, None]:
+) -> str | None:
     """Retrieve an EDL token given a LaunchPad token.
     * launchpad_token: A LaunchPad token with no header prefixes:
       <Launchpad token>

@@ -11,7 +11,7 @@
 """
 
 from tempfile import TemporaryDirectory
-from typing import Dict, List, Union
+from typing import Union
 import re
 
 from cmr import CMR_UAT
@@ -29,7 +29,7 @@ from varinfo.umm_var import get_all_umm_var, publish_all_umm_var
 
 # Custom return type: either a list of UMM-Var JSON (a list of dictionaries),
 # or a list of strings (either concept IDs or error strings).
-UmmVarReturnType = List[Union[Dict, str]]
+UmmVarReturnType = list[Union[dict, str]]
 
 
 def generate_collection_umm_var(
