@@ -19,8 +19,9 @@
 
 """
 
+from __future__ import annotations
+
 from os.path import exists
-from typing import Dict, Optional
 import json
 import re
 
@@ -46,7 +47,7 @@ class CFConfig:
         self,
         mission: str,
         collection_short_name: str,
-        config_file: Optional[str] = None,
+        config_file: str | None = None,
     ):
         """Set supplied class attributes. Then read the designated
         configuration file to obtain mission and short name specific
@@ -129,7 +130,7 @@ class CFConfig:
         for supplement in config.get('CF_Supplements', []):
             self._process_cf_item(supplement, self._cf_supplements)
 
-    def _is_applicable(self, mission: str, short_name: str = None) -> bool:
+    def _is_applicable(self, mission: str, short_name: str | None = None) -> bool:
         """Given a mission, and optionally also a collection short name, of an
         applicability within the configuration file, check for a match
         against the mission and short name specified when instantiating the
@@ -146,10 +147,10 @@ class CFConfig:
 
     def _process_cf_item(
         self,
-        cf_item: Dict,
-        results: Dict[str, Dict],
-        input_mission: str = None,
-        input_short_name: str = None,
+        cf_item: dict,
+        results: dict[str, dict],
+        input_mission: str | None = None,
+        input_short_name: str | None = None,
     ):
         """Process a single block in the CF overrides or CF supplements region
         of the configuration file. First check that the applicability
@@ -182,7 +183,7 @@ class CFConfig:
                 self._process_cf_item(cf_reference, results, mission, short_name)
 
     @staticmethod
-    def _create_attributes_object(cf_item: Dict) -> Dict[str, str]:
+    def _create_attributes_object(cf_item: dict) -> dict[str, str]:
         """Construct a dictionary object containing all contained attributes,
         which are specified as list items with Name and Value keys.
 
@@ -192,7 +193,9 @@ class CFConfig:
             for attribute in cf_item.get('Attributes', {})
         }
 
-    def get_cf_attributes(self, variable: str = None) -> Dict[str, Dict[str, str]]:
+    def get_cf_attributes(
+        self, variable: str | None = None
+    ) -> dict[str, dict[str, str]]:
         """Return the CF overrides and supplements that match a given
         variable. If a variable is not specified, then return all overrides
         and supplements. If there are no overrides or supplements, then
@@ -212,8 +215,8 @@ class CFConfig:
 
     @staticmethod
     def _get_matching_attributes(
-        cf_references: Dict[str, Dict[str, str]], variable: str
-    ) -> Dict[str, str]:
+        cf_references: dict[str, dict[str, str]], variable: str
+    ) -> dict[str, str]:
         """Iterate through either the self._cf_supplements or
         self._cf_overrides and extract a dictionary that combines all
         applicable attributes that apply to the specified variable. If

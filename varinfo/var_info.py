@@ -4,9 +4,11 @@
 
 """
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from os.path import exists
-from typing import Dict, Optional, Set, Tuple, Union
+from typing import Union
 import json
 import re
 import xml.etree.ElementTree as ET
@@ -27,7 +29,7 @@ from varinfo.utilities import (
 from varinfo.variable import VariableFromDmr, VariableFromNetCDF4
 
 
-DimensionsGroupType = Dict[Tuple[str], Set[str]]
+DimensionsGroupType = dict[tuple[str], set[str]]
 OutputVariableType = Union[VariableFromDmr]
 
 
@@ -43,8 +45,8 @@ class VarInfoBase(ABC):
     def __init__(
         self,
         file_path: str,
-        short_name: Optional[str] = None,
-        config_file: Optional[str] = None,
+        short_name: str | None = None,
+        config_file: str | None = None,
     ):
         """Distinguish between variables containing references to other
         datasets, and those that do not. The former are considered science
@@ -62,9 +64,9 @@ class VarInfoBase(ABC):
         self.short_name = short_name
         self.mission = None
         self.namespace = None
-        self.variables: Dict[str, OutputVariableType] = {}
-        self.references: Set[str] = set()
-        self.metadata = {}
+        self.variables: dict[str, OutputVariableType] = {}
+        self.references: set[str] = set()
+        self.metadata: dict[str, OutputVariableType] = {}
 
         self._set_var_info_config()
         self._read_dataset(file_path)
@@ -103,9 +105,8 @@ class VarInfoBase(ABC):
         updated.
 
         """
-        full_path = variable_object.full_name_path
         self.references.update(variable_object.get_references())
-        self.variables[full_path] = variable_object
+        self.variables[variable_object.full_name_path] = variable_object
 
     def _set_var_info_config(self):
         """Read the VarInfo configuration JSON file, containing locations to
@@ -175,7 +176,7 @@ class VarInfoBase(ABC):
         if self.cf_config.global_overrides:
             self.global_attributes.update(self.cf_config.global_overrides)
 
-    def get_variable(self, variable_path: str) -> Optional[OutputVariableType]:
+    def get_variable(self, variable_path: str) -> OutputVariableType | None:
         """Retrieve a variable specified by an absolute path. First check the
         variables with coordinates, before checking those without. If there
         are no matching variables, a value of `None` is returned.
@@ -183,11 +184,11 @@ class VarInfoBase(ABC):
         """
         return self.variables.get(variable_path)
 
-    def get_all_variables(self) -> Set[str]:
+    def get_all_variables(self) -> set[str]:
         """Retrieve a set of names for all variables in the granule."""
         return set(self.variables.keys())
 
-    def get_variables_with_coordinates(self) -> Dict[str, OutputVariableType]:
+    def get_variables_with_coordinates(self) -> dict[str, OutputVariableType]:
         """Return only variables with a `coordinates` metadata attribute.
         This list excludes any variables listed as an excluded science
         variable in the configuration file supplied to the object.
@@ -239,7 +240,7 @@ class VarInfoBase(ABC):
 
         return False
 
-    def get_science_variables(self) -> Set[str]:
+    def get_science_variables(self) -> set[str]:
         """Retrieve a set of names for all variables that have coordinate
         references, that are not themselves used as dimensions, coordinates
         or ancillary date for another variable.
@@ -259,7 +260,7 @@ class VarInfoBase(ABC):
 
         return filtered_with_coordinates - self.references
 
-    def get_metadata_variables(self) -> Set[str]:
+    def get_metadata_variables(self) -> set[str]:
         """Retrieve set of names for all variables that do no have
         coordinates references, that are not themselves used as dimensions,
         coordinates, ancillary data for another variable, or are
@@ -302,7 +303,7 @@ class VarInfoBase(ABC):
 
         return exclude_variable
 
-    def get_required_variables(self, requested_variables: Set[str]) -> Set[str]:
+    def get_required_variables(self, requested_variables: set[str]) -> set[str]:
         """Retrieve requested variables and recursively search for all
         associated dimension and coordinate variables. The returned set
         should be the union of the science variables, coordinates and
@@ -327,7 +328,7 @@ class VarInfoBase(ABC):
             cf_required_variables = set()
 
         requested_variables.update(cf_required_variables)
-        required_variables: Set[str] = set()
+        required_variables: set[str] = set()
 
         while len(requested_variables) > 0:
             variable_name = requested_variables.pop()
@@ -350,7 +351,7 @@ class VarInfoBase(ABC):
 
         return self.exclude_fake_dimensions(required_variables)
 
-    def get_required_dimensions(self, variables: Set[str]) -> Set[str]:
+    def get_required_dimensions(self, variables: set[str]) -> set[str]:
         """Return a single set of all variables that are used as dimensions
         for any of the listed variables.
 
@@ -362,7 +363,7 @@ class VarInfoBase(ABC):
             if self.get_variable(dimension) is not None
         )
 
-    def get_spatial_dimensions(self, variables: Set[str]) -> Set[str]:
+    def get_spatial_dimensions(self, variables: set[str]) -> set[str]:
         """Return a single set of all variables that are both used as
         dimensions for any of the input variables, and that are horizontal
         spatial dimensions (either geographic or projected).
@@ -373,7 +374,7 @@ class VarInfoBase(ABC):
             self.get_projected_spatial_dimensions(variables),
         )
 
-    def get_geographic_spatial_dimensions(self, variables: Set[str]) -> Set[str]:
+    def get_geographic_spatial_dimensions(self, variables: set[str]) -> set[str]:
         """Return a single set of all the variables that are both used as
         dimensions for any of the input variables, and that are geographic
         in nature (as determined by the `units` metadata attribute).
@@ -388,7 +389,7 @@ class VarInfoBase(ABC):
             if self.get_variable(dimension).is_geographic()
         )
 
-    def get_projected_spatial_dimensions(self, variables: Set[str]) -> Set[str]:
+    def get_projected_spatial_dimensions(self, variables: set[str]) -> set[str]:
         """Return a single set of all the variables that are both used as
         dimensions for any of the input variables, and that are projected
         in nature (as determined by the `standard_name` metadata
@@ -401,7 +402,7 @@ class VarInfoBase(ABC):
             if self.get_variable(dimension).is_projection_x_or_y()
         )
 
-    def get_temporal_dimensions(self, variables: Set[str]) -> Set[str]:
+    def get_temporal_dimensions(self, variables: set[str]) -> set[str]:
         """Return a single set of all variables that are both used as
         dimensions for any of the input variables, and that are temporal
         in nature (as determined by the `units` metadata attribute).
@@ -416,7 +417,7 @@ class VarInfoBase(ABC):
             if self.get_variable(dimension).is_temporal()
         )
 
-    def get_variables_with_dimensions(self, dimensions: Set[str]) -> Set[str]:
+    def get_variables_with_dimensions(self, dimensions: set[str]) -> set[str]:
         """Return a single set of all variables that include all the supplied
         dimensions as a subset of their own dimensions.
 
@@ -493,7 +494,7 @@ class VarInfoBase(ABC):
         return horizontal_groups
 
     @staticmethod
-    def exclude_fake_dimensions(variable_set: Set[str]) -> Set[str]:
+    def exclude_fake_dimensions(variable_set: set[str]) -> set[str]:
         """An OPeNDAP `.dmr` can contain fake dimensions, used to supplement
         missing information for a granule. These cannot be retrieved when
         requesting a subset from an OPeNDAP server, and must be removed
@@ -611,7 +612,7 @@ class VarInfoFromDmr(VarInfoBase):
     def traverse_elements(
         self,
         element: ET.Element,
-        element_types: Set[str],
+        element_types: set[str],
         operation,
         output,
         group_path: str = '',
@@ -668,7 +669,7 @@ class VarInfoFromNetCDF4(VarInfoBase):
         with Dataset(self.dataset, 'r') as dataset:
             self._parse_group(dataset)
 
-    def _parse_group(self, group: Union[Dataset, Group]):
+    def _parse_group(self, group: Dataset | Group):
         """If the child matches one of the DAP4 variable types, then create an
         instance of the `VariableFromDmr` class, and assign it to either
         the `variables_with_coordinates` or the `metadata_variables`

@@ -18,7 +18,9 @@
 
 """
 
-from typing import Dict, List, Optional
+from __future__ import annotations
+
+from typing import Any
 from xml.etree.ElementTree import Element
 import functools
 import re
@@ -61,7 +63,7 @@ DAP4_TO_NUMPY_MAP = {
 }
 
 
-def recursive_get(input_dictionary: Dict, keys: List[str]):
+def recursive_get(input_dictionary: dict, keys: list[str]):
     """Extract a value from an aribtrarily nested dictionary."""
     try:
         nested_value = functools.reduce(dict.get, keys, input_dictionary)
@@ -72,7 +74,7 @@ def recursive_get(input_dictionary: Dict, keys: List[str]):
     return nested_value
 
 
-def split_attribute_path(full_path: str) -> List[str]:
+def split_attribute_path(full_path: str) -> list[str]:
     """Take the full path to a metadata attribute and return the list of
     keys that locate that attribute within the global attributes.
     This function can account for the input path to having, or omitting, a
@@ -102,8 +104,8 @@ def get_xml_attribute(
     variable: Element,
     attribute_name: str,
     namespace: str,
-    default_value: Optional = None,
-) -> Optional:
+    default_value: Any | None = None,
+) -> Any | None:
     """Extract the value of an XML Attribute tag from a `.dmr`. First search
     the supplied variable element for a fully qualified Attribute child
     element, with a name property matching the requested attribute name. If
