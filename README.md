@@ -187,10 +187,24 @@ Prerequisites:
     `conda`.
   - A local copy of this repository.
 
+Set up conda virtual environment:
+
+```bash
+conda create --name earthdata-varinfo python=3.11 --channel conda-forge \
+    --channel defaults -y
+conda activate earthdata-varinfo
+```
+
 Install dependencies:
 
 ```bash
 $ make develop
+```
+
+or
+
+```
+pip install -r requirements.txt -r dev-requirements.txt
 ```
 
 Run a linter against package code (preferably do this prior to submitting code
