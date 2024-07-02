@@ -183,7 +183,7 @@ also contains an update to the `VERSION` file.
 
 Prerequisites:
 
-  - Python 3.7+, ideally installed in a virtual environment, such as `pyenv` or
+  - Python 3.9+, ideally installed in a virtual environment, such as `pyenv` or
     `conda`.
   - A local copy of this repository.
 
