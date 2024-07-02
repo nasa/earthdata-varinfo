@@ -183,14 +183,28 @@ also contains an update to the `VERSION` file.
 
 Prerequisites:
 
-  - Python 3.7+, ideally installed in a virtual environment, such as `pyenv` or
+  - Python 3.9+, ideally installed in a virtual environment, such as `pyenv` or
     `conda`.
   - A local copy of this repository.
+
+Set up conda virtual environment:
+
+```bash
+conda create --name earthdata-varinfo python=3.11 --channel conda-forge \
+    --channel defaults -y
+conda activate earthdata-varinfo
+```
 
 Install dependencies:
 
 ```bash
 $ make develop
+```
+
+or
+
+```
+pip install -r requirements.txt -r dev-requirements.txt
 ```
 
 Run a linter against package code (preferably do this prior to submitting code
