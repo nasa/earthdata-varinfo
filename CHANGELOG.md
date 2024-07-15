@@ -1,3 +1,11 @@
+
+## v2.2.2
+### Unreleased
+
+The generate_collection_umm_var function in earthdata-varinfo updated to support an
+optional kwarg for a configuration file, to be able to override known metadata errors.
+
+
 ## v2.2.1
 ### Unreleased
 
