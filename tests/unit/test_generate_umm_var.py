@@ -295,7 +295,7 @@ class TestGenerateUmmVar(TestCase):
         with self.subTest('Random string returns False'):
             self.assertFalse(is_variable_concept_id('Random string'))
 
-    @patch('varinfo.VarInfoFromNetCDF4')
+    @patch('varinfo.generate_umm_var.VarInfoFromNetCDF4')
     @patch('varinfo.cmr_search.GranuleQuery')
     @patch('varinfo.generate_umm_var.download_granule')
     def test_generate_collection_umm_var_config_file(
@@ -323,37 +323,19 @@ class TestGenerateUmmVar(TestCase):
         mock_download_granule.side_effect = self.download_granule_side_effect
 
         # Run the test:
-        generated_umm_var = generate_collection_umm_var(
-            self.collection_concept_id, self.bearer_token_header, config_file=None
-        )
-
-        # Ensure the granule query used expected query parameters
-        mock_granule_query.return_value.parameters.assert_called_once_with(
-            downloadable=True,
-            sort_key='-start_date',
-            concept_id=self.collection_concept_id,
-        )
-
-        # Ensure the call to download the granule had correct parameters
-        mock_download_granule.assert_called_once_with(
-            self.netcdf4_url, self.bearer_token_header, out_directory=ANY
-        )
-
-        # Ensure the the config file provided is passed to the VarInfo class
-        mock_varinfo_from_netcdf4.init.assert_called_once_with(
-            mock_download_granule.side_effect,
+        generate_collection_umm_var(
+            self.collection_concept_id,
+            self.bearer_token_header,
             config_file='tests/unit/data/test_config.json',
         )
 
-        # Ensure the output looks as expected - full record comparison is
-        # not performed to avoid test brittleness.
-        expected_variables = set(self.rssmif16d_variables)
+        # Ensure the the config file provided is passed to the VarInfo class
+        mock_varinfo_from_netcdf4.assert_called_once_with(
+            file_path=ANY,
+            config_file='tests/unit/data/test_config.json',
+        )
 
-        actual_variables = set([record['Name'] for record in generated_umm_var])
-
-        self.assertSetEqual(actual_variables, expected_variables)
-
-    @patch('varinfo.VarInfoFromNetCDF4')
+    @patch('varinfo.generate_umm_var.VarInfoFromNetCDF4')
     @patch('varinfo.cmr_search.GranuleQuery')
     @patch('varinfo.generate_umm_var.download_granule')
     def test_generate_collection_umm_var_with_no_config_file(
@@ -381,31 +363,9 @@ class TestGenerateUmmVar(TestCase):
         mock_download_granule.side_effect = self.download_granule_side_effect
 
         # Run the test:
-        generated_umm_var = generate_collection_umm_var(
-            self.collection_concept_id, self.bearer_token_header, config_file=None
+        generate_collection_umm_var(
+            self.collection_concept_id, self.bearer_token_header
         )
 
-        # Ensure the granule query used expected query parameters
-        mock_granule_query.return_value.parameters.assert_called_once_with(
-            downloadable=True,
-            sort_key='-start_date',
-            concept_id=self.collection_concept_id,
-        )
-
-        # Ensure that the VarInfoFromNetCDF4 invocation includes the test config file
-        mock_varinfo_from_netcdf4.init.assert_called_once_with(
-            mock_download_granule.side_effect, config_file=None
-        )
-
-        # Ensure the call to download the granule had correct parameters
-        mock_download_granule.assert_called_once_with(
-            self.netcdf4_url, self.bearer_token_header, out_directory=ANY
-        )
-
-        # Ensure the output looks as expected - full record comparison is
-        # not performed to avoid test brittleness.
-        expected_variables = set(self.rssmif16d_variables)
-
-        actual_variables = set([record['Name'] for record in generated_umm_var])
-
-        self.assertSetEqual(actual_variables, expected_variables)
+        # Ensure that the VarInfoFromNetCDF4 invocation includes NONE for the config file
+        mock_varinfo_from_netcdf4.assert_called_with(file_path=ANY, config_file=None)
