@@ -11,7 +11,7 @@
 """
 
 from tempfile import TemporaryDirectory
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Optional
 import re
 
 from cmr import CMR_UAT
@@ -37,6 +37,7 @@ def generate_collection_umm_var(
     auth_header: str,
     cmr_env: CmrEnvType = CMR_UAT,
     publish: bool = False,
+    config_file: Optional[str] = None,
 ) -> UmmVarReturnType:
     """Run all the of the functions for downloading and publishing
     a UMM-Var entry to CMR given:
@@ -49,7 +50,8 @@ def generate_collection_umm_var(
     * publish: Optional argument determining whether to publish the
       generated UMM-Var records to the indicated CMR instance. Defaults to
       False.
-
+    * config_file: Optional argument to provide a configuration file that
+      could be used to override any known errors in a collection. Defaults to None
     Note - if attempting to publish to CMR, a LaunchPad token must be used.
 
     """
@@ -70,7 +72,7 @@ def generate_collection_umm_var(
         )
 
         # Parse the granule with VarInfo to map all variables and relations:
-        var_info = VarInfoFromNetCDF4(local_granule)
+        var_info = VarInfoFromNetCDF4(local_granule, config_file=config_file)
 
         # Generate all the UMM-Var records:
         all_umm_var_records = get_all_umm_var(var_info)
