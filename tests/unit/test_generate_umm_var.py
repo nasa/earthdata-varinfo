@@ -19,8 +19,17 @@ class TestGenerateUmmVar(TestCase):
         cls.collection_concept_id = 'C1234567890-PROV'
         cls.launchpad_token_header = 'launchpad-token'
         cls.netcdf4_basename = 'f16_ssmis_20210426v7.nc'
-        cls.data_url = 'http://esipfed.org/ns/fedsearch/1.1/data#'
         cls.netcdf4_url = f'https://example.com/{cls.netcdf4_basename}'
+        cls.query_granule_return = [
+            {
+                'links': [
+                    {
+                        'href': cls.netcdf4_url,
+                        'rel': 'http://esipfed.org/ns/fedsearch/1.1/data#',
+                    }
+                ]
+            }
+        ]
         cls.rssmif16d_variables = [
             'atmosphere_cloud_liquid_water_content',
             'atmosphere_water_vapor_content',
@@ -56,16 +65,7 @@ class TestGenerateUmmVar(TestCase):
         in detail in test_cmr_search.py.
 
         """
-        mock_granule_query.return_value.get.return_value = [
-            {
-                'links': [
-                    {
-                        'href': self.netcdf4_url,
-                        'rel': self.data_url,
-                    }
-                ]
-            }
-        ]
+        mock_granule_query.return_value.get.return_value = self.query_granule_return
 
         # Add side effect that will copy test file to the temporary directory,
         # simulating a download.
@@ -116,16 +116,7 @@ class TestGenerateUmmVar(TestCase):
             'V0000000007-PROV',
             'V0000000008-PROV',
         ]
-        mock_granule_query.return_value.get.return_value = [
-            {
-                'links': [
-                    {
-                        'href': self.netcdf4_url,
-                        'rel': self.data_url,
-                    }
-                ]
-            }
-        ]
+        mock_granule_query.return_value.get.return_value = self.query_granule_return
 
         # Add side effect that will copy test file to the temporary directory,
         # simulating a download.
@@ -215,16 +206,7 @@ class TestGenerateUmmVar(TestCase):
         # ['V0000000001-PROV', 'V0000000002-PROV', ..., 'Invalid JSON']
         concept_ids_and_error = concept_ids + [error_message]
 
-        mock_granule_query.return_value.get.return_value = [
-            {
-                'links': [
-                    {
-                        'href': self.netcdf4_url,
-                        'rel': self.data_url,
-                    }
-                ]
-            }
-        ]
+        mock_granule_query.return_value.get.return_value = self.query_granule_return
 
         # Add side effect that will copy test file to the temporary directory,
         # simulating a download.
@@ -307,16 +289,7 @@ class TestGenerateUmmVar(TestCase):
         would use it. The granule query and download methods are mocked to make it
         simpler test.
         """
-        mock_granule_query.return_value.get.return_value = [
-            {
-                'links': [
-                    {
-                        'href': self.netcdf4_url,
-                        'rel': self.data_url,
-                    }
-                ]
-            }
-        ]
+        mock_granule_query.return_value.get.return_value = self.query_granule_return
 
         # Add side effect that will copy test file to the temporary directory,
         # simulating a download.
@@ -346,16 +319,7 @@ class TestGenerateUmmVar(TestCase):
         and continue with a 'None' value for that parameter. The granule query and
         download methods are mocked to make it simpler test.
         """
-        mock_granule_query.return_value.get.return_value = [
-            {
-                'links': [
-                    {
-                        'href': self.netcdf4_url,
-                        'rel': self.data_url,
-                    }
-                ]
-            }
-        ]
+        mock_granule_query.return_value.get.return_value = self.query_granule_return
 
         # Add side effect that will copy test file to the temporary directory,
         # simulating a download.
