@@ -19,6 +19,7 @@ class TestGenerateUmmVar(TestCase):
         cls.collection_concept_id = 'C1234567890-PROV'
         cls.launchpad_token_header = 'launchpad-token'
         cls.netcdf4_basename = 'f16_ssmis_20210426v7.nc'
+        cls.data_url = 'http://esipfed.org/ns/fedsearch/1.1/data#'
         cls.netcdf4_url = f'https://example.com/{cls.netcdf4_basename}'
         cls.rssmif16d_variables = [
             'atmosphere_cloud_liquid_water_content',
@@ -60,7 +61,7 @@ class TestGenerateUmmVar(TestCase):
                 'links': [
                     {
                         'href': self.netcdf4_url,
-                        'rel': 'http://esipfed.org/ns/fedsearch/1.1/data#',
+                        'rel': self.data_url,
                     }
                 ]
             }
@@ -120,7 +121,7 @@ class TestGenerateUmmVar(TestCase):
                 'links': [
                     {
                         'href': self.netcdf4_url,
-                        'rel': 'http://esipfed.org/ns/fedsearch/1.1/data#',
+                        'rel': self.data_url,
                     }
                 ]
             }
@@ -219,7 +220,7 @@ class TestGenerateUmmVar(TestCase):
                 'links': [
                     {
                         'href': self.netcdf4_url,
-                        'rel': 'http://esipfed.org/ns/fedsearch/1.1/data#',
+                        'rel': self.data_url,
                     }
                 ]
             }
@@ -312,7 +313,7 @@ class TestGenerateUmmVar(TestCase):
                 'links': [
                     {
                         'href': self.netcdf4_url,
-                        'rel': 'http://esipfed.org/ns/fedsearch/1.1/data#',
+                        'rel': self.data_url,
                     }
                 ]
             }
@@ -352,7 +353,7 @@ class TestGenerateUmmVar(TestCase):
                 'links': [
                     {
                         'href': self.netcdf4_url,
-                        'rel': 'http://esipfed.org/ns/fedsearch/1.1/data#',
+                        'rel': self.data_url,
                     }
                 ]
             }

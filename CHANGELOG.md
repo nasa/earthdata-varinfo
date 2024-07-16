@@ -1,13 +1,11 @@
 
 ## v2.2.2
-### Unreleased
 
 The generate_collection_umm_var function in earthdata-varinfo updated to support an
-optional kwarg for a configuration file, to be able to override known metadata errors.
+optional kwarg 'config_file=' for a configuration file, to be able to override known metadata errors.
 
 
 ## v2.2.1
-### Unreleased
 
 The `requests` package has been added as an explicit dependency of the package.
 Additionally, black code formatting has been applied to the entire repository.
