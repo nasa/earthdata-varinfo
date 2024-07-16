@@ -302,11 +302,10 @@ class TestGenerateUmmVar(TestCase):
     def test_generate_collection_umm_var_config_file(
         self, mock_download_granule, mock_granule_query, mock_varinfo_from_netcdf4
     ):
-        """A request with all the necessary information should succeed.
-        This test is moderately end-to-end, but mocks the full
-        download_granule function for simplicity. That function is tested
-        in detail in test_cmr_search.py.
-
+        """This test just verifies the config file that is passed in to the
+        generate_collection_umm_var method is picked up by VarInfoFromNetCDF4 that
+        would use it. The granule query and download methods are mocked to make it
+        simpler test.
         """
         mock_granule_query.return_value.get.return_value = [
             {
@@ -332,7 +331,7 @@ class TestGenerateUmmVar(TestCase):
 
         # Ensure the the config file provided is passed to the VarInfo class
         mock_varinfo_from_netcdf4.assert_called_once_with(
-            file_path=ANY,
+            ANY,
             config_file='tests/unit/data/test_config.json',
         )
 
@@ -342,11 +341,10 @@ class TestGenerateUmmVar(TestCase):
     def test_generate_collection_umm_var_with_no_config_file(
         self, mock_download_granule, mock_granule_query, mock_varinfo_from_netcdf4
     ):
-        """A request with all the necessary information should succeed.
-        This test is moderately end-to-end, but mocks the full
-        download_granule function for simplicity. That function is tested
-        in detail in test_cmr_search.py.
-
+        """This test just verifies if the config file is 'None' in the
+        generate_collection_umm_var method, the VarInfoFromNetCDF4 would still succeed
+        and continue with a 'None' value for that parameter. The granule query and
+        download methods are mocked to make it simpler test.
         """
         mock_granule_query.return_value.get.return_value = [
             {
@@ -369,4 +367,4 @@ class TestGenerateUmmVar(TestCase):
         )
 
         # Ensure that the VarInfoFromNetCDF4 invocation includes NONE for the config file
-        mock_varinfo_from_netcdf4.assert_called_with(file_path=ANY, config_file=None)
+        mock_varinfo_from_netcdf4.assert_called_with(ANY, config_file=None)
