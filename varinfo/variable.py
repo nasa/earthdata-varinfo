@@ -16,6 +16,7 @@ from netCDF4 import Variable as NetCDF4Variable
 from varinfo.attribute_container import (
     AttributeContainerBase,
     AttributeContainerFromDmr,
+    AttributeContainerFromNetCDF4,
 )
 from varinfo.cf_config import CFConfig
 from varinfo.utilities import CF_REFERENCE_ATTRIBUTES
@@ -364,7 +365,7 @@ class VariableFromDmr(VariableBase, AttributeContainerFromDmr):
         ]
 
 
-class VariableFromNetCDF4(VariableBase):
+class VariableFromNetCDF4(VariableBase, AttributeContainerFromNetCDF4):
     """This child class inherits from the `VariableBase` class, and implements
     the abstract methods assuming the variable source is part of a NetCDF-4
     file.

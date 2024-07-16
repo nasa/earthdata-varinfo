@@ -20,25 +20,26 @@ from varinfo.exceptions import (
     InvalidConfigFileFormatError,
     MissingConfigurationFileError,
 )
+from varinfo.group import GroupFromDmr, GroupFromNetCDF4
 from varinfo.utilities import (
     DAP4_TO_NUMPY_MAP,
+    get_nested_netcdf4_attribute,
+    get_nested_xml_attribute,
     get_xml_namespace,
-    split_attribute_path,
-    recursive_get,
 )
 from varinfo.variable import VariableFromDmr, VariableFromNetCDF4
 
 
 DimensionsGroupType = dict[tuple[str], set[str]]
-OutputVariableType = Union[VariableFromDmr]
+OutputGroupType = Union[GroupFromDmr, GroupFromNetCDF4]
+OutputVariableType = Union[VariableFromDmr, VariableFromNetCDF4]
 
 
 class VarInfoBase(ABC):
     """An abstract base class to represent the full dataset of a granule,
-    having reading information from a representation of that granule.
-
-    A class to represent the full dataset of a granule, by parsing a `.dmr`
-    file from OPeNDAP.
+    having reading information from a representation of that granule. Currently
+    supported granule representations: OPeNDAP Dataset Metadata Response (DMR),
+    NetCDF-4 file.
 
     """
 
@@ -60,33 +61,24 @@ class VarInfoBase(ABC):
         """
         self.config_file = config_file
         self.cf_config = None
-        self.global_attributes = {}
         self.short_name = short_name
         self.mission = None
         self.namespace = None
+        self.groups: dict[str, OutputGroupType] = {}
         self.variables: dict[str, OutputVariableType] = {}
         self.references: set[str] = set()
         self.metadata: dict[str, OutputVariableType] = {}
 
         self._set_var_info_config()
         self._read_dataset(file_path)
-        self._set_global_attributes()
         self._set_mission_and_short_name()
         self._set_cf_config()
-        self._update_global_attributes()
         self._extract_variables()
 
     @abstractmethod
     def _read_dataset(self, file_path: str):
         """This method parses a file at the specified location using
         functionality specific to the type of input (e.g. a `.dmr` file).
-
-        """
-
-    @abstractmethod
-    def _set_global_attributes(self):
-        """Extract the global attributes from the granule representation using
-        functionality specific to the type of input.
 
         """
 
@@ -139,17 +131,7 @@ class VarInfoBase(ABC):
 
         """
         if self.short_name is None:
-            self.short_name = next(
-                (
-                    recursive_get(self.global_attributes, split_attribute_path(item))
-                    for item in self.var_info_config.get(
-                        'Collection_ShortName_Path', []
-                    )
-                    if recursive_get(self.global_attributes, split_attribute_path(item))
-                    is not None
-                ),
-                None,
-            )
+            self._set_short_name()
 
         if self.short_name is not None:
             self.mission = next(
@@ -161,20 +143,13 @@ class VarInfoBase(ABC):
                 None,
             )
 
-    def _update_global_attributes(self):
-        """Having identified the mission and short_name for the granule, and
-        therefore obtained the relevant CF configuration overrides and
-        supplements, update the global attributes for this granule using
-        the CFConfig class instance. As the overrides are assumed to have
-        the strongest priority, the dictionary is updated with these values
-        last.
+    @abstractmethod
+    def _set_short_name(self):
+        """Iterate through the locations in the data granule representation to
+        find the first value entry for the collections short name in the granule
+        metadata.
 
         """
-        if self.cf_config.global_supplements:
-            self.global_attributes.update(self.cf_config.global_supplements)
-
-        if self.cf_config.global_overrides:
-            self.global_attributes.update(self.cf_config.global_overrides)
 
     def get_variable(self, variable_path: str) -> OutputVariableType | None:
         """Retrieve a variable specified by an absolute path. First check the
@@ -523,48 +498,26 @@ class VarInfoFromDmr(VarInfoBase):
         self.dataset = ET.fromstring(dmr_content)
         self.namespace = get_xml_namespace(self.dataset)
 
-    def _set_global_attributes(self):
-        """Extract all global attributes from a `.dmr` file. First this method
-        searches for a root level Attribute element with name
-        "HDF5_GLOBAL". If this is present, it is assumed to be a container
-        for the global attributes. If "HDF5_GLOBAL" is absent, the global
-        attributes are assumed to be direct children of the root Dataset
-        element in the XML tree. All child Attribute elements children with
-        a type property corresponding to a DAP4 variable type are placed in
-        an output dictionary. If the type is not recognised by the DAP4
-        protocol, the attribute is assumed to be a string.
+    def _set_short_name(self):
+        """Iterate through all suggested locations for the collection short
+        name, as listed in the configuration file. For each location, perform a
+        search for an XML element in the DMR document for that element and, if
+        found, retrieve the value of that element.
 
         """
 
-        def save_attribute(output, group_path, attribute):
-            attribute_name = attribute.get('name')
-            dap4_type = attribute.get('type')
-
-            if dap4_type != 'Container':
-                attribute_value = attribute.find(f'{self.namespace}Value').text
-                numpy_type = DAP4_TO_NUMPY_MAP.get(dap4_type, str)
-
-                group_dictionary = output
-
-                if group_path != '':
-                    # Recurse through group keys to retrieve the nested group
-                    # to which the attribute belongs. If a group in the path
-                    # doesn't exist, because this attribute is the first to be
-                    # parsed from this group, then create a new nested
-                    # dictionary for the group to contain the child attributes
-                    nested_groups = group_path.lstrip('/').split('/')
-                    for group in nested_groups:
-                        group_dictionary = group_dictionary.setdefault(group, {})
-
-                group_dictionary[attribute_name] = numpy_type(attribute_value)
-
-        globals_parent = (
-            self.dataset.find(f'{self.namespace}Attribute[@name="HDF5_GLOBAL"]')
-            or self.dataset
-        )
-
-        self.traverse_elements(
-            globals_parent, {'Attribute'}, save_attribute, self.global_attributes
+        self.short_name = next(
+            (
+                get_nested_xml_attribute(self.dataset, short_name_path, self.namespace)
+                for short_name_path in self.var_info_config.get(
+                    'Collection_ShortName_Path', []
+                )
+                if get_nested_xml_attribute(
+                    self.dataset, short_name_path, self.namespace
+                )
+                is not None
+            ),
+            None,
         )
 
     def _extract_variables(self):
@@ -590,7 +543,11 @@ class VarInfoFromDmr(VarInfoBase):
         all_variables = {}
 
         self.traverse_elements(
-            self.dataset, set(DAP4_TO_NUMPY_MAP.keys()), save_variable, all_variables
+            self.dataset,
+            set(DAP4_TO_NUMPY_MAP.keys()),
+            save_variable,
+            all_variables,
+            '/',
         )
 
         self._remove_non_variable_references()
@@ -615,22 +572,33 @@ class VarInfoFromDmr(VarInfoBase):
         element_types: set[str],
         operation,
         output,
-        group_path: str = '',
+        group_path: str,
     ):
         """Perform a depth first search of the `.dmr` `Dataset` element.
         When a variable is located perform an operation on the supplied
         output object, using the supplied function or class.
 
         """
+        self.groups[group_path] = GroupFromDmr(
+            element,
+            self.cf_config,
+            namespace=self.namespace,
+            full_name_path=group_path,
+        )
+
+        group_path = group_path.rstrip('/')
+
         for child in list(element):
             # If it is in the DAP4 list: use the function
-            # else, if it is a Group, call this function again
+            # else, if it is a Group, assign to dictionary and call this
+            # function again
             element_type = child.tag.replace(self.namespace, '')
 
             if element_type in element_types:
                 operation(output, group_path, child)
             elif element_type == 'Group':
                 new_group_path = '/'.join([group_path, child.get('name')])
+
                 self.traverse_elements(
                     child, element_types, operation, output, new_group_path
                 )
@@ -652,14 +620,26 @@ class VarInfoFromNetCDF4(VarInfoBase):
         """
         self.dataset = file_path
 
-    def _set_global_attributes(self):
-        """Extract all global attributes from the NetCDF-4 dataset. Using the
-        `Dataset.__dict__` method allows extraction of all global
-        attributes in a single call.
+    def _set_short_name(self):
+        """Iterate through all suggested locations for the collection short
+        name, as listed in the configuration file. For each location, perform a
+        search for a metadata attribute in the NetCDF-4 file for that attribute
+        and, if found, retrieve the value of that attribute.
 
         """
+
         with Dataset(self.dataset, 'r') as dataset:
-            self.global_attributes = dataset.__dict__
+            self.short_name = next(
+                (
+                    get_nested_netcdf4_attribute(dataset, short_name_path)
+                    for short_name_path in self.var_info_config.get(
+                        'Collection_ShortName_Path', []
+                    )
+                    if get_nested_netcdf4_attribute(dataset, short_name_path)
+                    is not None
+                ),
+                None,
+            )
 
     def _extract_variables(self):
         """Traverse all groups of the NetCDF-4 file, beginning at the  root
@@ -671,11 +651,19 @@ class VarInfoFromNetCDF4(VarInfoBase):
 
     def _parse_group(self, group: Dataset | Group):
         """If the child matches one of the DAP4 variable types, then create an
-        instance of the `VariableFromDmr` class, and assign it to either
+        instance of the `VariableFromNetCDF4` class, and assign it to either
         the `variables_with_coordinates` or the `metadata_variables`
-        dictionary accordingly.
+        dictionary accordingly. Child groups are added to the `groups`
+        dictionary under the fully resolved path to that group.
 
         """
+        self.groups[group.path] = GroupFromNetCDF4(
+            group,
+            self.cf_config,
+            namespace=self.namespace,
+            full_name_path=group.path,
+        )
+
         for netcdf4_variable in group.variables.values():
             variable_path = '/'.join([group.path, netcdf4_variable.name])
             variable_path = f'/{variable_path.lstrip("/")}'

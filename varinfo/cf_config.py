@@ -62,8 +62,6 @@ class CFConfig:
         self._cf_supplements = {}
         self.excluded_science_variables = set()
         self.required_variables = set()
-        self.global_supplements = {}
-        self.global_overrides = {}
 
         if self.mission is not None:
             self._read_config_file()
@@ -102,26 +100,6 @@ class CFConfig:
                 item['Applicability'].get('ShortNamePath'),
             )
             for pattern in item['Variable_Pattern']
-        }
-
-        self.global_supplements = {
-            attribute['Name']: attribute['Value']
-            for item in config.get('CF_Supplements', [])
-            if self._is_applicable(
-                item['Applicability'].get('Mission'),
-                item['Applicability'].get('ShortNamePath'),
-            )
-            for attribute in item.get('Global_Attributes', [])
-        }
-
-        self.global_overrides = {
-            attribute['Name']: attribute['Value']
-            for item in config.get('CF_Overrides', [])
-            if self._is_applicable(
-                item['Applicability'].get('Mission'),
-                item['Applicability'].get('ShortNamePath'),
-            )
-            for attribute in item.get('Global_Attributes', [])
         }
 
         for override in config.get('CF_Overrides', []):
