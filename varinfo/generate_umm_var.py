@@ -11,7 +11,7 @@
 """
 
 from tempfile import TemporaryDirectory
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Optional
 import re
 
 from cmr import CMR_UAT
@@ -37,7 +37,7 @@ def generate_collection_umm_var(
     auth_header: str,
     cmr_env: CmrEnvType = CMR_UAT,
     publish: bool = False,
-    config_file: str | None = None,
+    config_file: Optional[str] = None,
 ) -> UmmVarReturnType:
     """Run all the of the functions for downloading and publishing
     a UMM-Var entry to CMR given:
