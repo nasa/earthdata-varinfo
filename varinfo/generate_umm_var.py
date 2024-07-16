@@ -72,7 +72,7 @@ def generate_collection_umm_var(
         )
 
         # Parse the granule with VarInfo to map all variables and relations:
-        var_info = VarInfoFromNetCDF4(file_path=local_granule, config_file=config_file)
+        var_info = VarInfoFromNetCDF4(local_granule, config_file=config_file)
 
         # Generate all the UMM-Var records:
         all_umm_var_records = get_all_umm_var(var_info)
