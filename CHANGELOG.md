@@ -1,5 +1,6 @@
 
 ## v2.2.2
+### 2024-07-16
 
 The generate_collection_umm_var function in earthdata-varinfo updated to support an
 optional kwarg 'config_file=' for a configuration file, to be able to override known metadata errors.
