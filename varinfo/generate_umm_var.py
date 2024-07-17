@@ -10,8 +10,9 @@
 
 """
 
+from __future__ import annotations
 from tempfile import TemporaryDirectory
-from typing import Dict, List, Union, Optional
+from typing import Dict, List, Union
 import re
 
 from cmr import CMR_UAT
@@ -37,7 +38,7 @@ def generate_collection_umm_var(
     auth_header: str,
     cmr_env: CmrEnvType = CMR_UAT,
     publish: bool = False,
-    config_file: Optional[str] = None,
+    config_file: str | None = None,
 ) -> UmmVarReturnType:
     """Run all the of the functions for downloading and publishing
     a UMM-Var entry to CMR given:
