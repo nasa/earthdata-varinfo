@@ -1,3 +1,8 @@
+## v3.0.0
+### Unreleased
+
+The configuration file schema is improved in a number of ways:
+* Full treatment of all groups within a file.
 
 ## v2.2.2
 ### 2024-07-16
