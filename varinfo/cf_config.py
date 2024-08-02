@@ -45,8 +45,8 @@ class CFConfig:
 
     def __init__(
         self,
-        mission: str,
-        collection_short_name: str,
+        mission: str | None,
+        collection_short_name: str | None,
         config_file: str | None = None,
     ):
         """Set supplied class attributes. Then read the designated
@@ -58,10 +58,10 @@ class CFConfig:
         self.mission = mission
         self.short_name = collection_short_name
 
-        self._cf_overrides = {}
-        self._cf_supplements = {}
-        self.excluded_science_variables = set()
-        self.required_variables = set()
+        self._cf_overrides: dict = {}
+        self._cf_supplements: dict = {}
+        self.excluded_science_variables: set[str] = set()
+        self.required_variables: set[str] = set()
 
         if self.mission is not None:
             self._read_config_file()

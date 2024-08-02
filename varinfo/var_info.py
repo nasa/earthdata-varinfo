@@ -60,7 +60,6 @@ class VarInfoBase(ABC):
 
         """
         self.config_file = config_file
-        self.cf_config = None
         self.short_name = short_name
         self.mission = None
         self.namespace = None
@@ -72,7 +71,7 @@ class VarInfoBase(ABC):
         self._set_var_info_config()
         self._read_dataset(file_path)
         self._set_mission_and_short_name()
-        self._set_cf_config()
+        self.cf_config = self._set_cf_config()
         self._extract_variables()
 
     @abstractmethod
@@ -116,13 +115,13 @@ class VarInfoBase(ABC):
         else:
             self.var_info_config = {}
 
-    def _set_cf_config(self):
+    def _set_cf_config(self) -> CFConfig:
         """Instantiate a CFConfig object, to contain any rules for exclusions,
         required fields and augmentations to CF attributes that are not
         contained within a granule from the specified collection.
 
         """
-        self.cf_config = CFConfig(self.mission, self.short_name, self.config_file)
+        return CFConfig(self.mission, self.short_name, self.config_file)
 
     def _set_mission_and_short_name(self):
         """Check a series of potential locations for the collection short name
