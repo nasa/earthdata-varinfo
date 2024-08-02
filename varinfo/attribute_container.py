@@ -116,32 +116,6 @@ class AttributeContainerBase(ABC):
         return attribute_value
 
 
-class AttributeDmrMixin:
-    """This child class inherits from the `AttributeContainerBase` class and
-    implements the abstract methods assuming the container source is part of an
-    XML element tree.
-
-    """
-
-    def _get_attributes(self, container: ET.Element) -> dict[str, Any]:
-        """Locate all child Attribute elements of the container and extract
-        their associated values.
-
-        """
-        return {
-            attribute.get('name'): self._get_attribute(container, attribute.get('name'))
-            for attribute in container.findall(f'{self.namespace}Attribute')
-        }
-
-    def _get_attribute(self, container: ET.Element, attribute_name: str) -> Any:
-        """Extract the value of an XML Attribute element, casting it to the
-        appropriate type, applying any necessary metadata overrides.
-
-        """
-        raw_value = get_xml_attribute(container, attribute_name, self.namespace)
-        return self._get_configured_attribute(attribute_name, raw_value)
-
-
 class AttributeContainerFromDmr(AttributeContainerBase):
     """This child class inherits from the `AttributeContainerBase` class and
     implements the abstract methods assuming the container source is part of an
