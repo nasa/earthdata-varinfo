@@ -27,10 +27,9 @@ class TestCFConfig(TestCase):
             '/exclude_three/.*',
         }
         cls.required_variables = {'/required_group/.*'}
-        cls.global_overrides = {'global_override': 'GLOBAL'}
-        cls.global_supplements = {'fakesat_global_supplement': 'fakesat value'}
         cls.cf_overrides = {
             '.*': {'collection_override': 'collection value'},
+            '/$': {'global_override': 'GLOBAL'},
             '/absent_override': {'extra_override': 'overriding value'},
             '/coordinates_group/.*': {'coordinates': 'lat, lon'},
             '/group/.*': {'group_override': 'group value'},
@@ -38,6 +37,7 @@ class TestCFConfig(TestCase):
         }
         cls.cf_supplements = {
             '.*': {'collection_supplement': 'FAKE99 supplement'},
+            '/$': {'fakesat_global_supplement': 'fakesat value'},
             '/absent_override': {'extra_override': 'supplemental value'},
             '/absent_supplement': {'extra_supplement': 'supplemental value'},
             '/group4/.*': {'group_supplement': 'FAKE99 group4'},
@@ -61,9 +61,6 @@ class TestCFConfig(TestCase):
 
         self.assertSetEqual(self.required_variables, config.required_variables)
 
-        self.assertDictEqual(self.global_overrides, config.global_overrides)
-        self.assertDictEqual(self.global_supplements, config.global_supplements)
-
         # The attributes below are protected-access within the class, however,
         # this test should still check they only contain the expected items.
         self.assertEqual(
@@ -84,8 +81,6 @@ class TestCFConfig(TestCase):
         self.assertEqual(self.short_name, config.short_name)
         self.assertSetEqual(set(), config.excluded_science_variables)
         self.assertSetEqual(set(), config.required_variables)
-        self.assertDictEqual({}, config.global_overrides)
-        self.assertDictEqual({}, config.global_supplements)
 
     def test_instantiation_missing_configuration_file(self):
         """Ensure a MissingConfigurationFileError is raised when a path to a

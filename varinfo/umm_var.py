@@ -31,9 +31,11 @@
 
 """
 
+from __future__ import annotations
+
 from os import makedirs
 from os.path import isfile, join as join_path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 import json
 import requests
 
@@ -77,7 +79,7 @@ UMM_VAR_DTYPES = [
 ]
 
 
-def get_all_umm_var(var_info: VarInfoBase) -> Dict[str, Dict]:
+def get_all_umm_var(var_info: VarInfoBase) -> dict[str, dict]:
     """Iterate through all variables detected from the source granule and
     return a list of UMM-Var records for those variables.
 
@@ -88,7 +90,7 @@ def get_all_umm_var(var_info: VarInfoBase) -> Dict[str, Dict]:
     }
 
 
-def get_umm_var(var_info: VarInfoBase, variable: VariableBase) -> Dict:
+def get_umm_var(var_info: VarInfoBase, variable: VariableBase) -> dict:
     """Map the contents of a Variable instance to a UMM-Var record.
     Initial attempts will be made to extract all possibly information,
     with the return value being scrubbed of all UMM-Var attributes with
@@ -134,7 +136,7 @@ def get_umm_var(var_info: VarInfoBase, variable: VariableBase) -> Dict:
     }
 
 
-def export_all_umm_var_to_json(umm_var_records: List, output_dir: str = '.'):
+def export_all_umm_var_to_json(umm_var_records: list, output_dir: str = '.'):
     """Iterate through a list of UMM-Var JSON records and save them all to
     files (one file per record).
 
@@ -146,7 +148,7 @@ def export_all_umm_var_to_json(umm_var_records: List, output_dir: str = '.'):
         export_umm_var_to_json(umm_var_record, output_dir)
 
 
-def export_umm_var_to_json(umm_var_record: Dict, output_dir: str = '.'):
+def export_umm_var_to_json(umm_var_record: dict, output_dir: str = '.'):
     """Export a single UMM-Var JSON object to a JSON output file in a
     specified directory (the default is the directory in which the function
     is called). If the specified directory does not exist, it will be
@@ -171,7 +173,7 @@ def export_umm_var_to_json(umm_var_record: Dict, output_dir: str = '.'):
 
 
 def get_first_matched_attribute(
-    variable: VariableBase, attribute_names: List[str], default_value: Any = None
+    variable: VariableBase, attribute_names: list[str], default_value: Any = None
 ) -> Any:
     """Check a list of metadata attributes and return the value of the first
     one that is present in the Variable. If none of the attributes are
@@ -188,7 +190,7 @@ def get_first_matched_attribute(
     )
 
 
-def get_dimensions(var_info: VarInfoBase, variable: VariableBase) -> Optional[List]:
+def get_dimensions(var_info: VarInfoBase, variable: VariableBase) -> list | None:
     """Return a list of all dimensions for the variable,"""
     dimensions = [
         get_dimension_information(var_info, variable, dimension_name)
@@ -203,7 +205,7 @@ def get_dimensions(var_info: VarInfoBase, variable: VariableBase) -> Optional[Li
 
 def get_dimension_information(
     var_info: VarInfoBase, variable: VariableBase, dimension_name: str
-) -> Dict:
+) -> dict:
     """Retrieve a DimensionType object for the given Variable dimension. This
     function is only called for named dimensions listed in the `dimensions`
     attribute of another variable, and so should exist as at least a
@@ -255,7 +257,7 @@ def get_dimension_information(
 
 def get_dimension_size(
     var_info: VarInfoBase, variable_with_dim: VariableBase, dimension_name: str
-) -> Union[str, int]:
+) -> str | int:
     """Extract the size of a specific dimension for a variable. This
     function will attempt to retrieve the dimension size from the following
     locations (in the order given):
@@ -300,7 +302,7 @@ def get_dimension_size(
     return dimension_size
 
 
-def get_valid_ranges(variable: VariableBase) -> Optional[List[Dict]]:
+def get_valid_ranges(variable: VariableBase) -> list[dict] | None:
     """Return a dictionary containing the valid minimum and/or valid maximum
     values from the variable metadata. If valid_min, valid_max or
     valid_range are not set, None is returned.
@@ -326,7 +328,7 @@ def get_valid_ranges(variable: VariableBase) -> Optional[List[Dict]]:
     return valid_range
 
 
-def get_fill_values(variable: VariableBase) -> Optional[List]:
+def get_fill_values(variable: VariableBase) -> list | None:
     """Return a List containing elements of the UMM-Var FillValueType, if
     there is a fill value contained in the variable metadata. Otherwise
     return None.
@@ -360,7 +362,7 @@ def get_umm_var_dtype(variable_data_type: str) -> str:
     return umm_var_type
 
 
-def get_metadata_specification() -> Dict:
+def get_metadata_specification() -> dict:
     """Return standard object for the UMM-Var specification, including the
     URL, Name and Version.
 
@@ -388,7 +390,7 @@ def get_json_serializable_value(input_value: Any) -> Any:
 
 
 def generate_variable_native_id(
-    collection_concept_id: str, umm_var_record: Dict
+    collection_concept_id: str, umm_var_record: dict
 ) -> str:
     """A helper function to create a CMR native ID given the collection
     concept ID and the variable UMM-Var JSON. This native ID must be unique
@@ -419,7 +421,7 @@ def get_variable_type(var_info: VarInfoBase, variable: VariableBase) -> str:
 
 def publish_umm_var(
     collection_id: str,
-    umm_var_dict: Dict,
+    umm_var_dict: dict,
     auth_header: str,
     cmr_env: CmrEnvType = CMR_UAT,
 ) -> str:
@@ -466,10 +468,10 @@ def publish_umm_var(
 
 def publish_all_umm_var(
     collection_id: str,
-    all_umm_var_dict: Dict,
+    all_umm_var_dict: dict,
     auth_header: str,
     cmr_env: CmrEnvType = CMR_UAT,
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """Publish all UMM-Var entries associated with a collection to CMR given:
         * collection_id: a collection's concept_id
         * all_umm_var_dict: a nested dictionary containing
