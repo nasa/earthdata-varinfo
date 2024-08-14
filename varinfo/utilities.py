@@ -198,7 +198,7 @@ def get_xml_container_attribute(
     return attribute_dictionary
 
 
-def get_nested_xml_attribute(
+def get_full_path_xml_attribute(
     dmr_document: Element,
     attribute_path: str,
     namespace: str,
@@ -225,7 +225,7 @@ def get_nested_xml_attribute(
     return attribute_value
 
 
-def get_nested_netcdf4_attribute(
+def get_full_path_netcdf4_attribute(
     netcdf_dataset: NetCDF4Dataset,
     attribute_path: str,
 ) -> Any | None:

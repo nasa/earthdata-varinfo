@@ -30,7 +30,7 @@ class TestAttributeContainerFromDmr(TestCase):
         cls.dmr_group = ET.fromstring(
             f'<{cls.namespace}Group name="science_group">'
             f'  <{cls.namespace}Attribute name="coordinates">'
-            f'    <{cls.namespace}Value>lat lon</{cls.namespace}Value>'
+            f'    <{cls.namespace}Value>lat_for_group lon_for_group</{cls.namespace}Value>'
             f'  </{cls.namespace}Attribute>'
             f'</{cls.namespace}Group>'
         )
@@ -49,7 +49,7 @@ class TestAttributeContainerFromDmr(TestCase):
         expected_attributes = {
             'collection_override': 'collection value',
             'collection_supplement': 'FAKE99 supplement',
-            'coordinates': 'lat lon',
+            'coordinates': 'lat_for_group lon_for_group',
         }
 
         container = AttributeContainerFromDmr(
@@ -102,7 +102,7 @@ class TestAttributeContainerFromDmr(TestCase):
         with self.subTest('Value from DMR'):
             self.assertEqual(
                 container.get_attribute_value('coordinates'),
-                'lat lon',
+                'lat_for_group lon_for_group',
             )
 
         with self.subTest('Override from CFConfig'):

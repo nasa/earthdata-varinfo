@@ -9,8 +9,8 @@ import numpy as np
 
 from varinfo.exceptions import DmrNamespaceError
 from varinfo.utilities import (
-    get_nested_netcdf4_attribute,
-    get_nested_xml_attribute,
+    get_full_path_netcdf4_attribute,
+    get_full_path_xml_attribute,
     get_xml_attribute,
     get_xml_attribute_value,
     get_xml_container_attribute,
@@ -68,6 +68,7 @@ class TestUtilities(TestCase):
                 '/Metadata/Series/short_name',
                 ['Metadata', 'Series', 'short_name'],
             ],
+            ['Without leading slash', 'Metadata/Series', ['Metadata', 'Series']],
         ]
 
         for description, full_path, expected_key_list in test_args:
@@ -118,7 +119,7 @@ class TestUtilities(TestCase):
             f'    <{self.namespace}Value>-90.0</{self.namespace}Value>'
             f'    <{self.namespace}Value>90.0</{self.namespace}Value>'
             f'  </{self.namespace}Attribute>'
-            f'  <{self.namespace}Attribute name="container" type="Container">'
+            f'  <{self.namespace}Attribute name="named_container" type="Container">'
             f'    <{self.namespace}Attribute name="nested_one" type="Float64">'
             f'      <{self.namespace}Value>{value}</{self.namespace}Value>'
             f'    </{self.namespace}Attribute>'
@@ -139,7 +140,12 @@ class TestUtilities(TestCase):
             ['Attribute omitting type property', 'no_type', '12.0', str],
             ['Absent Value tag uses default', 'no_value', default, type(default)],
             ['Unexpected type property', 'bad_type', '12.0', str],
-            ['Container attribute', 'container', expected_container_outputs, dict],
+            [
+                'Container attribute',
+                'named_container',
+                expected_container_outputs,
+                dict,
+            ],
         ]
 
         for description, attr_name, expected_value, expected_type in test_args:
@@ -233,7 +239,7 @@ class TestUtilities(TestCase):
 
         with self.subTest('Nested dictionary.'):
             nested_container = ET.fromstring(
-                f'<{self.namespace}Attribute name="container" type="Container">'
+                f'<{self.namespace}Attribute name="named_container" type="Container">'
                 f'  <{self.namespace}Attribute name="attribute_one" type="Float64">'
                 f'    <{self.namespace}Value>1.0</{self.namespace}Value>'
                 f'  </{self.namespace}Attribute>'
@@ -265,7 +271,7 @@ class TestUtilities(TestCase):
                 expected_attribute_container,
             )
 
-    def test_get_nested_xml_attribute(self):
+    def test_get_full_path_xml_attribute(self):
         """Ensure an XML attribute nested to an arbitrary amount can have its
         value retrieved from the element tree.
 
@@ -279,7 +285,7 @@ class TestUtilities(TestCase):
 
         with self.subTest('Non nested attribute.'):
             self.assertEqual(
-                get_nested_xml_attribute(
+                get_full_path_xml_attribute(
                     atl03_dmr,
                     '/Conventions',
                     atl03_namespace,
@@ -289,7 +295,7 @@ class TestUtilities(TestCase):
 
         with self.subTest('No leading slash.'):
             self.assertEqual(
-                get_nested_xml_attribute(
+                get_full_path_xml_attribute(
                     atl03_dmr,
                     'Conventions',
                     atl03_namespace,
@@ -299,7 +305,7 @@ class TestUtilities(TestCase):
 
         with self.subTest('Singly nested attribute.'):
             self.assertEqual(
-                get_nested_xml_attribute(
+                get_full_path_xml_attribute(
                     atl03_dmr,
                     '/gt1l/atlas_pce',
                     atl03_namespace,
@@ -309,7 +315,7 @@ class TestUtilities(TestCase):
 
         with self.subTest('Deeply nested attribute.'):
             self.assertEqual(
-                get_nested_xml_attribute(
+                get_full_path_xml_attribute(
                     atl03_dmr,
                     '/gt1l/bckgrd_atlas/tlm_height_band1/coordinates',
                     atl03_namespace,
@@ -319,7 +325,7 @@ class TestUtilities(TestCase):
 
         with self.subTest('Attribute that does not exist returns None.'):
             self.assertIsNone(
-                get_nested_xml_attribute(
+                get_full_path_xml_attribute(
                     atl03_dmr,
                     '/NONEXISTENT',
                     atl03_namespace,
@@ -328,14 +334,14 @@ class TestUtilities(TestCase):
 
         with self.subTest('Non-existent variable or group returns None.'):
             self.assertIsNone(
-                get_nested_xml_attribute(
+                get_full_path_xml_attribute(
                     atl03_dmr,
                     '/absent_attribute_container/units',
                     atl03_namespace,
                 )
             )
 
-    def test_get_nested_netcdf4_attribute(self):
+    def test_get_full_path_netcdf4_attribute(self):
         """Ensure a NetCDF-4 metadata attribute can be retrieved from anywhere
         in the file. This includes the root group, nested groups, variables in
         the root group and variables within groups.
@@ -346,44 +352,44 @@ class TestUtilities(TestCase):
         with self.subTest('Root group attribute.'):
             with Dataset(netcdf_file_path) as dataset:
                 self.assertEqual(
-                    get_nested_netcdf4_attribute(dataset, '/short_name'), 'ATL03'
+                    get_full_path_netcdf4_attribute(dataset, '/short_name'), 'ATL03'
                 )
 
         with self.subTest('Root group attribute without a leading slash.'):
             with Dataset(netcdf_file_path) as dataset:
                 self.assertEqual(
-                    get_nested_netcdf4_attribute(dataset, 'short_name'), 'ATL03'
+                    get_full_path_netcdf4_attribute(dataset, 'short_name'), 'ATL03'
                 )
 
         with self.subTest('Absent root group attribute returns None.'):
             with Dataset(netcdf_file_path) as dataset:
                 self.assertIsNone(
-                    get_nested_netcdf4_attribute(dataset, 'missing_attribute'),
+                    get_full_path_netcdf4_attribute(dataset, 'missing_attribute'),
                 )
 
         with self.subTest('Root-level variable.'):
             with Dataset(netcdf_file_path) as dataset:
                 self.assertEqual(
-                    get_nested_netcdf4_attribute(dataset, '/science1/coordinates'),
+                    get_full_path_netcdf4_attribute(dataset, '/science1/coordinates'),
                     '/lat /lon',
                 )
 
         with self.subTest('Absent variable attribute returns None.'):
             with Dataset(netcdf_file_path) as dataset:
                 self.assertIsNone(
-                    get_nested_netcdf4_attribute(dataset, '/science1/missing'),
+                    get_full_path_netcdf4_attribute(dataset, '/science1/missing'),
                 )
 
         with self.subTest('Attribute on non-existent variable returns None.'):
             with Dataset(netcdf_file_path) as dataset:
                 self.assertIsNone(
-                    get_nested_netcdf4_attribute(dataset, '/science3/coordinates'),
+                    get_full_path_netcdf4_attribute(dataset, '/science3/coordinates'),
                 )
 
         with self.subTest('Variable in nested group.'):
             with Dataset(netcdf_file_path) as dataset:
                 self.assertEqual(
-                    get_nested_netcdf4_attribute(
+                    get_full_path_netcdf4_attribute(
                         dataset, '/group/science2/coordinates'
                     ),
                     '/lat /lon',

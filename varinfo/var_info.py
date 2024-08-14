@@ -23,8 +23,8 @@ from varinfo.exceptions import (
 from varinfo.group import GroupFromDmr, GroupFromNetCDF4
 from varinfo.utilities import (
     DAP4_TO_NUMPY_MAP,
-    get_nested_netcdf4_attribute,
-    get_nested_xml_attribute,
+    get_full_path_netcdf4_attribute,
+    get_full_path_xml_attribute,
     get_xml_namespace,
 )
 from varinfo.variable import VariableFromDmr, VariableFromNetCDF4
@@ -507,11 +507,13 @@ class VarInfoFromDmr(VarInfoBase):
 
         self.short_name = next(
             (
-                get_nested_xml_attribute(self.dataset, short_name_path, self.namespace)
+                get_full_path_xml_attribute(
+                    self.dataset, short_name_path, self.namespace
+                )
                 for short_name_path in self.var_info_config.get(
                     'Collection_ShortName_Path', []
                 )
-                if get_nested_xml_attribute(
+                if get_full_path_xml_attribute(
                     self.dataset, short_name_path, self.namespace
                 )
                 is not None
@@ -630,11 +632,11 @@ class VarInfoFromNetCDF4(VarInfoBase):
         with Dataset(self.dataset, 'r') as dataset:
             self.short_name = next(
                 (
-                    get_nested_netcdf4_attribute(dataset, short_name_path)
+                    get_full_path_netcdf4_attribute(dataset, short_name_path)
                     for short_name_path in self.var_info_config.get(
                         'Collection_ShortName_Path', []
                     )
-                    if get_nested_netcdf4_attribute(dataset, short_name_path)
+                    if get_full_path_netcdf4_attribute(dataset, short_name_path)
                     is not None
                 ),
                 None,

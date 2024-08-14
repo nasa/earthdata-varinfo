@@ -42,11 +42,11 @@ class AttributeContainerBase(ABC):
         self.full_name_path = full_name_path
         self.cf_config = cf_config.get_cf_attributes(self.full_name_path)
         self.attributes = self._get_attributes(container)
-        self._get_additional_attributes()
+        self._add_additional_attributes()
 
     @abstractmethod
     def _get_attributes(self, container: InputContainerType) -> dict[str, Any]:
-        """Extract al attributes for the container. The contents of the output
+        """Extract all attributes for the container. The contents of the output
         dictionary will be as stored in the granule metadata, with any
         applicable overrides from `CFConfig`.
 
@@ -72,7 +72,7 @@ class AttributeContainerBase(ABC):
         """
         return self.attributes.get(attribute_name, default_value)
 
-    def _get_additional_attributes(self) -> None:
+    def _add_additional_attributes(self) -> None:
         """Check the `CFConfig` instance for any metadata attributes that are
         listed, but not included in the original granule metadata. These should
         be added to the variable metadata attributes.

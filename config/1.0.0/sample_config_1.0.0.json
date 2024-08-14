@@ -1,6 +1,6 @@
 {
   "Identification": "varinfo_sample_config",
-  "Version": 14,
+  "Version": 15,
   "Collection_ShortName_Path": [
     "/HDF5_GLOBAL/short_name",
     "/NC_GLOBAL/short_name",
@@ -193,7 +193,7 @@
       "Applicability_Group": [
         {
           "Applicability": {
-            "Variable_Pattern": "/"
+            "Variable_Pattern": "/$"
           },
           "Attributes": [
             {
@@ -315,7 +315,7 @@
       "Applicability": {
         "Mission": "ICESat2",
         "ShortNamePath": "ATL1[67]",
-        "Variable_Pattern": "/"
+        "Variable_Pattern": "/$"
       },
       "Attributes": [
         {
@@ -328,7 +328,7 @@
       "Applicability": {
         "Mission": "ICESat2",
         "ShortNamePath": "ATL20",
-        "Variable_Pattern": "/"
+        "Variable_Pattern": "/$"
       },
       "Attributes": [
         {
@@ -354,7 +354,7 @@
       "Applicability": {
         "Mission": "SMAP",
         "ShortNamePath": "SPL3SMP_E",
-        "Variable_Pattern": "/"
+        "Variable_Pattern": "/$"
       },
       "Attributes": [
         {
@@ -367,7 +367,7 @@
       "Applicability": {
         "Mission": "GEDI",
         "ShortNamePath": "GEDI_L[1234][AB]|GEDI0[1234]_[AB]",
-        "Variable_Pattern": "/"
+        "Variable_Pattern": "/$"
       },
       "Attributes": [
         {

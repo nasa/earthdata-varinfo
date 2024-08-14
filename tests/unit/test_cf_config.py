@@ -21,13 +21,13 @@ class TestCFConfig(TestCase):
         cls.test_config = 'tests/unit/data/test_config.json'
         cls.mission = 'FakeSat'
         cls.short_name = 'FAKE99'
-        cls.excluded_science_variables = {
+        cls.expected_excluded_science_variables = {
             '/exclude_one/.*',
             '/exclude_two/.*',
             '/exclude_three/.*',
         }
         cls.required_variables = {'/required_group/.*'}
-        cls.cf_overrides = {
+        cls.expected_cf_overrides = {
             '.*': {'collection_override': 'collection value'},
             '/$': {'global_override': 'GLOBAL'},
             '/absent_override': {'extra_override': 'overriding value'},
@@ -35,7 +35,7 @@ class TestCFConfig(TestCase):
             '/group/.*': {'group_override': 'group value'},
             '/group/variable': {'variable_override': 'variable value'},
         }
-        cls.cf_supplements = {
+        cls.expected_cf_supplements = {
             '.*': {'collection_supplement': 'FAKE99 supplement'},
             '/$': {'fakesat_global_supplement': 'fakesat value'},
             '/absent_override': {'extra_override': 'supplemental value'},
@@ -56,7 +56,8 @@ class TestCFConfig(TestCase):
         self.assertEqual(self.short_name, config.short_name)
 
         self.assertSetEqual(
-            self.excluded_science_variables, config.excluded_science_variables
+            self.expected_excluded_science_variables,
+            config.excluded_science_variables,
         )
 
         self.assertSetEqual(self.required_variables, config.required_variables)
@@ -64,10 +65,10 @@ class TestCFConfig(TestCase):
         # The attributes below are protected-access within the class, however,
         # this test should still check they only contain the expected items.
         self.assertEqual(
-            self.cf_overrides, config._cf_overrides
+            self.expected_cf_overrides, config._cf_overrides
         )  # pylint: disable=W0212
         self.assertEqual(
-            self.cf_supplements, config._cf_supplements
+            self.expected_cf_supplements, config._cf_supplements
         )  # pylint: disable=W0212
 
     def test_instantiation_no_file(self):
@@ -111,7 +112,10 @@ class TestCFConfig(TestCase):
         config = CFConfig(self.mission, self.short_name, self.test_config)
         self.assertDictEqual(
             config.get_cf_attributes(),
-            {'cf_overrides': self.cf_overrides, 'cf_supplements': self.cf_supplements},
+            {
+                'cf_overrides': self.expected_cf_overrides,
+                'cf_supplements': self.expected_cf_supplements,
+            },
         )
 
     def test_get_cf_attributes_variable(self):

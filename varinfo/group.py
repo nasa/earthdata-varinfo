@@ -1,6 +1,6 @@
 """ This module contains classes that represent groups (e.g., containers of
-    variables within a NetCDF-4 file). A group has metadata attributes and
-    child variables.
+    variables within a NetCDF-4 file or OPeNDAP DMR). A group has metadata
+    attributes and child variables.
 
 """
 
