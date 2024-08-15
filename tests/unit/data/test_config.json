@@ -89,6 +89,18 @@
         {
           "Applicability": {
             "ShortNamePath": "FAKE99",
+            "Variable_Pattern": "/$"
+          },
+          "Attributes": [
+            {
+              "Name": "global_override",
+              "Value": "GLOBAL"
+            }
+          ]
+        },
+        {
+          "Applicability": {
+            "ShortNamePath": "FAKE99",
             "Variable_Pattern": "/group/variable"
           },
           "Attributes": [
@@ -119,12 +131,6 @@
               "Value": "overriding value"
             }
           ]
-        }
-      ],
-      "Global_Attributes": [
-        {
-          "Name": "global_override",
-          "Value": "GLOBAL"
         }
       ]
     },
@@ -193,6 +199,18 @@
         },
         {
           "Applicability": {
+            "ShortNamePath": "FAKE99",
+            "Variable_Pattern": "/$"
+          },
+          "Attributes": [
+            {
+              "Name": "fakesat_global_supplement",
+              "Value": "fakesat value"
+            }
+          ]
+        },
+        {
+          "Applicability": {
             "Variable_Pattern": "/absent_variable"
           },
           "Attributes": [
@@ -212,12 +230,6 @@
               "Value": "supplemental value"
             }
           ]
-        }
-      ],
-      "Global_Attributes": [
-        {
-          "Name": "fakesat_global_supplement",
-          "Value": "fakesat value"
         }
       ]
     }

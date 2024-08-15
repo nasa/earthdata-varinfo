@@ -1,0 +1,422 @@
+{
+  "Identification": "varinfo_sample_config",
+  "Version": 15,
+  "Collection_ShortName_Path": [
+    "/HDF5_GLOBAL/short_name",
+    "/NC_GLOBAL/short_name",
+    "/Metadata/DatasetIdentification/shortName",
+    "/METADATA/DatasetIdentification/shortName",
+    "/Metadata/SeriesIdentification/shortName",
+    "/METADATA/SeriesIdentification/shortName",
+    "/HDF5_GLOBAL/id",
+    "/NC_GLOBAL/id",
+    "short_name"
+  ],
+  "Mission": {
+    "ATL\\d{2}": "ICESat2",
+    "GEDI_L[1234][AB]|GEDI0[1234]_[AB]": "GEDI",
+    "SPL[1234].+": "SMAP",
+    "VIIRS_NPP-.+-L2P": "VIIRS_PO"
+  },
+  "Excluded_Science_Variables": [
+    {
+      "Applicability": {
+        "Mission": "ICESat2"
+      },
+      "Variable_Pattern": [
+        "/quality_assessment/.*",
+        "/orbit_info/.*",
+        "/atlas_impulse_response/.*"
+      ]
+    }
+  ],
+  "Required_Fields": [
+    {
+      "Applicability": {
+        "Mission": "GEDI"
+      },
+      "Variable_Pattern": [
+        ".*shot_number"
+      ]
+    }
+  ],
+  "ProductEpochs": [
+    {
+      "Applicability": {
+        "Mission": "ICESat2"
+      },
+      "Epoch": "2005-01-01T00:00:00.000000"
+    },
+    {
+      "Applicability": {
+        "Mission": "GEDI"
+      },
+      "Epoch": "2018-01-01T00:00:00.000000"
+    }
+  ],
+  "Grid_Mapping_Data": [
+    {
+      "Grid_Mapping_Dataset_Name": "EASE2_Global",
+      "grid_mapping_name": "lambert_cylindrical_equal_area",
+      "standard_parallel": 30.0,
+      "longitude_of_central_meridian": 0.0,
+      "false_easting": 0.0,
+      "false_northing": 0.0
+    },
+    {
+      "Grid_Mapping_Dataset_Name": "EASE2_Polar",
+      "grid_mapping_name": "lambert_azimuthal_equal_area",
+      "longitude_of_projection_origin": 0.0,
+      "latitude_of_projection_origin": 90.0,
+      "false_easting": 0.0,
+      "false_northing": 0.0
+    }
+  ],
+  "CF_Overrides": [
+    {
+      "Applicability": {
+        "Mission": "SMAP",
+        "ShortNamePath": "SPL4.*"
+      },
+      "Attributes": [
+        {
+          "Name": "Grid_Mapping",
+          "Value": "EASE2_Global"
+        }
+      ]
+    },
+    {
+      "Applicability": {
+        "Mission": "SMAP",
+        "ShortNamePath": "SPL3FT(P|P_E)"
+      },
+      "Applicability_Group": [
+        {
+          "Applicability": {
+            "Variable_Pattern": "(?i).*global.*"
+          },
+          "Attributes": [
+            {
+              "Name": "Grid_Mapping",
+              "Value": "EASE2_Global"
+            }
+          ]
+        },
+        {
+          "Applicability": {
+            "Variable_Pattern": "(?i).*polar.*"
+          },
+          "Attributes": [
+            {
+              "Name": "Grid_Mapping",
+              "Value": "EASE2_Polar"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Applicability": {
+        "Mission": "SMAP",
+        "ShortNamePath": "SPL3FTA"
+      },
+      "Attributes": [
+        {
+          "Name": "Grid_Mapping",
+          "Value": "EASE2_Polar"
+        }
+      ]
+    },
+    {
+      "Applicability": {
+        "Mission": "SMAP",
+        "ShortNamePath": "SPL3FT(A|P|P_E)",
+        "Variable_Pattern": "/Freeze_Thaw_Retrieval_Data_Polar/(latitude|longitude).*"
+      },
+      "Attributes": [
+        {
+          "Name": "_fill",
+          "Value": "-9999"
+        }
+      ]
+    },
+    {
+      "Applicability": {
+        "Mission": "SMAP",
+        "ShortNamePath": "SPL3SMP_E",
+        "Variable_Pattern": "/Soil_Moisture_Retrieval_Data_AM/.*"
+      },
+      "Attributes": [
+        {
+          "Name": "coordinates",
+          "Value": "/Soil_Moisture_Retrieval_Data_AM/latitude, /Soil_Moisture_Retrieval_Data_AM/longitude"
+        }
+      ]
+    },
+    {
+      "Applicability": {
+        "Mission": "SMAP",
+        "ShortNamePath": "SPL3SMP_E",
+        "Variable_Pattern": "/Soil_Moisture_Retrieval_Data_PM/.*"
+      },
+      "Attributes": [
+        {
+          "Name": "coordinates",
+          "Value": "/Soil_Moisture_Retrieval_Data_PM/latitude, /Soil_Moisture_Retrieval_Data_PM/longitude"
+        }
+      ]
+    },
+    {
+      "Applicability": {
+        "Mission": "ICESat2",
+        "ShortNamePath": "ATL20",
+        "Variable_Pattern": "/daily/day\\d{2}/.+"
+      },
+      "Attributes": [
+        {
+          "Name": "ancillary_variables",
+          "Value": "./delta_time_beg, ./delta_time_end"
+        },
+        {
+          "Name": "coordinates",
+          "Value": "../../grid_x ../../grid_y"
+        }
+      ]
+    }
+  ],
+  "CF_Supplements": [
+    {
+      "Applicability": {
+        "Mission": "ICESat2",
+        "ShortNamePath": "ATL0[3-9]|ATL1[023]"
+      },
+      "Applicability_Group": [
+        {
+          "Applicability": {
+            "Variable_Pattern": "/$"
+          },
+          "Attributes": [
+            {
+              "Name": "Data_Organization",
+              "Value": "h5_trajectory"
+            }
+          ]
+        },
+        {
+          "Applicability": {
+            "Variable_Pattern": "/gt[123][lr]/geolocation/.*"
+          },
+          "Attributes": [
+            {
+              "Name": "ancillary_variables",
+              "Value": "podppd_flag"
+            }
+          ]
+        },
+        {
+          "Applicability": {
+            "ShortNamePath": "ATL03",
+            "Variable_Pattern": "/gt[123][lr]/geophys_corr/.*"
+          },
+          "Attributes": [
+            {
+              "Name": "subset_control_variables",
+              "Value": "../geolocation/delta_time, ../geolocation/reference_photon_lat, ../geolocation/reference_photon_lon"
+            },
+            {
+              "Name": "subset_control_type",
+              "Value": "coordinates"
+            }
+          ]
+        },
+        {
+          "Applicability": {
+            "ShortNamePath": "ATL03",
+            "Variable_Pattern": "/gt[123][lr]/heights/.*"
+          },
+          "Attributes": [
+            {
+              "Name": "subset_control_variables",
+              "Value": "../geolocation/ph_index_beg, ../geolocation/segment_ph_cnt"
+            },
+            {
+              "Name": "subset_control_type",
+              "Value": "fwd_segment_index"
+            }
+          ]
+        },
+        {
+          "Applicability": {
+            "ShortNamePath": "ATL03",
+            "Variable_Pattern": "/gt[123][lr]/geolocation/ph_index_beg"
+          },
+          "Attributes": [
+            {
+              "Name": "subset_control_variable_type",
+              "Value": "segment_index_beg"
+            }
+          ]
+        },
+        {
+          "Applicability": {
+            "ShortNamePath": "ATL03",
+            "Variable_Pattern": "/gt[123][lr]/geolocation/ph_index_beg"
+          },
+          "Attributes": [
+            {
+              "Name": "subset_control_variable_type",
+              "Value": "segment_index_cnt"
+            }
+          ]
+        },
+        {
+          "Applicability": {
+            "ShortNamePath": "ATL08",
+            "Variable_Pattern": "/gt[123][lr]/signal_photons/.*"
+          },
+          "Attributes": [
+            {
+              "Name": "subset_control_variables",
+              "Value": "../land_segments/ph_ndx_beg, ../land_segments/n_seg_ph"
+            },
+            {
+              "Name": "subset_control_type",
+              "Value": "fwd_segment_index"
+            }
+          ]
+        },
+        {
+          "Applicability": {
+            "ShortNamePath": "ATL08",
+            "Variable_Pattern": "/gt[123][lr]/land_segments/ph_ndx_beg"
+          },
+          "Attributes": [
+            {
+              "Name": "subset_control_variable_type",
+              "Value": "segment_index_beg"
+            }
+          ]
+        },
+        {
+          "Applicability": {
+            "ShortNamePath": "ATL08",
+            "Variable_Pattern": "/gt[123][lr]/land_segments/n_seg_ph"
+          },
+          "Attributes": [
+            {
+              "Name": "subset_control_variable_type",
+              "Value": "segment_index_cnt"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Applicability": {
+        "Mission": "ICESat2",
+        "ShortNamePath": "ATL1[67]",
+        "Variable_Pattern": "/$"
+      },
+      "Attributes": [
+        {
+          "Name": "Data_Organization",
+          "Value": "h5_grid"
+        }
+      ]
+    },
+    {
+      "Applicability": {
+        "Mission": "ICESat2",
+        "ShortNamePath": "ATL20",
+        "Variable_Pattern": "/$"
+      },
+      "Attributes": [
+        {
+          "Name": "Data_Organization",
+          "Value": "h5_grid"
+        }
+      ],
+      "Applicability_Group": [
+        {
+          "Applicability": {
+            "Variable_Pattern": ".*"
+          },
+          "Attributes": [
+            {
+              "Name": "coordinates",
+              "Value": "/crs"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Applicability": {
+        "Mission": "SMAP",
+        "ShortNamePath": "SPL3SMP_E",
+        "Variable_Pattern": "/$"
+      },
+      "Attributes": [
+        {
+          "Name": "Data_Organization",
+          "Value": "h5_grid"
+        }
+      ]
+    },
+    {
+      "Applicability": {
+        "Mission": "GEDI",
+        "ShortNamePath": "GEDI_L[1234][AB]|GEDI0[1234]_[AB]",
+        "Variable_Pattern": "/$"
+      },
+      "Attributes": [
+        {
+          "Name": "Data_Organization",
+          "Value": "h5_trajectory"
+        }
+      ],
+      "Applicability_Group": [
+        {
+          "Applicability": {
+            "ShortNamePath": "GEDI_L2B|GEDI02_B",
+            "Variable_Pattern": "/BEAM[\\d]+/pgap_theta_z"
+          },
+          "Attributes": [
+            {
+              "Name": "subset_control_variables",
+              "Value": "rx_sample_start_index, rx_sample_count"
+            },
+            {
+              "Name": "subset_control_type",
+              "Value": "fwd_segment_index"
+            }
+          ]
+        },
+        {
+          "Applicability": {
+            "ShortNamePath": "GEDI_L2B|GEDI02_B",
+            "Variable_Pattern": "/BEAM[\\d]+/rx_sample_start_index"
+          },
+          "Attributes": [
+            {
+              "Name": "subset_control_variable_type",
+              "Value": "segment_index_beg"
+            }
+          ]
+        },
+        {
+          "Applicability": {
+            "ShortNamePath": "GEDI_L2B|GEDI02_B",
+            "Variable_Pattern": "/BEAM[\\d]+/rx_sample_count"
+          },
+          "Attributes": [
+            {
+              "Name": "subset_control_variable_type",
+              "Value": "segment_index_cnt"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

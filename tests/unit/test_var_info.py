@@ -8,7 +8,7 @@ from varinfo.exceptions import (
     InvalidConfigFileFormatError,
     MissingConfigurationFileError,
 )
-from tests.utilities import netcdf4_global_attributes, write_dmr, write_skeleton_netcdf4
+from tests.utilities import write_dmr, write_skeleton_netcdf4
 
 
 class TestVarInfoFromDmr(TestCase):
@@ -141,7 +141,7 @@ class TestVarInfoFromDmr(TestCase):
 
             dataset = VarInfoFromDmr(dmr_path, config_file=self.sample_config)
 
-            self.assertEqual(dataset.short_name, None)
+            self.assertIsNone(dataset.short_name)
 
         with self.subTest('No short name in metadata, but given in call'):
             mock_dmr = f'<Dataset xmlns="{self.namespace}"></Dataset>'
@@ -257,12 +257,22 @@ class TestVarInfoFromDmr(TestCase):
 
         self.assertEqual(dataset.short_name, 'ATL03')
         self.assertEqual(dataset.mission, 'ICESat2')
-        self.assertEqual(
-            dataset.global_attributes,
-            {'METADATA': {'DatasetIdentification': {'shortName': 'ATL03'}}},
+
+        self.assertSetEqual(
+            set(dataset.groups.keys()),
+            {
+                '/',
+                '/METADATA',
+                '/METADATA/DatasetIdentification',
+            },
         )
 
-        self.assertEqual(
+        self.assertDictEqual(
+            dataset.groups['/METADATA/DatasetIdentification'].attributes,
+            {'shortName': 'ATL03'},
+        )
+
+        self.assertSetEqual(
             set(dataset.variables.keys()),
             {
                 '/ancillary_one',
@@ -274,7 +284,7 @@ class TestVarInfoFromDmr(TestCase):
                 '/subset_one',
             },
         )
-        self.assertEqual(
+        self.assertSetEqual(
             dataset.references,
             {
                 '/ancillary_one',
@@ -293,12 +303,39 @@ class TestVarInfoFromDmr(TestCase):
         dataset = VarInfoFromDmr(self.mock_dmr_two, config_file=self.config_file)
 
         expected_global_attributes = {
-            'METADATA': {'DatasetIdentification': {'shortName': 'FAKE99'}},
+            'collection_override': 'collection value',
+            'collection_supplement': 'FAKE99 supplement',
             'global_override': 'GLOBAL',
             'fakesat_global_supplement': 'fakesat value',
         }
-        self.assertEqual(dataset.global_attributes, expected_global_attributes)
-        self.assertEqual(
+
+        self.assertSetEqual(
+            set(dataset.groups.keys()),
+            {
+                '/',
+                '/exclude_one',
+                '/required_group',
+                '/science',
+                '/METADATA',
+                '/METADATA/DatasetIdentification',
+            },
+        )
+
+        self.assertDictEqual(
+            dataset.groups['/'].attributes,
+            expected_global_attributes,
+        )
+
+        self.assertDictEqual(
+            dataset.groups['/METADATA/DatasetIdentification'].attributes,
+            {
+                'collection_override': 'collection value',
+                'collection_supplement': 'FAKE99 supplement',
+                'shortName': 'FAKE99',
+            },
+        )
+
+        self.assertSetEqual(
             set(dataset.variables.keys()),
             {
                 '/science/latitude',
@@ -339,11 +376,17 @@ class TestVarInfoFromDmr(TestCase):
         dataset = VarInfoFromDmr(dmr_path, config_file=self.config_file)
 
         expected_globals = {
-            'history': history,
-            'numeric_attribute': -90.0,
-            'short_name': 'FAKESAT1',
+            'HDF5_GLOBAL': {
+                'history': history,
+                'numeric_attribute': -90.0,
+                'short_name': 'FAKESAT1',
+            }
         }
-        self.assertDictEqual(expected_globals, dataset.global_attributes)
+
+        self.assertDictEqual(
+            expected_globals,
+            dataset.groups['/'].attributes,
+        )
 
     def test_var_info_get_all_variables(self):
         """Ensure all variables from the input are returned, regardless of
@@ -462,7 +505,7 @@ class TestVarInfoFromDmr(TestCase):
 
         required_variables = VarInfoFromDmr.exclude_fake_dimensions(input_variables)
 
-        self.assertEqual(required_variables, {'/science_variable', '/other_science'})
+        self.assertSetEqual(required_variables, {'/science_variable', '/other_science'})
 
     def test_get_variable(self):
         """Ensure a variable, both with or without, coordinates can be
@@ -843,7 +886,8 @@ class TestVarInfoFromDmr(TestCase):
             dataset.get_metadata_variables(), {'/scalar1', '/group/scalar2'}
         )
 
-        self.assertDictEqual(dataset.global_attributes, netcdf4_global_attributes)
+        # Groups should now be saved to a new dictionary:
+        self.assertSetEqual(set(dataset.groups.keys()), {'/', '/group'})
 
     def test_is_science_variable(self):
         """Ensure that a science variable is correctly recognized and
