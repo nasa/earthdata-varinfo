@@ -1,3 +1,12 @@
+## v3.0.0
+### Unreleased
+
+Groups within a NetCDF-4 or DMR file are now assigned to the `VarInfo*.groups`
+dictionary, allowing for their metadata attributes to be accessed after parsing
+an input file.
+
+The configuration file schema is simplified in accordance with the new handling
+of groups, which is more aligned with the handling of variables.
 
 ## v2.2.2
 ### 2024-07-16

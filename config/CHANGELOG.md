@@ -3,6 +3,22 @@
 This change log preserves the changes made between different schema versions of
 the earthdata-varinfo configuration file.
 
+## 1.0.0
+### Unreleased
+
+**TRT-552** Implementing a simpler `earthdata-varinfo` configuration file schema.
+
+This version of the configuration file schema makes several significant changes
+to simplify the schema for broader use.
+
+### Removed:
+* The `Global_Attributes` property has been removed from the `CF_Overrides` and
+  `CF_Supplements` items, in favour of specifying group metadata attribute
+  overrides in the same way as variables. That is: specifying the group in the
+  `Applicability` part of the item, and including the updated attributes under
+  the `Attributes` property of the item. This allows metadata overrides to all
+  groups, not just the global attributes in an input file.
+
 ## 0.0.1
 ### 2023-01-09
 
