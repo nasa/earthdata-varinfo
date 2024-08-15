@@ -5,11 +5,10 @@
     CF-Convention attributes for a dataset, but can also be used to alter non
     CF-Convention metadata within a granule.
 
-    Information within the configuration file is split into blocks that have
-    an Applicability_Group. This section should define a mission, collection
-    short name and (optionally) a regular expression compatible string for
-    relevant variable paths. These applicability groups can be nested, and so
-    the mission and short name can be inherited from the parent group.
+    Information within the configuration file is split into rules that have
+    an Applicability. This section should define a mission, collection short
+    name and (optionally) a regular expression compatible string for relevant
+    variable paths.
 
     The configuration file also specifies variables that are incorrectly
     considered as science variables by the VarInfo class, due to them having
@@ -136,10 +135,7 @@ class CFConfig:
         for a variable pattern. This is indicative of there being
         overriding or supplemental attributes in this list item.
         Assign any information to the results dictionary, with a key of
-        that variable pattern. Lastly, check for any nested references,
-        which are child blocks to be processed in the same way. The mission
-        and short name from this block are passed to all children, as they
-        may not both be defined, due to assumed inheritance.
+        that variable pattern.
 
         """
         mission = cf_item['Applicability'].get('Mission') or input_mission
@@ -151,14 +147,7 @@ class CFConfig:
             # to all variables (see ICESat2 dimensions override, SPL4.* and
             # SPL3FTA grid_mapping overrides)
             pattern = cf_item['Applicability'].get('Variable_Pattern', '.*')
-
-            if 'Attributes' in cf_item:
-                results[pattern] = self._create_attributes_object(cf_item)
-
-            cf_references = cf_item.get('Applicability_Group', [])
-
-            for cf_reference in cf_references:
-                self._process_cf_item(cf_reference, results, mission, short_name)
+            results[pattern] = self._create_attributes_object(cf_item)
 
     @staticmethod
     def _create_attributes_object(cf_item: dict) -> dict[str, str]:

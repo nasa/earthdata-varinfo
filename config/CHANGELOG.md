@@ -18,6 +18,9 @@ to simplify the schema for broader use.
   `Applicability` part of the item, and including the updated attributes under
   the `Attributes` property of the item. This allows metadata overrides to all
   groups, not just the global attributes in an input file.
+* The `Applicability_Group` property within `CF_Overrides` and `CF_Supplements`
+  has been removed. Now attributes should only be specified within the
+  `Attributes` property at the root level of an override or supplement.
 
 ## 0.0.1
 ### 2023-01-09
