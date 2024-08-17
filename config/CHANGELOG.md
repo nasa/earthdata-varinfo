@@ -20,7 +20,9 @@ to simplify the schema for broader use.
   groups, not just the global attributes in an input file.
 * The `Applicability_Group` property within `CF_Overrides` and `CF_Supplements`
   has been removed. Now attributes should only be specified within the
-  `Attributes` property at the root level of an override or supplement.
+  `Attributes` property at the root level of an override or supplement. The
+  `Applicability` of a `CF_Override` or `CF_Supplement` must now include either
+  a `Mission` or a `ShortNamePath`.
 
 ## 0.0.1
 ### 2023-01-09

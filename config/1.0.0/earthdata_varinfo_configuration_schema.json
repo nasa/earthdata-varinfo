@@ -227,8 +227,6 @@
         "required": ["Mission"]
       }, {
         "required": ["ShortNamePath"]
-      }, {
-        "required": ["Variable_Pattern"]
       }],
       "additionalProperties": false
     },
