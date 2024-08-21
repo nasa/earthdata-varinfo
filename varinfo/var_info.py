@@ -6,7 +6,7 @@
 
 from abc import ABC, abstractmethod
 from os.path import exists
-from typing import Dict, Optional, Set, Tuple, Union
+from typing import Dict, Optional, Set, Tuple, Union, Any
 import json
 import re
 import xml.etree.ElementTree as ET
@@ -361,6 +361,39 @@ class VarInfoBase(ABC):
             for dimension in getattr(self.get_variable(variable), 'dimensions', [])
             if self.get_variable(dimension) is not None
         )
+
+    def get_missing_variable_attributes(self, variable_name: str) -> dict[str, Any]:
+        """Return a single set of all attributes for a variable that is not present
+        in the granule file(e.g. grid_mapping variable in collections that are not
+        fully CF compliant).
+
+        """
+        variable_attributes = self.cf_config.get_cf_attributes(variable_name)
+        return (
+            variable_attributes['cf_supplements'] | variable_attributes['cf_overrides']
+        )
+
+    def get_references_for_attribute(
+        self, list_of_variables: list[str], reference_attribute_name: str
+    ) -> set[str]:
+        """Return a single set of all references in a specific metadat attribute
+        for a list of variables (e.g. bounds, coordinates, cf attributes).
+
+        """
+        # Iterate through all requested variables and extract a list of
+        # references for the metadata attribute. This will produce a list of lists,
+        # which should be flattened into a single list and then combined into a set
+        # to remove duplicates.
+        reference_list = [
+            list(self.get_variable(variable).references.get(reference_attribute_name))
+            for variable in list_of_variables
+            if self.get_variable(variable).references.get(reference_attribute_name)
+            is not None
+        ]
+        all_references = [
+            reference for references in reference_list for reference in references
+        ]
+        return set(all_references)
 
     def get_spatial_dimensions(self, variables: Set[str]) -> Set[str]:
         """Return a single set of all variables that are both used as
