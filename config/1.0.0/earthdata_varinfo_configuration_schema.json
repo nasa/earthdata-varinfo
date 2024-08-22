@@ -227,8 +227,6 @@
         "required": ["Mission"]
       }, {
         "required": ["ShortNamePath"]
-      }, {
-        "required": ["Variable_Pattern"]
       }],
       "additionalProperties": false
     },
@@ -317,40 +315,6 @@
             "description": "A list of metadata attributes with their names and values.",
             "$ref": "#/$defs/AttributesItemType"
           }
-        },
-        "Applicability_Group": {
-          "description": "A more stringent applicability role that will also include a variable path, allowing for overwriting or supplementing the metadata attribute of a subset of variables within a granule.",
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/ApplicabilityGroupItemType"
-          }
-        }
-      },
-      "additionalProperties": false,
-      "anyOf": [{
-        "required": ["Applicability", "Applicability_Group"]
-      }, {
-        "required": ["Applicability", "Attributes"]
-      }]
-    },
-    "ApplicabilityGroupItemType": {
-      "description": "An object to overwrite or supplement metadata attributes for variables matching a specific string or regular expression.",
-      "type": "object",
-      "properties": {
-        "Applicability": {
-          "description": "An applicability rule including a variable path as a regular expression or string.",
-          "$ref": "#/$defs/ApplicabilityType"
-        },
-        "Attributes": {
-          "description": "A list of metadata attribute names and the values that will be used to either append to or update the existing metadata attributes.",
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/AttributesItemType"
-          }
-        },
-        "_Description": {
-          "description": "A description of the need for and effect of the specific applicability group.",
-          "type": "string"
         }
       },
       "additionalProperties": false,

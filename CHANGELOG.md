@@ -1,12 +1,21 @@
 ## v3.0.0
 ### Unreleased
 
-Groups within a NetCDF-4 or DMR file are now assigned to the `VarInfo*.groups`
+The configuration file schema for `earthdata-varinfo` is significantly updated
+in this release. For more information, see the release notes for schema v1.0.0
+in `config/CHANGELOG.md`.
+
+### Added:
+
+* Groups within a NetCDF-4 or DMR file are now assigned to the `VarInfo*.groups`
 dictionary, allowing for their metadata attributes to be accessed after parsing
 an input file.
 
-The configuration file schema is simplified in accordance with the new handling
-of groups, which is more aligned with the handling of variables.
+### Changed:
+
+* Handling of nested `Applicability_Groups` has been removed from the `CFConfig`
+  class, as the configuration file no longer nests these items in overrides
+  or supplements.
 
 ## v2.3.0
 ### 2024-08-26
