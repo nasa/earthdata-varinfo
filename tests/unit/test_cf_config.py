@@ -35,13 +35,6 @@ class TestCFConfig(TestCase):
             '/group/.*': {'group_override': 'group value'},
             '/group/variable': {'variable_override': 'variable value'},
         }
-        cls.expected_cf_supplements = {
-            '.*': {'collection_supplement': 'FAKE99 supplement'},
-            '/$': {'fakesat_global_supplement': 'fakesat value'},
-            '/absent_variable': {'extra_override': 'supplemental value'},
-            '/absent_supplement': {'extra_supplement': 'supplemental value'},
-            '/group4/.*': {'group_supplement': 'FAKE99 group4'},
-        }
 
     def test_instantiation(self):
         """Ensure the attributes of an object are set upon class
@@ -61,15 +54,7 @@ class TestCFConfig(TestCase):
         )
 
         self.assertSetEqual(self.required_variables, config.required_variables)
-
-        # The attributes below are protected-access within the class, however,
-        # this test should still check they only contain the expected items.
-        self.assertEqual(
-            self.expected_cf_overrides, config._cf_overrides
-        )  # pylint: disable=W0212
-        self.assertEqual(
-            self.expected_cf_supplements, config._cf_supplements
-        )  # pylint: disable=W0212
+        self.assertDictEqual(self.expected_cf_overrides, config.cf_overrides)
 
     def test_instantiation_no_file(self):
         """Ensure an instance of the `CFConfig` class can be produced when no
@@ -82,6 +67,7 @@ class TestCFConfig(TestCase):
         self.assertEqual(self.short_name, config.short_name)
         self.assertSetEqual(set(), config.excluded_science_variables)
         self.assertSetEqual(set(), config.required_variables)
+        self.assertDictEqual({}, config.cf_overrides)
 
     def test_instantiation_missing_configuration_file(self):
         """Ensure a MissingConfigurationFileError is raised when a path to a
@@ -103,27 +89,12 @@ class TestCFConfig(TestCase):
                 config_file='tests/unit/data/ATL03_example.dmr',
             )
 
-    def test_get_cf_attributes_all(self):
-        """Ensure the CFConfig.get_cf_references method returns all the
-        overriding and supplemental references from the class, in
-        dictionaries that are keyed on the variable pattern.
-
-        """
-        config = CFConfig(self.mission, self.short_name, self.test_config)
-        self.assertDictEqual(
-            config.get_cf_attributes(),
-            {
-                'cf_overrides': self.expected_cf_overrides,
-                'cf_supplements': self.expected_cf_supplements,
-            },
-        )
-
-    def test_get_cf_attributes_variable(self):
-        """Ensure the CFConfig.get_cf_references method returns all overriding
-        and supplemental attributes where the variable pattern matches the
-        supplied variable name. If multiple patterns match the variable
-        name, then all attributes from those patterns should be combined
-        into a single output dictionary.
+    def test_get_cf_overrides_variable(self):
+        """Ensure the CFConfig.get_cf_overrides method returns all overriding
+        attributes where the variable pattern matches the supplied variable or
+        group name. If multiple patterns match the variable name, then all
+        attributes from those patterns should be combined into a single output
+        dictionary.
 
         """
         collection_overrides = {'collection_override': 'collection value'}
@@ -137,44 +108,45 @@ class TestCFConfig(TestCase):
             'variable_override': 'variable value',
         }
 
-        collection_supplements = {'collection_supplement': 'FAKE99 supplement'}
-        group4_supplements = {
-            'collection_supplement': 'FAKE99 supplement',
-            'group_supplement': 'FAKE99 group4',
-        }
-
         test_args = [
             [
                 'Collection only',
                 'random_variable',
                 collection_overrides,
-                collection_supplements,
             ],
             [
                 'Group overrides',
                 '/group/random',
                 group_overrides,
-                collection_supplements,
             ],
             [
                 'Variable overrides',
                 '/group/variable',
                 variable_overrides,
-                collection_supplements,
-            ],
-            [
-                'Group supplements',
-                '/group4/variable',
-                collection_overrides,
-                group4_supplements,
             ],
         ]
 
         config = CFConfig(self.mission, self.short_name, self.test_config)
 
-        for description, variable, overrides, supplements in test_args:
+        for description, variable, overrides in test_args:
             with self.subTest(description):
                 self.assertDictEqual(
-                    config.get_cf_attributes(variable),
-                    {'cf_overrides': overrides, 'cf_supplements': supplements},
+                    config.get_cf_overrides(variable),
+                    overrides,
                 )
+
+    def test_get_cf_overrides_variable_conflicts(self):
+        """Ensure that if a variable matches multiple override rules that
+        specify conflicting values for a metadata attribute, the most specific
+        matching metadata attribute takes precedence.
+
+        """
+        config = CFConfig(self.mission, 'FAKE97', self.test_config)
+
+        self.assertDictEqual(
+            config.get_cf_overrides('/group/variable'),
+            {
+                'conflicting_attribute_global_and_group': 'applies to /group/.*',
+                'conflicting_attribute_group_and_variable': 'applies to /group/variable',
+            },
+        )

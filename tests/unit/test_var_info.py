@@ -250,7 +250,7 @@ class TestVarInfoFromDmr(TestCase):
         """Ensure VarInfo instantiates correctly, creating records of all the
         variables in the granule, and correctly deciding if they are
         science variables, metadata or references. This test uses a mission
-        and short name that do not have any CF overrides or supplements.
+        and short name that do not have any CF overrides.
 
         """
         dataset = VarInfoFromDmr(self.mock_geographic_dmr, config_file=self.config_file)
@@ -297,16 +297,14 @@ class TestVarInfoFromDmr(TestCase):
 
     def test_var_info_instantiation_cf_augmentation(self):
         """Ensure VarInfo instantiates correcly, using a missions that has
-        overrides and supplements in the CFConfig class.
+        overrides in the CFConfig class.
 
         """
         dataset = VarInfoFromDmr(self.mock_dmr_two, config_file=self.config_file)
 
         expected_global_attributes = {
             'collection_override': 'collection value',
-            'collection_supplement': 'FAKE99 supplement',
             'global_override': 'GLOBAL',
-            'fakesat_global_supplement': 'fakesat value',
         }
 
         self.assertSetEqual(
@@ -330,7 +328,6 @@ class TestVarInfoFromDmr(TestCase):
             dataset.groups['/METADATA/DatasetIdentification'].attributes,
             {
                 'collection_override': 'collection value',
-                'collection_supplement': 'FAKE99 supplement',
                 'shortName': 'FAKE99',
             },
         )
@@ -922,7 +919,6 @@ class TestVarInfoFromDmr(TestCase):
             self.assertDictEqual(
                 dataset.get_missing_variable_attributes('/absent_variable'),
                 {
-                    'collection_supplement': 'FAKE99 supplement',
                     'collection_override': 'collection value',
                     'extra_override': 'overriding value',
                 },

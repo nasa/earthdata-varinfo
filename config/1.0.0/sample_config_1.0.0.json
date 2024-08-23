@@ -140,6 +140,19 @@
       "Applicability": {
         "Mission": "SMAP",
         "ShortNamePath": "SPL3SMP_E",
+        "Variable_Pattern": "/$"
+      },
+      "Attributes": [
+        {
+          "Name": "Data_Organization",
+          "Value": "h5_grid"
+        }
+      ]
+    },
+    {
+      "Applicability": {
+        "Mission": "SMAP",
+        "ShortNamePath": "SPL3SMP_E",
         "Variable_Pattern": "/Soil_Moisture_Retrieval_Data_AM/.*"
       },
       "Attributes": [
@@ -178,9 +191,7 @@
           "Value": "../../grid_x ../../grid_y"
         }
       ]
-    }
-  ],
-  "CF_Supplements": [
+    },
     {
       "Applicability": {
         "Mission": "ICESat2",
@@ -346,19 +357,6 @@
         {
           "Name": "coordinates",
           "Value": "/crs"
-        }
-      ]
-    },
-    {
-      "Applicability": {
-        "Mission": "SMAP",
-        "ShortNamePath": "SPL3SMP_E",
-        "Variable_Pattern": "/$"
-      },
-      "Attributes": [
-        {
-          "Name": "Data_Organization",
-          "Value": "h5_grid"
         }
       ]
     },

@@ -165,70 +165,47 @@
           "Value": "sea_surface_temperature"
         }
       ]
-    }
-  ],
-  "CF_Supplements": [
+    },
     {
       "Applicability": {
         "Mission": "FakeSat",
-        "ShortNamePath": "FAKE99"
+        "ShortNamePath": "FAKE97",
+        "Variable_Pattern": "/.*"
       },
       "Attributes": [
         {
-          "Name": "collection_supplement",
-          "Value": "FAKE99 supplement"
+          "Name": "conflicting_attribute_global_and_group",
+          "Value": "applies to all"
         }
       ]
     },
     {
       "Applicability": {
         "Mission": "FakeSat",
-        "ShortNamePath": "FAKE99",
-        "Variable_Pattern": "/group4/.*"
+        "ShortNamePath": "FAKE97",
+        "Variable_Pattern": "/group/.*"
       },
       "Attributes": [
         {
-          "Name": "group_supplement",
-          "Value": "FAKE99 group4"
+          "Name": "conflicting_attribute_global_and_group",
+          "Value": "applies to /group/.*"
+        },
+        {
+          "Name": "conflicting_attribute_group_and_variable",
+          "Value": "applies to /group/.*"
         }
       ]
     },
     {
       "Applicability": {
         "Mission": "FakeSat",
-        "ShortNamePath": "FAKE99",
-        "Variable_Pattern": "/$"
+        "ShortNamePath": "FAKE97",
+        "Variable_Pattern": "/group/variable"
       },
       "Attributes": [
         {
-          "Name": "fakesat_global_supplement",
-          "Value": "fakesat value"
-        }
-      ]
-    },
-    {
-      "Applicability": {
-        "Mission": "FakeSat",
-        "ShortNamePath": "FAKE99",
-        "Variable_Pattern": "/absent_variable"
-      },
-      "Attributes": [
-        {
-          "Name": "extra_override",
-          "Value": "supplemental value"
-        }
-      ]
-    },
-    {
-      "Applicability": {
-        "Mission": "FakeSat",
-        "ShortNamePath": "FAKE99",
-        "Variable_Pattern": "/absent_supplement"
-      },
-      "Attributes": [
-        {
-          "Name": "extra_supplement",
-          "Value": "supplemental value"
+          "Name": "conflicting_attribute_group_and_variable",
+          "Value": "applies to /group/variable"
         }
       ]
     }

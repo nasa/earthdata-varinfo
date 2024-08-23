@@ -28,8 +28,8 @@ InputVariableType = Union[ET.Element, NetCDF4Variable]
 class VariableBase(AttributeContainerBase):
     """A class to represent a single variable contained within a granule
     representation. It will produce an object in which references are
-    fully qualified, and also augmented by any overrides or supplements
-    from the supplied configuration file.
+    fully qualified, and also augmented by any overrides from the supplied
+    configuration file.
 
     """
 
@@ -242,27 +242,22 @@ class VariableBase(AttributeContainerBase):
 
     def _extract_dimensions(self, variable: ET.Element) -> list[str]:
         """Find the dimensions for the variable in question. If there are
-        overriding or supplemental dimensions from the CF configuration
-        file, these are used instead of, or in addition to, the raw
-        dimensions from the `.dmr`. All references are converted to
-        absolute paths in the granule. A set of all fully qualified
-        references is returned.
+        overriding dimensions from the `earthdata-varinfo` configuration
+        file, these are used instead of the raw dimensions from the `.dmr`. All
+        references are converted to absolute paths in the granule. A set of all
+        fully qualified references is returned.
 
         """
-        overrides = self.cf_config['cf_overrides'].get('dimensions')
-        supplements = self.cf_config['cf_supplements'].get('dimensions')
+        dimensions_override = self.cf_overrides.get('dimensions')
 
-        if overrides is not None:
-            dimensions = re.split(r'\s+|,\s*', overrides)
+        if dimensions_override is not None:
+            dimensions = re.split(r'\s+|,\s*', dimensions_override)
         else:
             dimensions = [
                 dimension
                 for dimension in self._get_raw_dimensions(variable)
                 if dimension is not None
             ]
-
-        if supplements is not None:
-            dimensions += re.split(r'\s+|,\s*', supplements)
 
         return self._qualify_references(dimensions)
 
