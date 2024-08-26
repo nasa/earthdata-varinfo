@@ -1,12 +1,15 @@
 
-## v2.2.3
-### 2024-08-21
+## v2.3.0
+### 2024-08-26
 
-Two methods added to support collections like SMAPL3 that are not fully CF compliant.
-They do not have grid mapping variables with CF attributes and do not have 1D dimension
-scales. A method added to do a CF override to return CF attributes for missing grid mapping
-variable. Another method added to return reference variables which could be used to get
-coordinate variables and bound variables.
+The VarInfoBase.get_missing_variable_attributes method has been added to allow
+someone to get metadata attributes from the configuration file for variables
+that are absent from a file. An example usage is when a CF Convention grid
+mapping variable is missing from a source file.
+The VarInfoBase.get_references_for_attribute method has been added to retrieve
+all unique variable references contained in a single metadata attribute for a
+list of variables. For example, retrieving all references listed under the
+coordinates metadata attribute.
 
 ## v2.2.2
 ### 2024-07-16

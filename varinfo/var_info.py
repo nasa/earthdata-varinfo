@@ -377,23 +377,26 @@ class VarInfoBase(ABC):
         self, list_of_variables: list[str], reference_attribute_name: str
     ) -> set[str]:
         """Return a single set of all references in a specific metadat attribute
-        for a list of variables (e.g. bounds, coordinates, cf attributes).
+        for a list of variables (e.g. bounds, coordinates, cf attributes). The full
+        list of supported metadata attributes can be found in
+        varinfo.utilities::CF_REFERENCE_ATTRIBUTES
 
         """
         # Iterate through all requested variables and extract a list of
         # references for the metadata attribute. This will produce a list of lists,
         # which should be flattened into a single list and then combined into a set
         # to remove duplicates.
-        reference_list = [
-            list(self.get_variable(variable).references.get(reference_attribute_name))
+        reference_set = [
+            self.get_variable(variable).references.get(reference_attribute_name)
             for variable in list_of_variables
             if self.get_variable(variable).references.get(reference_attribute_name)
             is not None
         ]
-        all_references = [
-            reference for references in reference_list for reference in references
-        ]
-        return set(all_references)
+        return set(
+            variable_reference
+            for variable_references in reference_set
+            for variable_reference in variable_references
+        )
 
     def get_spatial_dimensions(self, variables: Set[str]) -> Set[str]:
         """Return a single set of all variables that are both used as

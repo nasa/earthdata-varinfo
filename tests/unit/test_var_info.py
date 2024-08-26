@@ -876,26 +876,23 @@ class TestVarInfoFromDmr(TestCase):
 
         with self.subTest('All CF attributes are retrieved for missing variable'):
             self.assertDictEqual(
-                dataset.get_missing_variable_attributes('/group/variable'),
+                dataset.get_missing_variable_attributes('/absent_override'),
                 {
                     'collection_supplement': 'FAKE99 supplement',
                     'collection_override': 'collection value',
-                    'group_override': 'group value',
-                    'variable_override': 'variable value',
+                    'extra_override': 'overriding value',
                 },
             )
 
     def test_get_references_for_attribute(self):
-        """Ensure that a unique set of references are returned for a given
-        variable and attribute.
+        """Ensure that a complete set of unique references are
+        returned when requesting all references present in the
+        metadata attribute for the given list of variables.
 
         """
-        # dmr_path = 'tests/unit/data/SMAP_L3_SM_P_20150402_R19240_001.h5.dmrpp'
-        # config_file = 'tests/unit/data/hoss_config.json'
-        # dataset = VarInfoFromDmr(dmr_path, 'SPL3SMP', config_file=config_file)
         dmr_path = 'tests/unit/data/GPM_3IMERGHH_example.dmr'
         dataset = VarInfoFromDmr(dmr_path, 'GPM_3IMERGHH', config_file=self.config_file)
-        with self.subTest('All coordinate references for the science variable'):
+        with self.subTest('All coordinate references for a variable'):
             self.assertSetEqual(
                 dataset.get_references_for_attribute(
                     ['/Grid/precipitationCal'], 'coordinates'
@@ -903,8 +900,10 @@ class TestVarInfoFromDmr(TestCase):
                 {'/Grid/lat', '/Grid/time', '/Grid/lon'},
             )
 
-        with self.subTest('All bounds references for the reqquired dimensions'):
+        with self.subTest('All bounds references for the required dimensions'):
             self.assertSetEqual(
-                dataset.get_references_for_attribute(['/Grid/lat'], 'bounds'),
-                {'/Grid/lat_bnds'},
+                dataset.get_references_for_attribute(
+                    ['/Grid/lat', '/Grid/lon'], 'bounds'
+                ),
+                {'/Grid/lat_bnds', '/Grid/lon_bnds'},
             )
