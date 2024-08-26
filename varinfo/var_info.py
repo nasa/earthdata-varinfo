@@ -363,9 +363,10 @@ class VarInfoBase(ABC):
         )
 
     def get_missing_variable_attributes(self, variable_name: str) -> dict[str, Any]:
-        """Return a single set of all attributes for a variable that is not present
+        """Return a dictionary of all attributes for a variable that is not present
         in the granule file(e.g. grid_mapping variable in collections that are not
-        fully CF compliant).
+        fully CF compliant). The metadata attributes and the overrides for the variables would need to be in the
+        configuration file.
 
         """
         variable_attributes = self.cf_config.get_cf_attributes(variable_name)
@@ -376,16 +377,17 @@ class VarInfoBase(ABC):
     def get_references_for_attribute(
         self, list_of_variables: list[str], reference_attribute_name: str
     ) -> set[str]:
-        """Return a single set of all references in a specific metadat attribute
+        """Return a single set of all references in a specific metadata attribute
         for a list of variables (e.g. bounds, coordinates, cf attributes). The full
         list of supported metadata attributes can be found in
         varinfo.utilities::CF_REFERENCE_ATTRIBUTES
 
+        Iterate through all requested variables and extract a list of
+        references for the metadata attribute. This will produce a list of lists,
+        which should be flattened into a single list and then combined into a set
+        to remove duplicates.
+
         """
-        # Iterate through all requested variables and extract a list of
-        # references for the metadata attribute. This will produce a list of lists,
-        # which should be flattened into a single list and then combined into a set
-        # to remove duplicates.
         reference_set = [
             self.get_variable(variable).references.get(reference_attribute_name)
             for variable in list_of_variables
