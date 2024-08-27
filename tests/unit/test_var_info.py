@@ -876,7 +876,7 @@ class TestVarInfoFromDmr(TestCase):
 
         with self.subTest('All CF attributes are retrieved for missing variable'):
             self.assertDictEqual(
-                dataset.get_missing_variable_attributes('/absent_override'),
+                dataset.get_missing_variable_attributes('/absent_variable'),
                 {
                     'collection_supplement': 'FAKE99 supplement',
                     'collection_override': 'collection value',

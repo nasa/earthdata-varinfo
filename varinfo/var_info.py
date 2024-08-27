@@ -365,8 +365,8 @@ class VarInfoBase(ABC):
     def get_missing_variable_attributes(self, variable_name: str) -> dict[str, Any]:
         """Return a dictionary of all attributes for a variable that is not present
         in the granule file (e.g. grid_mapping variable in collections that are not
-        fully CF compliant). The metadata attributes and the overrides for the variables would need to be in the
-        configuration file.
+        fully CF compliant). The metadata attributes and the overrides for the
+        variables would need to be in the configuration file.
 
         """
         variable_attributes = self.cf_config.get_cf_attributes(variable_name)

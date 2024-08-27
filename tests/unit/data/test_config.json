@@ -111,7 +111,7 @@
         },
         {
           "Applicability": {
-            "Variable_Pattern": "/absent_override"
+            "Variable_Pattern": "/absent_variable"
           },
           "Attributes": [
             {
@@ -193,7 +193,7 @@
         },
         {
           "Applicability": {
-            "Variable_Pattern": "/absent_override"
+            "Variable_Pattern": "/absent_variable"
           },
           "Attributes": [
             {
