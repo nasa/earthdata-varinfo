@@ -31,14 +31,14 @@ class TestCFConfig(TestCase):
         cls.global_supplements = {'fakesat_global_supplement': 'fakesat value'}
         cls.cf_overrides = {
             '.*': {'collection_override': 'collection value'},
-            '/absent_override': {'extra_override': 'overriding value'},
+            '/absent_variable': {'extra_override': 'overriding value'},
             '/coordinates_group/.*': {'coordinates': 'lat, lon'},
             '/group/.*': {'group_override': 'group value'},
             '/group/variable': {'variable_override': 'variable value'},
         }
         cls.cf_supplements = {
             '.*': {'collection_supplement': 'FAKE99 supplement'},
-            '/absent_override': {'extra_override': 'supplemental value'},
+            '/absent_variable': {'extra_override': 'supplemental value'},
             '/absent_supplement': {'extra_supplement': 'supplemental value'},
             '/group4/.*': {'group_supplement': 'FAKE99 group4'},
         }

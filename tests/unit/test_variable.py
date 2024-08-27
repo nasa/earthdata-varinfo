@@ -256,12 +256,12 @@ class TestVariableFromDmr(TestCase):
 
         """
         dmr_variable = ET.fromstring(
-            f'<{self.namespace}Float64 name="absent_override">'
+            f'<{self.namespace}Float64 name="absent_variable">'
             f'</{self.namespace}Float64>'
         )
 
         variable = VariableFromDmr(
-            dmr_variable, self.fakesat_config, self.namespace, '/absent_override'
+            dmr_variable, self.fakesat_config, self.namespace, '/absent_variable'
         )
 
         self.assertEqual(variable.attributes.get('extra_override'), 'overriding value')

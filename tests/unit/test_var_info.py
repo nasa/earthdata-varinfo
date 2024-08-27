@@ -862,3 +862,48 @@ class TestVarInfoFromDmr(TestCase):
         self.assertFalse(dataset.is_science_variable(lat_variable))
         # Check that a science variable returns True
         self.assertTrue(dataset.is_science_variable(science_variable))
+
+    def test_get_missing_variable_attributes(self):
+        """Ensure that CF attributes for a variable is returned even if
+        the variable is not present in the source granule or dmrpp file
+        as long as there is a CF override for the variable defined in the
+        config json file
+
+        """
+        dataset = VarInfoFromDmr(
+            self.mock_dmr_two, 'FAKE99', config_file=self.config_file
+        )
+
+        with self.subTest('All CF attributes are retrieved for missing variable'):
+            self.assertDictEqual(
+                dataset.get_missing_variable_attributes('/absent_variable'),
+                {
+                    'collection_supplement': 'FAKE99 supplement',
+                    'collection_override': 'collection value',
+                    'extra_override': 'overriding value',
+                },
+            )
+
+    def test_get_references_for_attribute(self):
+        """Ensure that a complete set of unique references are
+        returned when requesting all references present in the
+        metadata attribute for the given list of variables.
+
+        """
+        dmr_path = 'tests/unit/data/GPM_3IMERGHH_example.dmr'
+        dataset = VarInfoFromDmr(dmr_path, 'GPM_3IMERGHH', config_file=self.config_file)
+        with self.subTest('All coordinate references for a variable'):
+            self.assertSetEqual(
+                dataset.get_references_for_attribute(
+                    ['/Grid/precipitationCal'], 'coordinates'
+                ),
+                {'/Grid/lat', '/Grid/time', '/Grid/lon'},
+            )
+
+        with self.subTest('All bounds references for the required dimensions'):
+            self.assertSetEqual(
+                dataset.get_references_for_attribute(
+                    ['/Grid/lat', '/Grid/lon'], 'bounds'
+                ),
+                {'/Grid/lat_bnds', '/Grid/lon_bnds'},
+            )
