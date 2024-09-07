@@ -294,7 +294,7 @@
       "type": "object",
       "properties": {
         "_Description": {
-          "description": "A description of the need for and effect of the overrides.",
+          "description": "Explains the purpose and effect of these overrides.",
           "type": "string"
         },
         "Applicability": {
