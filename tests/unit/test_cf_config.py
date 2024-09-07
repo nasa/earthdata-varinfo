@@ -142,7 +142,9 @@ class TestCFConfig(TestCase):
         matching metadata attribute takes precedence.
 
         The primary measure of specificity is the depth of the variable
-        hierarchy specified in the
+        hierarchy specified in the Variable_Pattern, with secondary sorting
+        based upon the length of strings at the same hierarchy.
+
         """
         config = CFConfig(self.mission, 'FAKE97', self.test_config)
 
