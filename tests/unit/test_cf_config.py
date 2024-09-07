@@ -92,17 +92,18 @@ class TestCFConfig(TestCase):
     def test_get_cf_overrides_variable(self):
         """Ensure the CFConfig.get_cf_overrides method returns all overriding
         attributes where the variable pattern matches the supplied variable or
-        group name. If multiple patterns match the variable name, then all
-        attributes from those patterns should be combined into a single output
-        dictionary.
+        group name. If multiple patterns match the variable name, then the
+        pattern that is the most specific, as determined by a combination of
+        hierarchical depth in the regular expression and, secondarily, the
+        length of the variable pattern string, will be returned.
 
         """
-        collection_overrides = {'collection_override': 'collection value'}
-        group_overrides = {
+        expected_collection_overrides = {'collection_override': 'collection value'}
+        expected_group_overrides = {
             'collection_override': 'collection value',
             'group_override': 'group value',
         }
-        variable_overrides = {
+        expected_variable_overrides = {
             'collection_override': 'collection value',
             'group_override': 'group value',
             'variable_override': 'variable value',
@@ -112,27 +113,27 @@ class TestCFConfig(TestCase):
             [
                 'Collection only',
                 'random_variable',
-                collection_overrides,
+                expected_collection_overrides,
             ],
             [
                 'Group overrides',
                 '/group/random',
-                group_overrides,
+                expected_group_overrides,
             ],
             [
                 'Variable overrides',
                 '/group/variable',
-                variable_overrides,
+                expected_variable_overrides,
             ],
         ]
 
         config = CFConfig(self.mission, self.short_name, self.test_config)
 
-        for description, variable, overrides in test_args:
+        for description, variable, expected_overrides in test_args:
             with self.subTest(description):
                 self.assertDictEqual(
                     config.get_cf_overrides(variable),
-                    overrides,
+                    expected_overrides,
                 )
 
     def test_get_cf_overrides_variable_conflicts(self):
@@ -140,13 +141,34 @@ class TestCFConfig(TestCase):
         specify conflicting values for a metadata attribute, the most specific
         matching metadata attribute takes precedence.
 
+        The primary measure of specificity is the depth of the variable
+        hierarchy specified in the
         """
         config = CFConfig(self.mission, 'FAKE97', self.test_config)
 
-        self.assertDictEqual(
-            config.get_cf_overrides('/group/variable'),
-            {
-                'conflicting_attribute_global_and_group': 'applies to /group/.*',
-                'conflicting_attribute_group_and_variable': 'applies to /group/variable',
-            },
-        )
+        with self.subTest('Deeper matches takes precedence over shallower'):
+            self.assertDictEqual(
+                config.get_cf_overrides('/group/variable'),
+                {
+                    'conflicting_attribute_global_and_group': 'applies to /group/.*',
+                    'conflicting_attribute_group_and_variable': 'applies to /group/variable',
+                },
+            )
+
+        with self.subTest('Depth takes precedence over string length'):
+            self.assertDictEqual(
+                config.get_cf_overrides('/other_group/variable'),
+                {
+                    'conflicting_attribute_global_and_group': 'applies to all',
+                    'test_depth_priority_over_string_length': 'applies to /other_group/variable',
+                },
+            )
+
+        with self.subTest('String length decides between matches of equal depth'):
+            self.assertDictEqual(
+                config.get_cf_overrides('/string_length/variable'),
+                {
+                    'conflicting_attribute_global_and_group': 'applies to all',
+                    'test_string_length_same_depth': 'applies to /string_length/variable',
+                },
+            )

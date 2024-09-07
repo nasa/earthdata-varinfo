@@ -25,7 +25,7 @@ an input file.
 * `CFConfig.get_cf_attributes` has been renamed `CFConfig.get_cf_overrides`, as
   there are now only overrides to be returned from this method.
   `CFConfig.get_cf_overrides` now _must_ specify a variable path. All overrides
-  from a configuration file for a given collection is now retrievable from
+  from a configuration file for a given collection are now retrievable from
   the newly public `CFConfig.cf_overrides` class attribute.
 
 ### Removed:

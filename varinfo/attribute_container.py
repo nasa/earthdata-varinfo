@@ -99,14 +99,7 @@ class AttributeContainerBase(ABC):
         value.
 
         """
-        cf_override = self.cf_overrides.get(attribute_name)
-
-        if cf_override is not None:
-            attribute_value = cf_override
-        else:
-            attribute_value = raw_attribute_value
-
-        return attribute_value
+        return self.cf_overrides.get(attribute_name, raw_attribute_value)
 
 
 class AttributeContainerFromDmr(AttributeContainerBase):

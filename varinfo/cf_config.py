@@ -162,8 +162,16 @@ class CFConfig:
         First iterate through the self.cf_overrides and find all items with a
         variable pattern that matches the supplied variable (or group) path.
 
-        Next sort that dictionary, so that variable pattern keys are ordered
-        from the shortest (more generic) to longest (more specific).
+        Next sort that dictionary, so that matching patterns are:
+
+        * Primarily sorted from shallowed to deepest, by counting the number of
+          slashes in the string.
+        * Within each depth (with the same number of slashes), patterns are
+          sorted from shortest to longest string length.
+
+        It is assumed that regular expressions that match deeper elements of
+        a file hierarchy are intended to be more specifically applied, and that
+        within a given depth, the string length is a proxy for specificity.
 
         Last, combine the attribute names and values from each matching
         override item. Because of the ordering in the previous step, if there
@@ -178,18 +186,22 @@ class CFConfig:
             if re.match(pattern, variable_path) is not None
         }
 
-        # Order override items by the length of the variable pattern, from
-        # shortest to longest.
+        # Order override items by:
+        # First: Depth of the variable hierarchy included in the regular
+        # expression pattern (number of slashes), shallowest to deepest.
+        # Second: The length of the variable pattern, from shorted to longest.
+        # The second ordering is applied in to regular expressions specifying
+        # the same depth of variable hierarchy.
         sorted_overrides = dict(
             sorted(
                 matching_overrides.items(),
-                key=lambda pattern: len(pattern[0]),
+                key=lambda pattern: (pattern[0].count('/'), len(pattern[0])),
             ),
         )
 
-        # Combine all overrides. In case of multiple overrides for the same
-        # metadata attribute, the value that comes later based on the ordering
-        # of variable patterns will be used.
+        # Combine all overrides. In the case a metadata attribute appears in
+        # multiple matching overrides, the value that comes later based on the
+        # previous sorting of variable patterns will take precedence.
         return {
             attribute_name: attribute_value
             for sorted_override in sorted_overrides.values()

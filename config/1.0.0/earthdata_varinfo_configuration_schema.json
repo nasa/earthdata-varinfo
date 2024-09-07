@@ -30,7 +30,7 @@
       }
     },
     "Excluded_Science_Variables": {
-      "description": "If CF_Overrides are not enough VarInfo classes will assume certain variables are science variables. This setting provides variable path patterns that should be excluded from consideration as a science variable.",
+      "description": "VarInfo classes currently assume that any variable that has a grid mapping attribute, or has a spatial or temporal dimension and is not itself a dimension or bounds variable, should be treated as a science variable. This may not be true in all cases, and so Excluded_Science_Variables provide a method to denote non-science variables that might otherwise be incorrectly identified.",
       "type": "array",
       "items": {
         "$ref": "#/$defs/MissionVariablePatternType"
@@ -232,7 +232,7 @@
           "type": "string"
         },
         "Value": {
-          "description": "The metadata attribute value. This will replace any value present.",
+          "description": "The overriding metadata attribute value. The value specified in the configuration file will replace the corresponding metadata value in any applicable source file.",
           "anyOf": [{
             "type": ["number", "string"]
           }, {

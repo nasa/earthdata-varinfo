@@ -25,7 +25,7 @@ to simplify the schema for broader use.
   a `Mission` or a `ShortNamePath`.
 * The `CF_Supplements` section of the `CFOverridesOrSupplementItemType` has
   been removed, and the item type renamed to `CFOverridesItemType`. All changes
-  to in-file metadata attributes should now be specified as a `CF_Override`.
+  to in-file metadata attributes should now be specified in `CF_Overrides`.
 
 ## 0.0.1
 ### 2023-01-09

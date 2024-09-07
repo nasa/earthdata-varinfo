@@ -208,6 +208,58 @@
           "Value": "applies to /group/variable"
         }
       ]
+    },
+    {
+      "Applicability": {
+        "Mission": "FakeSat",
+        "ShortNamePath": "FAKE97",
+        "Variable_Pattern": "/other_group/variable"
+      },
+      "Attributes": [
+        {
+          "Name": "test_depth_priority_over_string_length",
+          "Value": "applies to /other_group/variable"
+        }
+      ]
+    },
+    {
+      "Applicability": {
+        "Mission": "FakeSat",
+        "ShortNamePath": "FAKE97",
+        "Variable_Pattern": "/(other_group|long|regex|things).*"
+      },
+      "Attributes": [
+        {
+          "Name": "test_depth_priority_over_string_length",
+          "Value": "applies to lots of groups"
+        }
+      ]
+    },
+    {
+      "Applicability": {
+        "Mission": "FakeSat",
+        "ShortNamePath": "FAKE97",
+        "Variable_Pattern": "/string_length/variable"
+      },
+      "Attributes": [
+        {
+          "Name": "test_string_length_same_depth",
+          "Value": "applies to /string_length/variable"
+        }
+      ]
+    },
+    {
+      "Applicability": {
+        "Mission": "FakeSat",
+        "ShortNamePath": "FAKE97",
+        "Variable_Pattern": "/string_length/var.*"
+      },
+      "Attributes": [
+        {
+          "Name": "test_string_length_same_depth",
+          "Value": "applies to /string_length/var.*"
+        }
+      ]
     }
   ]
 }
