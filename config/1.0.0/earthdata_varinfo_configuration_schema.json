@@ -298,11 +298,11 @@
           "type": "string"
         },
         "Applicability": {
-          "description": "An applicability rule that can be used to define global variables, if only a mission and/or collection short name is specified, or set variable and group level metadata attributes if a Variable_Pattern is provided.",
+          "description": "An applicability rule that indicates which groups and variables within a file a metadata override should apply to. If only a short name and/or mission is provided, the override will apply to all groups and variables. If a Variable_Pattern is also provided, the override is applied only to those groups or variables whose paths match the regular expression of the Variable_Pattern.",
           "$ref": "#/$defs/ApplicabilityType"
         },
         "Attributes" : {
-          "description": "Metadata attributes to overwrite against variables or groups matching a variable path pattern specified in Applicability of this object.",
+          "description": "Metadata attributes to override for variables or groups that match the mission, short name and/or Variable_Pattern criteria specified in the Applicability of this object.",
           "type": "array",
           "items": {
             "description": "A list of metadata attributes with their names and values.",
