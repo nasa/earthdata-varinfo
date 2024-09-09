@@ -48,7 +48,6 @@ class TestAttributeContainerFromDmr(TestCase):
         """Ensure an `AttributeContainerFromDmr` can be created from a group."""
         expected_attributes = {
             'collection_override': 'collection value',
-            'collection_supplement': 'FAKE99 supplement',
             'coordinates': 'lat_for_group lon_for_group',
         }
 
@@ -70,7 +69,6 @@ class TestAttributeContainerFromDmr(TestCase):
         """Ensure an `AttributeContainerFromDmr` can be created from a variable."""
         expected_attributes = {
             'collection_override': 'collection value',
-            'collection_supplement': 'FAKE99 supplement',
             'group_override': 'group value',
             'units': 'm',
             'variable_override': 'variable value',
@@ -145,8 +143,6 @@ class TestAttributeContainerFromNetCDF4(TestCase):
         netcdf4_path = write_skeleton_netcdf4(self.output_dir)
         expected_attributes = {
             'collection_override': 'collection value',
-            'collection_supplement': 'FAKE99 supplement',
-            'fakesat_global_supplement': 'fakesat value',
             'global_override': 'GLOBAL',
             **netcdf4_global_attributes,
         }
@@ -174,7 +170,6 @@ class TestAttributeContainerFromNetCDF4(TestCase):
         netcdf4_path = write_skeleton_netcdf4(self.output_dir)
         expected_attributes = {
             'collection_override': 'collection value',
-            'collection_supplement': 'FAKE99 supplement',
         }
 
         with Dataset(netcdf4_path) as dataset:
@@ -200,7 +195,6 @@ class TestAttributeContainerFromNetCDF4(TestCase):
         netcdf4_path = write_skeleton_netcdf4(self.output_dir)
         expected_attributes = {
             'collection_override': 'collection value',
-            'collection_supplement': 'FAKE99 supplement',
             'coordinates': '/lat /lon',
             'description': 'A science variable for testing',
             'group_override': 'group value',

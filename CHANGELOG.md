@@ -16,6 +16,22 @@ an input file.
 * Handling of nested `Applicability_Groups` has been removed from the `CFConfig`
   class, as the configuration file no longer nests these items in overrides
   or supplements.
+* CF Overrides retrieved for a matching file path are ordered such that the
+  most specific applicable override to the variable takes precedence. For
+  example, when requesting the value of the "units" metadata attribute for
+  variable "/nested/variable", an applicability rule that exactly matches this
+  variable path will take precedence over rules matching to either the group,
+  or all variables in the file.
+* `CFConfig.get_cf_attributes` has been renamed `CFConfig.get_cf_overrides`, as
+  there are now only overrides to be returned from this method.
+  `CFConfig.get_cf_overrides` now _must_ specify a variable path. All overrides
+  from a configuration file for a given collection are now retrievable from
+  the newly public `CFConfig.cf_overrides` class attribute.
+
+### Removed:
+
+* `CFConfig._cf_supplements` has been deprecated in favour of specifying all
+  in-file metadata changes via a CF override instead.
 
 ## v2.3.0
 ### 2024-08-26

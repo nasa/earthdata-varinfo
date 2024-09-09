@@ -45,10 +45,9 @@ class TestGroupFromDmr(TestCase):
         Child variables should be listed via the `variables` class attribute.
 
         """
-        # First two attributes come from CFConfig.
+        # First attribute comes from CFConfig, the second from the DMR.
         expected_attributes = {
             'collection_override': 'collection value',
-            'collection_supplement': 'FAKE99 supplement',
             'coordinates': 'lat lon',
         }
 
@@ -96,8 +95,6 @@ class TestGroupFromNetCDF4(TestCase):
         """Ensure a group can be created from an input NetCDF-4 file."""
         expected_attributes = {
             'collection_override': 'collection value',
-            'collection_supplement': 'FAKE99 supplement',
-            'fakesat_global_supplement': 'fakesat value',
             'global_override': 'GLOBAL',
             **netcdf4_global_attributes,
         }

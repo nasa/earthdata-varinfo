@@ -344,10 +344,7 @@ class VarInfoBase(ABC):
         variables would need to be in the configuration file.
 
         """
-        variable_attributes = self.cf_config.get_cf_attributes(variable_name)
-        return (
-            variable_attributes['cf_supplements'] | variable_attributes['cf_overrides']
-        )
+        return self.cf_config.get_cf_overrides(variable_name)
 
     def get_references_for_attribute(
         self, list_of_variables: list[str], reference_attribute_name: str

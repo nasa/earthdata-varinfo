@@ -30,7 +30,7 @@
       }
     },
     "Excluded_Science_Variables": {
-      "description": "If CF_Overrides and CF_Supplements are not enough VarInfo classes will assume certain variables are science variables. This setting provides variable path patterns that should be excluded from consideration as a science variable.",
+      "description": "VarInfo classes currently assume that any variable that has a grid mapping attribute, or has a spatial or temporal dimension and is not itself a dimension or bounds variable, should be treated as a science variable. This may not be true in all cases, and so Excluded_Science_Variables provide a method to denote non-science variables that might otherwise be incorrectly identified.",
       "type": "array",
       "items": {
         "$ref": "#/$defs/MissionVariablePatternType"
@@ -193,14 +193,7 @@
       "description": "# For cases where CF references do not exist, or are invalid. For example, variables that have no dimension references in the HDF-5 file contents",
       "type": "array",
       "items": {
-        "$ref": "#/$defs/CFOverridesAndSupplementsItemType"
-      }
-    },
-    "CF_Supplements": {
-      "description": "For extending CF references. This allows for CF references to persist, while supplemental information is provided. In particular, e.g., for subsetting support, non-CF attributes can be provided.",
-      "type": "array",
-      "items": {
-        "$ref": "#/$defs/CFOverridesAndSupplementsItemType"
+        "$ref": "#/$defs/CFOverridesItemType"
       }
     }
   },
@@ -239,7 +232,7 @@
           "type": "string"
         },
         "Value": {
-          "description": "The metadata attribute value. For CFOverrides, this will replace any value present, for CFSupplements, this is expected to be a string and it will be appended to the present value using string concatenation.",
+          "description": "The overriding metadata attribute value. The value specified in the configuration file will replace the corresponding metadata value in any applicable source file.",
           "anyOf": [{
             "type": ["number", "string"]
           }, {
@@ -296,20 +289,20 @@
       "required": ["Applicability", "Variable_Pattern"],
       "additionalProperties": false
     },
-    "CFOverridesAndSupplementsItemType": {
-      "description": "An item that details a related group of CF-Convention metadata attributes to supplement or overwrite according to the supplied applicability rules.",
+    "CFOverridesItemType": {
+      "description": "An item that details one or more metadata attributes to overwrite according to the supplied applicability rules.",
       "type": "object",
       "properties": {
         "_Description": {
-          "description": "A description of the need for and effect of the CF Convention overrides or supplements.",
+          "description": "Explains the purpose and effect of these overrides.",
           "type": "string"
         },
         "Applicability": {
-          "description": "An applicability rule that can be used to define global variables, if only a mission and/or collection short name is specified, or set variable metadata attributes if a Variable_Pattern is provided.",
+          "description": "An applicability rule that indicates which groups and variables within a file a metadata override should apply to. If only a short name and/or mission is provided, the override will apply to all groups and variables. If a Variable_Pattern is also provided, the override is applied only to those groups or variables whose paths match the regular expression of the Variable_Pattern.",
           "$ref": "#/$defs/ApplicabilityType"
         },
         "Attributes" : {
-          "description": "Metadata attributes to supplement or overwrite against variables matching a variable path pattern specified in Applicability of this object.",
+          "description": "Metadata attributes to override for variables or groups that match the mission, short name and/or Variable_Pattern criteria specified in the Applicability of this object.",
           "type": "array",
           "items": {
             "description": "A list of metadata attributes with their names and values.",

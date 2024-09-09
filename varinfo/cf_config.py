@@ -1,9 +1,9 @@
 """ This module contains a class designed to read and present information from
-    a JSON configuration file. This configuration file provides supplemental
-    and overriding information for attributes provided by granules on a per-
-    collection basis. This information is primarily intended to augment the
-    CF-Convention attributes for a dataset, but can also be used to alter non
-    CF-Convention metadata within a granule.
+    a JSON configuration file. This configuration file provides overriding
+    information for attributes provided by granules on a per-collection basis.
+    This information is primarily intended to augment the CF-Convention
+    attributes for a dataset, but can also be used to alter non CF-Convention
+    metadata within a granule.
 
     Information within the configuration file is split into rules that have
     an Applicability. This section should define a mission, collection short
@@ -21,6 +21,7 @@
 from __future__ import annotations
 
 from os.path import exists
+from typing import Any
 import json
 import re
 
@@ -32,9 +33,8 @@ from varinfo.exceptions import (
 
 class CFConfig:
     """This class should read the main configuration file,
-    see e.g. sample_config.json, which defines overriding values and
-    supplements for the attributes stored in fields such as
-    ancillary_variables, or dimensions.
+    see e.g. sample_config.json, which defines overriding values for the
+    attributes stored in fields such as ancillary_variables, or dimensions.
 
     Given a mission and collection short name, upon instantiation, the
     object should only retain information relevant to that specific
@@ -57,8 +57,7 @@ class CFConfig:
         self.mission = mission
         self.short_name = collection_short_name
 
-        self._cf_overrides: dict = {}
-        self._cf_supplements: dict = {}
+        self.cf_overrides: dict[str, dict[str, Any]] = {}
         self.excluded_science_variables: set[str] = set()
         self.required_variables: set[str] = set()
 
@@ -102,10 +101,7 @@ class CFConfig:
         }
 
         for override in config.get('CF_Overrides', []):
-            self._process_cf_item(override, self._cf_overrides)
-
-        for supplement in config.get('CF_Supplements', []):
-            self._process_cf_item(supplement, self._cf_supplements)
+            self._process_cf_item(override, self.cf_overrides)
 
     def _is_applicable(self, mission: str, short_name: str | None = None) -> bool:
         """Given a mission, and optionally also a collection short name, of an
@@ -129,13 +125,12 @@ class CFConfig:
         input_mission: str | None = None,
         input_short_name: str | None = None,
     ):
-        """Process a single block in the CF overrides or CF supplements region
-        of the configuration file. First check that the applicability
-        matches the mission and short name for the class. Next, check
-        for a variable pattern. This is indicative of there being
-        overriding or supplemental attributes in this list item.
-        Assign any information to the results dictionary, with a key of
-        that variable pattern.
+        """Process a single block in the CF overrides region of the
+        configuration file. First check that the applicability matches the
+        mission and short name for the class. Next, check for a variable
+        pattern. This is indicative of there being overriding attributes in
+        this list item. Assign any information to the results dictionary, with
+        a key of that variable pattern.
 
         """
         mission = cf_item['Applicability'].get('Mission') or input_mission
@@ -160,40 +155,55 @@ class CFConfig:
             for attribute in cf_item.get('Attributes', {})
         }
 
-    def get_cf_attributes(
-        self, variable: str | None = None
-    ) -> dict[str, dict[str, str]]:
-        """Return the CF overrides and supplements that match a given
-        variable. If a variable is not specified, then return all overrides
-        and supplements. If there are no overrides or supplements, then
-        empty dictionaries will be returned instead.
+    def get_cf_overrides(self, variable_path: str) -> dict[str, Any]:
+        """Return the CF overrides that match a given variable. If there are no
+        overrides, then empty dictionaries will be returned instead.
+
+        First iterate through the self.cf_overrides and find all items with a
+        variable pattern that matches the supplied variable (or group) path.
+
+        Next sort that dictionary, so that matching patterns are:
+
+        * Primarily sorted from shallowed to deepest, by counting the number of
+          slashes in the string.
+        * Within each depth (with the same number of slashes), patterns are
+          sorted from shortest to longest string length.
+
+        It is assumed that regular expressions that match deeper elements of
+        a file hierarchy are intended to be more specifically applied, and that
+        within a given depth, the string length is a proxy for specificity.
+
+        Last, combine the attribute names and values from each matching
+        override item. Because of the ordering in the previous step, if there
+        are multiple values supplied for the same metadata attribute, the value
+        retained will be the one with the longest variable pattern, which is a
+        proxy for how specific the override is.
 
         """
-        if variable is not None:
-            cf_overrides = self._get_matching_attributes(self._cf_overrides, variable)
-            cf_supplements = self._get_matching_attributes(
-                self._cf_supplements, variable
-            )
-        else:
-            cf_overrides = self._cf_overrides
-            cf_supplements = self._cf_supplements
+        matching_overrides = {
+            pattern: attributes
+            for pattern, attributes in self.cf_overrides.items()
+            if re.match(pattern, variable_path) is not None
+        }
 
-        return {'cf_overrides': cf_overrides, 'cf_supplements': cf_supplements}
+        # Order override items by:
+        # First: Depth of the variable hierarchy included in the regular
+        # expression pattern (number of slashes), shallowest to deepest.
+        # Second: The length of the variable pattern, from shorted to longest.
+        # The second ordering is applied in to regular expressions specifying
+        # the same depth of variable hierarchy.
+        sorted_overrides = dict(
+            sorted(
+                matching_overrides.items(),
+                key=lambda pattern: (pattern[0].count('/'), len(pattern[0])),
+            ),
+        )
 
-    @staticmethod
-    def _get_matching_attributes(
-        cf_references: dict[str, dict[str, str]], variable: str
-    ) -> dict[str, str]:
-        """Iterate through either the self._cf_supplements or
-        self._cf_overrides and extract a dictionary that combines all
-        applicable attributes that apply to the specified variable. If
-        there are conflicting values for the same attribute, only the last
-        value will be returned for that attribute.
-
-        """
-        references = {}
-        for pattern, attributes in cf_references.items():
-            if re.match(pattern, variable) is not None:
-                references.update(attributes)
-
-        return references
+        # Combine all overrides. In the case a metadata attribute appears in
+        # multiple matching overrides, the value that comes later based on the
+        # previous sorting of variable patterns will take precedence.
+        return {
+            attribute_name: attribute_value
+            for sorted_override in sorted_overrides.values()
+            for attribute_name, attribute_value in sorted_override.items()
+        }

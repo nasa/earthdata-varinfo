@@ -23,6 +23,9 @@ to simplify the schema for broader use.
   `Attributes` property at the root level of an override or supplement. The
   `Applicability` of a `CF_Override` or `CF_Supplement` must now include either
   a `Mission` or a `ShortNamePath`.
+* The `CF_Supplements` section of the `CFOverridesOrSupplementItemType` has
+  been removed, and the item type renamed to `CFOverridesItemType`. All changes
+  to in-file metadata attributes should now be specified in `CF_Overrides`.
 
 ## 0.0.1
 ### 2023-01-09

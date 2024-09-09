@@ -40,7 +40,7 @@ class AttributeContainerBase(ABC):
         """
         self.namespace = namespace
         self.full_name_path = full_name_path
-        self.cf_config = cf_config.get_cf_attributes(self.full_name_path)
+        self.cf_overrides = cf_config.get_cf_overrides(self.full_name_path)
         self.attributes = self._get_attributes(container)
         self._add_additional_attributes()
 
@@ -78,8 +78,7 @@ class AttributeContainerBase(ABC):
         be added to the variable metadata attributes.
 
         """
-        self._add_missing_attributes(self.cf_config['cf_overrides'])
-        self._add_missing_attributes(self.cf_config['cf_supplements'])
+        self._add_missing_attributes(self.cf_overrides)
 
     def _add_missing_attributes(self, extra_attributes: dict) -> None:
         """Iterate through a dictionary of attributes from the `CFConfig`
@@ -100,20 +99,7 @@ class AttributeContainerBase(ABC):
         value.
 
         """
-        cf_override = self.cf_config['cf_overrides'].get(attribute_name)
-        cf_supplement = self.cf_config['cf_supplements'].get(attribute_name)
-
-        if cf_override is not None:
-            attribute_value = cf_override
-        else:
-            attribute_value = raw_attribute_value
-
-        if cf_supplement is not None and attribute_value is not None:
-            attribute_value = ', '.join([attribute_value, cf_supplement])
-        elif cf_supplement is not None:
-            attribute_value = cf_supplement
-
-        return attribute_value
+        return self.cf_overrides.get(attribute_name, raw_attribute_value)
 
 
 class AttributeContainerFromDmr(AttributeContainerBase):
