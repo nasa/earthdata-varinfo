@@ -11,6 +11,15 @@ the earthdata-varinfo configuration file.
 This version of the configuration file schema makes several significant changes
 to simplify the schema for broader use.
 
+### Changed:
+
+* The casing of all attributes in the configuration file schema has been
+  updated to be `PascalCase` throughout. Affected schema attributes include:
+  * `CFOverrides`
+  * `CollectionShortNamePath`
+  * `ExcludedScienceVariables`
+  * `RequiredVariables` (formerly `Required_Fields`).
+
 ### Removed:
 * The `Global_Attributes` property has been removed from the `CF_Overrides` and
   `CF_Supplements` items, in favour of specifying group metadata attribute
@@ -26,6 +35,9 @@ to simplify the schema for broader use.
 * The `CF_Supplements` section of the `CFOverridesOrSupplementItemType` has
   been removed, and the item type renamed to `CFOverridesItemType`. All changes
   to in-file metadata attributes should now be specified in `CF_Overrides`.
+* The unused `ProductEpochs` section of the schema has been removed.
+* The `Grid_Mapping_Data` section of the schema has been removed, in favour of
+  specifying grid mapping attributes via `CF_Overrides`.
 
 ## 0.0.1
 ### 2023-01-09

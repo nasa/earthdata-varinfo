@@ -1,7 +1,7 @@
 {
   "Identification": "varinfo_sample_config",
   "Version": 15,
-  "Collection_ShortName_Path": [
+  "CollectionShortNamePath": [
     "/HDF5_GLOBAL/short_name",
     "/NC_GLOBAL/short_name",
     "/Metadata/DatasetIdentification/shortName",
@@ -18,61 +18,29 @@
     "SPL[1234].+": "SMAP",
     "VIIRS_NPP-.+-L2P": "VIIRS_PO"
   },
-  "Excluded_Science_Variables": [
+  "ExcludedScienceVariables": [
     {
       "Applicability": {
         "Mission": "ICESat2"
       },
-      "Variable_Pattern": [
+      "VariablePattern": [
         "/quality_assessment/.*",
         "/orbit_info/.*",
         "/atlas_impulse_response/.*"
       ]
     }
   ],
-  "Required_Fields": [
+  "RequiredVariables": [
     {
       "Applicability": {
         "Mission": "GEDI"
       },
-      "Variable_Pattern": [
+      "VariablePattern": [
         ".*shot_number"
       ]
     }
   ],
-  "ProductEpochs": [
-    {
-      "Applicability": {
-        "Mission": "ICESat2"
-      },
-      "Epoch": "2005-01-01T00:00:00.000000"
-    },
-    {
-      "Applicability": {
-        "Mission": "GEDI"
-      },
-      "Epoch": "2018-01-01T00:00:00.000000"
-    }
-  ],
-  "Grid_Mapping_Data": [
-    {
-      "Grid_Mapping_Dataset_Name": "EASE2_Global",
-      "grid_mapping_name": "lambert_cylindrical_equal_area",
-      "standard_parallel": 30.0,
-      "longitude_of_central_meridian": 0.0,
-      "false_easting": 0.0,
-      "false_northing": 0.0
-    },
-    {
-      "Grid_Mapping_Dataset_Name": "EASE2_Polar",
-      "grid_mapping_name": "lambert_azimuthal_equal_area",
-      "longitude_of_projection_origin": 0.0,
-      "latitude_of_projection_origin": 90.0,
-      "false_easting": 0.0,
-      "false_northing": 0.0
-    }
-  ],
-  "CF_Overrides": [
+  "CFOverrides": [
     {
       "Applicability": {
         "Mission": "SMAP",
@@ -80,8 +48,37 @@
       },
       "Attributes": [
         {
-          "Name": "Grid_Mapping",
-          "Value": "EASE2_Global"
+          "Name": "grid_mapping",
+          "Value": "/EASE2_global_projection"
+        }
+      ]
+    },
+    {
+      "Applicability": {
+        "Mission": "SMAP",
+        "ShortNamePath": "SPL4.*",
+        "VariablePattern": "/EASE2_global_projection"
+      },
+      "Attributes": [
+        {
+          "Name": "false_easting",
+          "Value": 0.0
+        },
+        {
+          "Name": "false_northing",
+          "Value": 0.0
+        },
+        {
+          "Name": "grid_mapping_name",
+          "Value": "lambert_cylindrical_equal_area"
+        },
+        {
+          "Name": "longitude_of_central_meridian",
+          "Value": 0.0
+        },
+        {
+          "Name": "standard_parallel",
+          "Value": 30.0
         }
       ]
     },
@@ -89,12 +86,12 @@
       "Applicability": {
         "Mission": "SMAP",
         "ShortNamePath": "SPL3FT(P|P_E)",
-        "Variable_Pattern": "(?i).*global.*"
+        "VariablePattern": "(?i).*global.*"
       },
       "Attributes": [
         {
-          "Name": "Grid_Mapping",
-          "Value": "EASE2_Global"
+          "Name": "grid_mapping",
+          "Value": "/EASE2_global_projection"
         }
       ]
     },
@@ -102,12 +99,70 @@
       "Applicability": {
         "Mission": "SMAP",
         "ShortNamePath": "SPL3FT(P|P_E)",
-        "Variable_Pattern": "(?i).*polar.*"
+        "VariablePattern": "/EASE2_global_projection"
       },
       "Attributes": [
         {
-          "Name": "Grid_Mapping",
-          "Value": "EASE2_Polar"
+          "Name": "false_easting",
+          "Value": 0.0
+        },
+        {
+          "Name": "false_northing",
+          "Value": 0.0
+        },
+        {
+          "Name": "grid_mapping_name",
+          "Value": "lambert_cylindrical_equal_area"
+        },
+        {
+          "Name": "longitude_of_central_meridian",
+          "Value": 0.0
+        },
+        {
+          "Name": "standard_parallel",
+          "Value": 30.0
+        }
+      ]
+    },
+    {
+      "Applicability": {
+        "Mission": "SMAP",
+        "ShortNamePath": "SPL3FT(P|P_E)",
+        "VariablePattern": "(?i).*polar.*"
+      },
+      "Attributes": [
+        {
+          "Name": "grid_mapping",
+          "Value": "/EASE2_polar_projection"
+        }
+      ]
+    },
+    {
+      "Applicability": {
+        "Mission": "SMAP",
+        "ShortNamePath": "SPL3FT(P|P_E)",
+        "VariablePattern": "/EASE2_polar_projection"
+      },
+      "Attributes": [
+        {
+          "Name": "false_easting",
+          "Value": 0.0
+        },
+        {
+          "Name": "false_northing",
+          "Value": 0.0
+        },
+        {
+          "Name": "grid_mapping_name",
+          "Value": "lambert_azimuthal_equal_area"
+        },
+        {
+          "Name": "latitude_of_projection_origin",
+          "Value": 90.0
+        },
+        {
+          "Name": "longitude_of_projection_origin",
+          "Value": 0.0
         }
       ]
     },
@@ -118,8 +173,37 @@
       },
       "Attributes": [
         {
-          "Name": "Grid_Mapping",
-          "Value": "EASE2_Polar"
+          "Name": "grid_mapping",
+          "Value": "/EASE2_polar_projection"
+        }
+      ]
+    },
+    {
+      "Applicability": {
+        "Mission": "SMAP",
+        "ShortNamePath": "SPL3FTA",
+        "VariablePattern": "/EASE2_polar_projection"
+      },
+      "Attributes": [
+        {
+          "Name": "false_easting",
+          "Value": 0.0
+        },
+        {
+          "Name": "false_northing",
+          "Value": 0.0
+        },
+        {
+          "Name": "grid_mapping_name",
+          "Value": "lambert_azimuthal_equal_area"
+        },
+        {
+          "Name": "latitude_of_projection_origin",
+          "Value": 90.0
+        },
+        {
+          "Name": "longitude_of_projection_origin",
+          "Value": 0.0
         }
       ]
     },
@@ -127,7 +211,7 @@
       "Applicability": {
         "Mission": "SMAP",
         "ShortNamePath": "SPL3FT(A|P|P_E)",
-        "Variable_Pattern": "/Freeze_Thaw_Retrieval_Data_Polar/(latitude|longitude).*"
+        "VariablePattern": "/Freeze_Thaw_Retrieval_Data_Polar/(latitude|longitude).*"
       },
       "Attributes": [
         {
@@ -140,7 +224,7 @@
       "Applicability": {
         "Mission": "SMAP",
         "ShortNamePath": "SPL3SMP_E",
-        "Variable_Pattern": "/$"
+        "VariablePattern": "/$"
       },
       "Attributes": [
         {
@@ -153,7 +237,7 @@
       "Applicability": {
         "Mission": "SMAP",
         "ShortNamePath": "SPL3SMP_E",
-        "Variable_Pattern": "/Soil_Moisture_Retrieval_Data_AM/.*"
+        "VariablePattern": "/Soil_Moisture_Retrieval_Data_AM/.*"
       },
       "Attributes": [
         {
@@ -166,7 +250,7 @@
       "Applicability": {
         "Mission": "SMAP",
         "ShortNamePath": "SPL3SMP_E",
-        "Variable_Pattern": "/Soil_Moisture_Retrieval_Data_PM/.*"
+        "VariablePattern": "/Soil_Moisture_Retrieval_Data_PM/.*"
       },
       "Attributes": [
         {
@@ -179,7 +263,7 @@
       "Applicability": {
         "Mission": "ICESat2",
         "ShortNamePath": "ATL20",
-        "Variable_Pattern": "/daily/day\\d{2}/.+"
+        "VariablePattern": "/daily/day\\d{2}/.+"
       },
       "Attributes": [
         {
@@ -196,7 +280,7 @@
       "Applicability": {
         "Mission": "ICESat2",
         "ShortNamePath": "ATL0[3-9]|ATL1[023]",
-        "Variable_Pattern": "/$"
+        "VariablePattern": "/$"
       },
       "Attributes": [
         {
@@ -209,7 +293,7 @@
       "Applicability": {
         "Mission": "ICESat2",
         "ShortNamePath": "ATL0[3-9]|ATL1[023]",
-        "Variable_Pattern": "/gt[123][lr]/geolocation/.*"
+        "VariablePattern": "/gt[123][lr]/geolocation/.*"
       },
       "Attributes": [
         {
@@ -222,7 +306,7 @@
       "Applicability": {
         "Mission": "ICESat2",
         "ShortNamePath": "ATL03",
-        "Variable_Pattern": "/gt[123][lr]/geophys_corr/.*"
+        "VariablePattern": "/gt[123][lr]/geophys_corr/.*"
       },
       "Attributes": [
         {
@@ -239,7 +323,7 @@
       "Applicability": {
         "Mission": "ICESat2",
         "ShortNamePath": "ATL03",
-        "Variable_Pattern": "/gt[123][lr]/heights/.*"
+        "VariablePattern": "/gt[123][lr]/heights/.*"
       },
       "Attributes": [
         {
@@ -256,7 +340,7 @@
       "Applicability": {
         "Mission": "ICESat2",
         "ShortNamePath": "ATL03",
-        "Variable_Pattern": "/gt[123][lr]/geolocation/ph_index_beg"
+        "VariablePattern": "/gt[123][lr]/geolocation/ph_index_beg"
       },
       "Attributes": [
         {
@@ -269,7 +353,7 @@
       "Applicability": {
         "Mission": "ICESat2",
         "ShortNamePath": "ATL03",
-        "Variable_Pattern": "/gt[123][lr]/geolocation/ph_index_beg"
+        "VariablePattern": "/gt[123][lr]/geolocation/ph_index_beg"
       },
       "Attributes": [
         {
@@ -282,7 +366,7 @@
       "Applicability": {
         "Mission": "ICESat2",
         "ShortNamePath": "ATL08",
-        "Variable_Pattern": "/gt[123][lr]/signal_photons/.*"
+        "VariablePattern": "/gt[123][lr]/signal_photons/.*"
       },
       "Attributes": [
         {
@@ -299,7 +383,7 @@
       "Applicability": {
         "Mission": "ICESat2",
         "ShortNamePath": "ATL08",
-        "Variable_Pattern": "/gt[123][lr]/land_segments/ph_ndx_beg"
+        "VariablePattern": "/gt[123][lr]/land_segments/ph_ndx_beg"
       },
       "Attributes": [
         {
@@ -312,7 +396,7 @@
       "Applicability": {
         "Mission": "ICESat2",
         "ShortNamePath": "ATL08",
-        "Variable_Pattern": "/gt[123][lr]/land_segments/n_seg_ph"
+        "VariablePattern": "/gt[123][lr]/land_segments/n_seg_ph"
       },
       "Attributes": [
         {
@@ -325,7 +409,7 @@
       "Applicability": {
         "Mission": "ICESat2",
         "ShortNamePath": "ATL1[67]",
-        "Variable_Pattern": "/$"
+        "VariablePattern": "/$"
       },
       "Attributes": [
         {
@@ -338,7 +422,7 @@
       "Applicability": {
         "Mission": "ICESat2",
         "ShortNamePath": "ATL20",
-        "Variable_Pattern": "/$"
+        "VariablePattern": "/$"
       },
       "Attributes": [
         {
@@ -351,7 +435,7 @@
       "Applicability": {
         "Mission": "ICESat2",
         "ShortNamePath": "ATL20",
-        "Variable_Pattern": ".*"
+        "VariablePattern": ".*"
       },
       "Attributes": [
         {
@@ -364,7 +448,7 @@
       "Applicability": {
         "Mission": "GEDI",
         "ShortNamePath": "GEDI_L[1234][AB]|GEDI0[1234]_[AB]",
-        "Variable_Pattern": "/$"
+        "VariablePattern": "/$"
       },
       "Attributes": [
         {
@@ -377,7 +461,7 @@
       "Applicability": {
         "Mission": "GEDI",
         "ShortNamePath": "GEDI_L2B|GEDI02_B",
-        "Variable_Pattern": "/BEAM[\\d]+/pgap_theta_z"
+        "VariablePattern": "/BEAM[\\d]+/pgap_theta_z"
       },
       "Attributes": [
         {
@@ -394,7 +478,7 @@
       "Applicability": {
         "Mission": "GEDI",
         "ShortNamePath": "GEDI_L2B|GEDI02_B",
-        "Variable_Pattern": "/BEAM[\\d]+/rx_sample_start_index"
+        "VariablePattern": "/BEAM[\\d]+/rx_sample_start_index"
       },
       "Attributes": [
         {
@@ -407,7 +491,7 @@
       "Applicability": {
         "Mission": "GEDI",
         "ShortNamePath": "GEDI_L2B|GEDI02_B",
-        "Variable_Pattern": "/BEAM[\\d]+/rx_sample_count"
+        "VariablePattern": "/BEAM[\\d]+/rx_sample_count"
       },
       "Attributes": [
         {

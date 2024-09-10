@@ -546,7 +546,7 @@ class VarInfoFromDmr(VarInfoBase):
                     self.dataset, short_name_path, self.namespace
                 )
                 for short_name_path in self.var_info_config.get(
-                    'Collection_ShortName_Path', []
+                    'CollectionShortNamePath', []
                 )
                 if get_full_path_xml_attribute(
                     self.dataset, short_name_path, self.namespace
@@ -669,7 +669,7 @@ class VarInfoFromNetCDF4(VarInfoBase):
                 (
                     get_full_path_netcdf4_attribute(dataset, short_name_path)
                     for short_name_path in self.var_info_config.get(
-                        'Collection_ShortName_Path', []
+                        'CollectionShortNamePath', []
                     )
                     if get_full_path_netcdf4_attribute(dataset, short_name_path)
                     is not None

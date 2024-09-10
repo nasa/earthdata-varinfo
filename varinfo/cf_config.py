@@ -82,25 +82,25 @@ class CFConfig:
 
         self.excluded_science_variables = {
             pattern
-            for item in config.get('Excluded_Science_Variables', [])
+            for item in config.get('ExcludedScienceVariables', [])
             if self._is_applicable(
                 item['Applicability'].get('Mission'),
                 item['Applicability'].get('ShortNamePath'),
             )
-            for pattern in item['Variable_Pattern']
+            for pattern in item['VariablePattern']
         }
 
         self.required_variables = {
             pattern
-            for item in config.get('Required_Fields', [])
+            for item in config.get('RequiredVariables', [])
             if self._is_applicable(
                 item['Applicability'].get('Mission'),
                 item['Applicability'].get('ShortNamePath'),
             )
-            for pattern in item['Variable_Pattern']
+            for pattern in item['VariablePattern']
         }
 
-        for override in config.get('CF_Overrides', []):
+        for override in config.get('CFOverrides', []):
             self._process_cf_item(override, self.cf_overrides)
 
     def _is_applicable(self, mission: str, short_name: str | None = None) -> bool:
@@ -141,7 +141,7 @@ class CFConfig:
             # variable path - the assumption here is that the applicability is
             # to all variables (see ICESat2 dimensions override, SPL4.* and
             # SPL3FTA grid_mapping overrides)
-            pattern = cf_item['Applicability'].get('Variable_Pattern', '.*')
+            pattern = cf_item['Applicability'].get('VariablePattern', '.*')
             results[pattern] = self._create_attributes_object(cf_item)
 
     @staticmethod
