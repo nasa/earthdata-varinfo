@@ -249,7 +249,7 @@ class TestVarInfoFromDmr(TestCase):
         """Ensure VarInfo instantiates correctly, creating records of all the
         variables in the granule, and correctly deciding if they are
         science variables, metadata or references. This test uses a mission
-        and short name that do not have any CF overrides.
+        and short name that do not have any metadata overrides.
 
         """
         dataset = VarInfoFromDmr(
@@ -298,7 +298,7 @@ class TestVarInfoFromDmr(TestCase):
 
     def test_var_info_instantiation_cf_augmentation(self):
         """Ensure VarInfo instantiates correcly, using a missions that has
-        overrides in the CFConfig class.
+        metadata attribute overrides in the CFConfig class.
 
         """
         dataset = VarInfoFromDmr(self.mock_dmr_two, config_file=self.test_config_file)

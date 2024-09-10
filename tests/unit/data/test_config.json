@@ -40,7 +40,7 @@
       ]
     }
   ],
-  "CFOverrides": [
+  "MetadataOverrides": [
     {
       "Applicability": {
         "Mission": "FakeSat",

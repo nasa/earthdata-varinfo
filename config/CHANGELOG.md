@@ -13,31 +13,36 @@ to simplify the schema for broader use.
 
 ### Changed:
 
+* `CF_Overrides` has been renamed to `MetadataOverrides`.
+* `CFOverridesOrSupplementsItemType` has been renamed to
+  `MetadataOverridesItemType`.
+* `Required_Fields` has been renamed to `RequiredVariables` to match the
+  terminology used for other schema properties.
 * The casing of all attributes in the configuration file schema has been
   updated to be `PascalCase` throughout. Affected schema attributes include:
-  * `CFOverrides`
-  * `CollectionShortNamePath`
-  * `ExcludedScienceVariables`
-  * `RequiredVariables` (formerly `Required_Fields`).
+  * `CollectionShortNamePath`.
+  * `ExcludedScienceVariables`.
 
 ### Removed:
-* The `Global_Attributes` property has been removed from the `CF_Overrides` and
-  `CF_Supplements` items, in favour of specifying group metadata attribute
-  overrides in the same way as variables. That is: specifying the group in the
-  `Applicability` part of the item, and including the updated attributes under
-  the `Attributes` property of the item. This allows metadata overrides to all
-  groups, not just the global attributes in an input file.
-* The `Applicability_Group` property within `CF_Overrides` and `CF_Supplements`
-  has been removed. Now attributes should only be specified within the
-  `Attributes` property at the root level of an override or supplement. The
-  `Applicability` of a `CF_Override` or `CF_Supplement` must now include either
-  a `Mission` or a `ShortNamePath`.
-* The `CF_Supplements` section of the `CFOverridesOrSupplementItemType` has
-  been removed, and the item type renamed to `CFOverridesItemType`. All changes
-  to in-file metadata attributes should now be specified in `CF_Overrides`.
+
+* The `CF_Supplements` property of the schema has been removed. All metadata
+  changes must now be specified in a `MetadataOverrides` item (formerly
+  `CF_Overrides`).
+* The `Global_Attributes` property has been removed from `MetadataOverrides`.
+  Global attribute overrides should now be specified in the same way as
+  metadata attributes on any other variable or group. That is: specifying the
+  path to the group in the `Applicability` part of the item, and including the
+  updated attributes under the `Attributes` property of the item. This allows
+  metadata overrides to all groups, not just the global attributes in an input
+  file.
+* The `Applicability_Group` property within `MetadataOverrides` (formerly
+  `CF_Overrides`) has been removed. Now attributes should only be specified
+  within the `Attributes` property at the root level of an override or
+  supplement. The `Applicability` of a `MetadataOverrides` item must now
+  include either a `Mission` or a `ShortNamePath`.
 * The unused `ProductEpochs` section of the schema has been removed.
 * The `Grid_Mapping_Data` section of the schema has been removed, in favour of
-  specifying grid mapping attributes via `CF_Overrides`.
+  specifying grid mapping attributes via `MetadataOverrides`.
 
 ## 0.0.1
 ### 2023-01-09

@@ -43,11 +43,11 @@
         "$ref": "#/$defs/MissionVariablePatternType"
       }
     },
-    "CFOverrides": {
+    "MetadataOverrides": {
       "description": "# For cases where CF references do not exist, or are invalid. For example, variables that have no dimension references in the HDF-5 file contents",
       "type": "array",
       "items": {
-        "$ref": "#/$defs/CFOverridesItemType"
+        "$ref": "#/$defs/MetadataOverridesItemType"
       }
     }
   },
@@ -126,7 +126,7 @@
       "required": ["Applicability", "VariablePattern"],
       "additionalProperties": false
     },
-    "CFOverridesItemType": {
+    "MetadataOverridesItemType": {
       "description": "An item that details one or more metadata attributes to overwrite according to the supplied applicability rules.",
       "type": "object",
       "properties": {
