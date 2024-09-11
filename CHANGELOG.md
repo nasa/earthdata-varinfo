@@ -13,34 +13,34 @@ an input file.
 
 ### Changed:
 
-* Handling of nested `Applicability_Groups` has been removed from the `CFConfig`
-  class, as the configuration file no longer nests these items in overrides
-  or supplements.
-* CF Overrides retrieved for a matching file path are ordered such that the
-  most specific applicable override to the variable takes precedence. For
+* `CFConfig.get_cf_attributes` has been renamed `CFConfig.get_metadata_overrides`,
+  as there are now only overrides to be returned from this method. Calls to
+  `CFConfig.get_metadata_overrides` now _must_ specify a variable path. All
+  overrides from a configuration file for a given collection are now retrievable
+  from the newly public `CFConfig.metadata_overrides` class attribute.
+* Metadata overrides retrieved for a matching file path are ordered such that
+  the most specific applicable override to the variable takes precedence. For
   example, when requesting the value of the "units" metadata attribute for
   variable "/nested/variable", an applicability rule that exactly matches this
   variable path will take precedence over rules matching to either the group,
   or all variables in the file.
-* `CFConfig.get_cf_attributes` has been renamed `CFConfig.get_cf_overrides`, as
-  there are now only overrides to be returned from this method.
-  `CFConfig.get_cf_overrides` now _must_ specify a variable path. All overrides
-  from a configuration file for a given collection are now retrievable from
-  the newly public `CFConfig.cf_overrides` class attribute.
+* Handling of nested `Applicability_Groups` has been removed from the `CFConfig`
+  class, as the configuration file no longer nests these items in overrides.
 
 ### Removed:
 
 * `CFConfig._cf_supplements` has been deprecated in favour of specifying all
-  in-file metadata changes via a CF override instead.
+  in-file metadata changes via a `MetadataOverrides` item (formerly
+  `CFOverrides`) instead.
 
 ## v2.3.0
 ### 2024-08-26
 
-The VarInfoBase.get_missing_variable_attributes method has been added to allow
+The `VarInfoBase.get_missing_variable_attributes` method has been added to allow
 someone to get metadata attributes from the configuration file for variables
 that are absent from a file. An example usage is when a CF Convention grid
 mapping variable is missing from a source file.
-The VarInfoBase.get_references_for_attribute method has been added to retrieve
+The `VarInfoBase.get_references_for_attribute` method has been added to retrieve
 all unique variable references contained in a single metadata attribute for a
 list of variables. For example, retrieving all references listed under the
 coordinates metadata attribute.
@@ -48,8 +48,9 @@ coordinates metadata attribute.
 ## v2.2.2
 ### 2024-07-16
 
-The generate_collection_umm_var function in earthdata-varinfo updated to support an
-optional kwarg 'config_file=' for a configuration file, to be able to override known metadata errors.
+The `generate_collection_umm_var` function in earthdata-varinfo updated to
+support an optional kwarg `config_file` for a configuration file, to be able to
+override known metadata errors.
 
 
 ## v2.2.1

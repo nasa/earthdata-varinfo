@@ -248,7 +248,7 @@ class VariableBase(AttributeContainerBase):
         fully qualified references is returned.
 
         """
-        dimensions_override = self.cf_overrides.get('dimensions')
+        dimensions_override = self.metadata_overrides.get('dimensions')
 
         if dimensions_override is not None:
             dimensions = re.split(r'\s+|,\s*', dimensions_override)

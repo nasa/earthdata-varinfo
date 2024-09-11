@@ -344,7 +344,7 @@ class VarInfoBase(ABC):
         variables would need to be in the configuration file.
 
         """
-        return self.cf_config.get_cf_overrides(variable_name)
+        return self.cf_config.get_metadata_overrides(variable_name)
 
     def get_references_for_attribute(
         self, list_of_variables: list[str], reference_attribute_name: str
@@ -546,7 +546,7 @@ class VarInfoFromDmr(VarInfoBase):
                     self.dataset, short_name_path, self.namespace
                 )
                 for short_name_path in self.var_info_config.get(
-                    'Collection_ShortName_Path', []
+                    'CollectionShortNamePath', []
                 )
                 if get_full_path_xml_attribute(
                     self.dataset, short_name_path, self.namespace
@@ -669,7 +669,7 @@ class VarInfoFromNetCDF4(VarInfoBase):
                 (
                     get_full_path_netcdf4_attribute(dataset, short_name_path)
                     for short_name_path in self.var_info_config.get(
-                        'Collection_ShortName_Path', []
+                        'CollectionShortNamePath', []
                     )
                     if get_full_path_netcdf4_attribute(dataset, short_name_path)
                     is not None

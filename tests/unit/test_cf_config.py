@@ -27,7 +27,7 @@ class TestCFConfig(TestCase):
             '/exclude_three/.*',
         }
         cls.required_variables = {'/required_group/.*'}
-        cls.expected_cf_overrides = {
+        cls.expected_metadata_overrides = {
             '.*': {'collection_override': 'collection value'},
             '/$': {'global_override': 'GLOBAL'},
             '/absent_variable': {'extra_override': 'overriding value'},
@@ -54,7 +54,10 @@ class TestCFConfig(TestCase):
         )
 
         self.assertSetEqual(self.required_variables, config.required_variables)
-        self.assertDictEqual(self.expected_cf_overrides, config.cf_overrides)
+        self.assertDictEqual(
+            self.expected_metadata_overrides,
+            config.metadata_overrides,
+        )
 
     def test_instantiation_no_file(self):
         """Ensure an instance of the `CFConfig` class can be produced when no
@@ -67,7 +70,7 @@ class TestCFConfig(TestCase):
         self.assertEqual(self.short_name, config.short_name)
         self.assertSetEqual(set(), config.excluded_science_variables)
         self.assertSetEqual(set(), config.required_variables)
-        self.assertDictEqual({}, config.cf_overrides)
+        self.assertDictEqual({}, config.metadata_overrides)
 
     def test_instantiation_missing_configuration_file(self):
         """Ensure a MissingConfigurationFileError is raised when a path to a
@@ -89,13 +92,14 @@ class TestCFConfig(TestCase):
                 config_file='tests/unit/data/ATL03_example.dmr',
             )
 
-    def test_get_cf_overrides_variable(self):
-        """Ensure the CFConfig.get_cf_overrides method returns all overriding
-        attributes where the variable pattern matches the supplied variable or
-        group name. If multiple patterns match the variable name, then the
-        pattern that is the most specific, as determined by a combination of
-        hierarchical depth in the regular expression and, secondarily, the
-        length of the variable pattern string, will be returned.
+    def test_get_metadata_overrides_variable(self):
+        """Ensure the CFConfig.get_metadata_overrides method returns all
+        overriding attributes where the variable pattern matches the supplied
+        variable or group name. If multiple patterns match the variable name,
+        then the pattern that is the most specific, as determined by a
+        combination of hierarchical depth in the regular expression and,
+        secondarily, the length of the variable pattern string, will be
+        returned.
 
         """
         expected_collection_overrides = {'collection_override': 'collection value'}
@@ -132,17 +136,17 @@ class TestCFConfig(TestCase):
         for description, variable, expected_overrides in test_args:
             with self.subTest(description):
                 self.assertDictEqual(
-                    config.get_cf_overrides(variable),
+                    config.get_metadata_overrides(variable),
                     expected_overrides,
                 )
 
-    def test_get_cf_overrides_variable_conflicts(self):
+    def test_get_metadata_overrides_variable_conflicts(self):
         """Ensure that if a variable matches multiple override rules that
         specify conflicting values for a metadata attribute, the most specific
         matching metadata attribute takes precedence.
 
         The primary measure of specificity is the depth of the variable
-        hierarchy specified in the Variable_Pattern, with secondary sorting
+        hierarchy specified in the VariablePattern, with secondary sorting
         based upon the length of strings at the same hierarchy.
 
         """
@@ -150,7 +154,7 @@ class TestCFConfig(TestCase):
 
         with self.subTest('Deeper matches takes precedence over shallower'):
             self.assertDictEqual(
-                config.get_cf_overrides('/group/variable'),
+                config.get_metadata_overrides('/group/variable'),
                 {
                     'conflicting_attribute_global_and_group': 'applies to /group/.*',
                     'conflicting_attribute_group_and_variable': 'applies to /group/variable',
@@ -159,7 +163,7 @@ class TestCFConfig(TestCase):
 
         with self.subTest('Depth takes precedence over string length'):
             self.assertDictEqual(
-                config.get_cf_overrides('/other_group/variable'),
+                config.get_metadata_overrides('/other_group/variable'),
                 {
                     'conflicting_attribute_global_and_group': 'applies to all',
                     'test_depth_priority_over_string_length': 'applies to /other_group/variable',
@@ -168,7 +172,7 @@ class TestCFConfig(TestCase):
 
         with self.subTest('String length decides between matches of equal depth'):
             self.assertDictEqual(
-                config.get_cf_overrides('/string_length/variable'),
+                config.get_metadata_overrides('/string_length/variable'),
                 {
                     'conflicting_attribute_global_and_group': 'applies to all',
                     'test_string_length_same_depth': 'applies to /string_length/variable',

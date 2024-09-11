@@ -57,7 +57,7 @@ class CFConfig:
         self.mission = mission
         self.short_name = collection_short_name
 
-        self.cf_overrides: dict[str, dict[str, Any]] = {}
+        self.metadata_overrides: dict[str, dict[str, Any]] = {}
         self.excluded_science_variables: set[str] = set()
         self.required_variables: set[str] = set()
 
@@ -82,26 +82,26 @@ class CFConfig:
 
         self.excluded_science_variables = {
             pattern
-            for item in config.get('Excluded_Science_Variables', [])
+            for item in config.get('ExcludedScienceVariables', [])
             if self._is_applicable(
                 item['Applicability'].get('Mission'),
                 item['Applicability'].get('ShortNamePath'),
             )
-            for pattern in item['Variable_Pattern']
+            for pattern in item['VariablePattern']
         }
 
         self.required_variables = {
             pattern
-            for item in config.get('Required_Fields', [])
+            for item in config.get('RequiredVariables', [])
             if self._is_applicable(
                 item['Applicability'].get('Mission'),
                 item['Applicability'].get('ShortNamePath'),
             )
-            for pattern in item['Variable_Pattern']
+            for pattern in item['VariablePattern']
         }
 
-        for override in config.get('CF_Overrides', []):
-            self._process_cf_item(override, self.cf_overrides)
+        for override in config.get('MetadataOverrides', []):
+            self._process_cf_item(override, self.metadata_overrides)
 
     def _is_applicable(self, mission: str, short_name: str | None = None) -> bool:
         """Given a mission, and optionally also a collection short name, of an
@@ -125,7 +125,7 @@ class CFConfig:
         input_mission: str | None = None,
         input_short_name: str | None = None,
     ):
-        """Process a single block in the CF overrides region of the
+        """Process a single block in the `MetadataOverrides` region of the
         configuration file. First check that the applicability matches the
         mission and short name for the class. Next, check for a variable
         pattern. This is indicative of there being overriding attributes in
@@ -141,7 +141,7 @@ class CFConfig:
             # variable path - the assumption here is that the applicability is
             # to all variables (see ICESat2 dimensions override, SPL4.* and
             # SPL3FTA grid_mapping overrides)
-            pattern = cf_item['Applicability'].get('Variable_Pattern', '.*')
+            pattern = cf_item['Applicability'].get('VariablePattern', '.*')
             results[pattern] = self._create_attributes_object(cf_item)
 
     @staticmethod
@@ -155,12 +155,13 @@ class CFConfig:
             for attribute in cf_item.get('Attributes', {})
         }
 
-    def get_cf_overrides(self, variable_path: str) -> dict[str, Any]:
-        """Return the CF overrides that match a given variable. If there are no
-        overrides, then empty dictionaries will be returned instead.
+    def get_metadata_overrides(self, variable_path: str) -> dict[str, Any]:
+        """Return the MetadataOverrides that match a given variable. If there
+        are no overrides, then empty dictionaries will be returned instead.
 
-        First iterate through the self.cf_overrides and find all items with a
-        variable pattern that matches the supplied variable (or group) path.
+        First iterate through the self.metadata_overrides and find all items
+        with a variable pattern that matches the supplied variable (or group)
+        path.
 
         Next sort that dictionary, so that matching patterns are:
 
@@ -182,11 +183,11 @@ class CFConfig:
         """
         matching_overrides = {
             pattern: attributes
-            for pattern, attributes in self.cf_overrides.items()
+            for pattern, attributes in self.metadata_overrides.items()
             if re.match(pattern, variable_path) is not None
         }
 
-        # Order override items by:
+        # Order MetadataOverrides items by:
         # First: Depth of the variable hierarchy included in the regular
         # expression pattern (number of slashes), shallowest to deepest.
         # Second: The length of the variable pattern, from shorted to longest.
