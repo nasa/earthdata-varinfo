@@ -1,5 +1,5 @@
 ## v3.0.0
-### Unreleased
+### 2024-09-11
 
 The configuration file schema for `earthdata-varinfo` is significantly updated
 in this release. For more information, see the release notes for schema v1.0.0

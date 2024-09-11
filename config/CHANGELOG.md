@@ -4,7 +4,7 @@ This change log preserves the changes made between different schema versions of
 the earthdata-varinfo configuration file.
 
 ## 1.0.0
-### Unreleased
+### 2024-09-11
 
 **TRT-552** Implementing a simpler `earthdata-varinfo` configuration file schema.
 

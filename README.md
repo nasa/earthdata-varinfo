@@ -24,7 +24,7 @@ attributes.
 from varinfo import CFConfig
 
 cf_config = CFConfig('ICESat2', 'ATL03', config_file='config/0.0.1/sample_config_0.0.1.json')
-cf_attributes = cf_config.get_cf_attributes('/full/variable/path')
+metadata_attributes = cf_config.get_metadata_attributes('/full/variable/path')
 ```
 
 ### VarInfo
