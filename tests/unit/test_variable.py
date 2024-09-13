@@ -131,9 +131,8 @@ class TestVariableFromDmr(TestCase):
         they are contained in the variable XML, to ensure data requests
         can be made against the variable with index ranges specified.
 
-        Any applicable attribute override or supplement for an absent
-        metadata attribute should also be adopted as the value for that
-        attribute, with overrides taking precedence over supplements.
+        Any applicable attribute override for an absent or incorrect metadata
+        attribute should also be adopted as the value for that attribute.
 
         """
         variable = VariableFromDmr(
@@ -154,7 +153,6 @@ class TestVariableFromDmr(TestCase):
                 'subset_control_variables',
                 'units',
                 'collection_override',
-                'collection_supplement',
                 'group_override',
                 'variable_override',
             },
@@ -231,28 +229,10 @@ class TestVariableFromDmr(TestCase):
             variable.attributes.get('collection_override'), 'collection value'
         )
 
-    def test_variable_cf_supplement_non_reference(self):
-        """Ensure a metadata attribute is supplemented by the `CFConfig`."""
-        dmr_variable = ET.fromstring(
-            f'<{self.namespace}Float64 name="science">'
-            f'  <{self.namespace}Attribute name="group_supplement" type="String">'
-            f'    <{self.namespace}Value>initial_value</{self.namespace}Value>'
-            f'  </{self.namespace}Attribute>'
-            f'</{self.namespace}Float64>'
-        )
-
-        variable = VariableFromDmr(
-            dmr_variable, self.fakesat_config, self.namespace, '/group4/science'
-        )
-
-        self.assertEqual(
-            variable.attributes.get('group_supplement'), 'initial_value, FAKE99 group4'
-        )
-
     def test_variable_cf_override_absent(self):
         """Ensure a metadata attribute adopts the override value, even if the
         granule metadata originally omitted that attribute. The overriding
-        value should be used, and any supplemental value should be ignored.
+        value should be used.
 
         """
         dmr_variable = ET.fromstring(
@@ -265,24 +245,6 @@ class TestVariableFromDmr(TestCase):
         )
 
         self.assertEqual(variable.attributes.get('extra_override'), 'overriding value')
-
-    def test_variable_cf_supplement_absent(self):
-        """Ensure a metadata attribute adopts the override value, even if the
-        granule metadata originally omitted that attribute.
-
-        """
-        dmr_variable = ET.fromstring(
-            f'<{self.namespace}Float64 name="absent_supplement">'
-            f'</{self.namespace}Float64>'
-        )
-
-        variable = VariableFromDmr(
-            dmr_variable, self.fakesat_config, self.namespace, '/absent_supplement'
-        )
-
-        self.assertEqual(
-            variable.attributes.get('extra_supplement'), 'supplemental value'
-        )
 
     def test_variable_reference_qualification(self):
         """Ensure different reference types (relative, absolute) are correctly
@@ -761,7 +723,6 @@ class TestVariableFromDmr(TestCase):
                 'valid_max',
                 'scale',
                 'collection_override',
-                'collection_supplement',
             },
         )
         self.assertEqual(variable.attributes['units'], 'metres')

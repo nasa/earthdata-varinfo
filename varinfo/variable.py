@@ -1,28 +1,35 @@
-""" This module contains a class designed to read information from a `.dmr`
-    file. This should group the input into science variables, metadata,
-    coordinates, dimensions and ancillary data sets.
+""" This module contains classes designed to read information from an OPeNDAP
+    DMR or NetCDF-4 file. These classes will group the input into science
+    variables, metadata, coordinates, dimensions and ancillary data sets.
 
 """
 
-from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from __future__ import annotations
+
+from abc import abstractmethod
+from typing import Union
 import re
 import xml.etree.ElementTree as ET
 
 from netCDF4 import Variable as NetCDF4Variable
 
+from varinfo.attribute_container import (
+    AttributeContainerBase,
+    AttributeContainerFromDmr,
+    AttributeContainerFromNetCDF4,
+)
 from varinfo.cf_config import CFConfig
-from varinfo.utilities import CF_REFERENCE_ATTRIBUTES, get_xml_attribute
+from varinfo.utilities import CF_REFERENCE_ATTRIBUTES
 
 
 InputVariableType = Union[ET.Element, NetCDF4Variable]
 
 
-class VariableBase(ABC):
+class VariableBase(AttributeContainerBase):
     """A class to represent a single variable contained within a granule
     representation. It will produce an object in which references are
-    fully qualified, and also augmented by any overrides or supplements
-    from the supplied configuration file.
+    fully qualified, and also augmented by any overrides from the supplied
+    configuration file.
 
     """
 
@@ -40,14 +47,10 @@ class VariableBase(ABC):
         Additionally, store all metadata attributes in a dictionary.
 
         """
-        self.namespace = namespace
-        self.full_name_path = full_name_path
-        self.cf_config = cf_config.get_cf_attributes(self.full_name_path)
+        super().__init__(variable, cf_config, namespace, full_name_path)
         self.group_path, self.name = self._extract_group_and_name()
         self.data_type = self._get_data_type(variable)
         self.shape = self._get_shape(variable)
-        self.attributes = self._get_attributes(variable)
-        self._get_additional_attributes()
         self.references = self._get_all_cf_references()
         self.dimensions = self._extract_dimensions(variable)
 
@@ -66,58 +69,7 @@ class VariableBase(ABC):
 
         """
 
-    @abstractmethod
-    def _get_attributes(self, variable: InputVariableType) -> Dict[str, str]:
-        """Extract all attributes for the variable. The contents of the
-        output dictionary will be as stored in the granule metadata, with
-        augmentation from `CFConfig`. For variables references contained
-        in CF-Convention attributes, users should retrieve values from the
-        self.references dictionary.
-
-        """
-
-    @abstractmethod
-    def _get_attribute(self, variable: InputVariableType, attribute_name: str) -> Any:
-        """Extract an attribute value from the source granule metadata. Any
-        applicable overrides or supplements from `CFConfig` will be
-        applied before returning the attribute value.
-
-        """
-
-    def get_attribute_value(
-        self, attribute_name: str, default_value: Optional = None
-    ) -> Any:
-        """A convenience function for the end-user to retrieve the value of a
-        specified attribute, or use an optional default value if that
-        attribute is not present in the variable metadata. If no default
-        value is supplied, requesting the value of an absent attribute will
-        return `None`.
-
-        """
-        return self.attributes.get(attribute_name, default_value)
-
-    def _get_additional_attributes(self) -> None:
-        """Check the CF-Configuration file for any metadata attributes that
-        are listed, but not included in the original granule metadata.
-        These should be added to the variable metadata attributes.
-
-        """
-        self._add_missing_attributes(self.cf_config.get('cf_overrides'))
-        self._add_missing_attributes(self.cf_config.get('cf_supplements'))
-
-    def _add_missing_attributes(self, extra_attributes: Dict) -> None:
-        """Iterate through a dictionary of attributes from the configuration
-        file entry matching this variable. If there are any attributes
-        listed that are not already present in the self.attributes
-        dictionary, then add them with the values from the configuration
-        file.
-
-        """
-        for attribute_name, attribute_value in extra_attributes.items():
-            if attribute_name not in self.attributes:
-                self.attributes[attribute_name] = attribute_value
-
-    def get_range(self) -> Optional[List[float]]:
+    def get_range(self) -> list[float] | None:
         """Retrieve the range of valid data from the variable metadata. First,
         try to parse the `valid_range` metadata attribute. If this is
         absent, check for a combination of `valid_min` and `valid_max`.
@@ -137,7 +89,7 @@ class VariableBase(ABC):
 
         return valid_range
 
-    def get_valid_min(self) -> Optional[float]:
+    def get_valid_min(self) -> float | None:
         """Retrieve the minimum valid value for variable data from the
         associated metadata. First try to retrieve data from the
         `valid_min` metadata attribute. If this is absent, then try to
@@ -156,7 +108,7 @@ class VariableBase(ABC):
 
         return valid_min
 
-    def get_valid_max(self) -> Optional[float]:
+    def get_valid_max(self) -> float | None:
         """Retrieve the maximum valid value for variable data from the
         associated metadata. First try to retrieve data from the
         `valid_max` metadata attribute. If this is absent, then try to
@@ -175,7 +127,7 @@ class VariableBase(ABC):
 
         return valid_max
 
-    def get_references(self) -> Set[str]:
+    def get_references(self) -> set[str]:
         """Combine the references extracted from the ancillary_variables,
         coordinates and dimensions data into a single set for VarInfo to
         use directly.
@@ -253,7 +205,7 @@ class VariableBase(ABC):
         """
         return ' since ' in self.attributes.get('units', '')
 
-    def _get_all_cf_references(self) -> Dict[str, Set[str]]:
+    def _get_all_cf_references(self) -> dict[str, set[str]]:
         """Retrieve a dictionary containing all CF-Convention attributes
         within the variable that have references to other variables in the
         granule. These variable references will be fully qualified paths.
@@ -265,7 +217,7 @@ class VariableBase(ABC):
             if attribute_name in self.attributes
         }
 
-    def _get_cf_references(self, attribute_name: str) -> Set[str]:
+    def _get_cf_references(self, attribute_name: str) -> set[str]:
         """Retrieve an attribute from the parsed varaible metadata, correcting
         for any known artefacts (missing or incorrect references). Then
         split this string and qualify the individual references.
@@ -273,32 +225,7 @@ class VariableBase(ABC):
         """
         return self._extract_references(self.attributes.get(attribute_name))
 
-    def _get_configured_attribute(
-        self, attribute_name: str, raw_attribute_value: Any
-    ) -> Any:
-        """Check the CFConfig instances assocatiated with the collection for
-        any metadata attribute overrides or supplements that should be
-        applied to the attribute value. A metadata supplement is assumed to
-        imply the attribute should be a string value, with the supplement
-        appended to the end of the value from the granule metadata.
-
-        """
-        cf_overrides = self.cf_config['cf_overrides'].get(attribute_name)
-        cf_supplements = self.cf_config['cf_supplements'].get(attribute_name)
-
-        if cf_overrides is not None:
-            attribute_value = cf_overrides
-        else:
-            attribute_value = raw_attribute_value
-
-        if cf_supplements is not None and attribute_value is not None:
-            attribute_value = f'{attribute_value}, {cf_supplements}'
-        elif cf_supplements is not None:
-            attribute_value = cf_supplements
-
-        return attribute_value
-
-    def _extract_references(self, attribute_string: str) -> Set[str]:
+    def _extract_references(self, attribute_string: str) -> set[str]:
         """Given a string value of an attribute, which may contain multiple
         references to dataset, split that string based on either commas,
         or spaces (or both together). Then if any reference is a relative
@@ -313,20 +240,18 @@ class VariableBase(ABC):
 
         return references
 
-    def _extract_dimensions(self, variable: ET.Element) -> List[str]:
+    def _extract_dimensions(self, variable: ET.Element) -> list[str]:
         """Find the dimensions for the variable in question. If there are
-        overriding or supplemental dimensions from the CF configuration
-        file, these are used instead of, or in addition to, the raw
-        dimensions from the `.dmr`. All references are converted to
-        absolute paths in the granule. A set of all fully qualified
-        references is returned.
+        overriding dimensions from the `earthdata-varinfo` configuration
+        file, these are used instead of the raw dimensions from the `.dmr`. All
+        references are converted to absolute paths in the granule. A set of all
+        fully qualified references is returned.
 
         """
-        overrides = self.cf_config['cf_overrides'].get('dimensions')
-        supplements = self.cf_config['cf_supplements'].get('dimensions')
+        dimensions_override = self.metadata_overrides.get('dimensions')
 
-        if overrides is not None:
-            dimensions = re.split(r'\s+|,\s*', overrides)
+        if dimensions_override is not None:
+            dimensions = re.split(r'\s+|,\s*', dimensions_override)
         else:
             dimensions = [
                 dimension
@@ -334,12 +259,9 @@ class VariableBase(ABC):
                 if dimension is not None
             ]
 
-        if supplements is not None:
-            dimensions += re.split(r'\s+|,\s*', supplements)
-
         return self._qualify_references(dimensions)
 
-    def _qualify_references(self, raw_references: List[str]) -> List[str]:
+    def _qualify_references(self, raw_references: list[str]) -> list[str]:
         """Take a list of local references to other variables, and produce a
         list of absolute references.
 
@@ -399,7 +321,7 @@ class VariableBase(ABC):
         absolute_path = group_path_pieces + [reference]
         return '/'.join(absolute_path)
 
-    def _extract_group_and_name(self) -> Tuple[str]:
+    def _extract_group_and_name(self) -> tuple[str, str]:
         """Extract the group and base name of a variable from the full path,
         e.g. '/this/is/my/variable' should return a two-element tuple:
         ('/this/is/my', 'variable').
@@ -412,7 +334,7 @@ class VariableBase(ABC):
         return group_path, name
 
 
-class VariableFromDmr(VariableBase):
+class VariableFromDmr(VariableBase, AttributeContainerFromDmr):
     """This child class inherits from the `VariableBase` class, and implements
     the abstract methods assuming the variable source is part of an XML
     element tree.
@@ -423,33 +345,14 @@ class VariableFromDmr(VariableBase):
         """Extract a string representation of the variable data type."""
         return variable.tag.lstrip(self.namespace).lower()
 
-    def _get_shape(self, variable: ET.Element) -> Tuple[int]:
+    def _get_shape(self, variable: ET.Element) -> tuple[int]:
         """Extract the shape of the variable data array. This is not yet
         implemented as the Dimension information is currently unavailable
         to the Variable XML content.
 
         """
 
-    def _get_attributes(self, variable: ET.Element) -> Dict:
-        """Locate all child Attribute elements of the variable and extract
-        their associated values.
-
-        """
-        return {
-            attribute.get('name'): self._get_attribute(variable, attribute.get('name'))
-            for attribute in variable.findall(f'{self.namespace}Attribute')
-        }
-
-    def _get_attribute(self, variable: ET.Element, attribute_name: str) -> Any:
-        """Extract the value of an XML Attribute element, casting it to the
-        appropriate type. Apply any necessary metadata overrides or
-        supplements.
-
-        """
-        raw_value = get_xml_attribute(variable, attribute_name, self.namespace)
-        return self._get_configured_attribute(attribute_name, raw_value)
-
-    def _get_raw_dimensions(self, variable: ET.Element) -> List[str]:
+    def _get_raw_dimensions(self, variable: ET.Element) -> list[str]:
         """Extract the raw dimension names from a <Dim /> XML element."""
         return [
             dimension.get('name')
@@ -457,7 +360,7 @@ class VariableFromDmr(VariableBase):
         ]
 
 
-class VariableFromNetCDF4(VariableBase):
+class VariableFromNetCDF4(VariableBase, AttributeContainerFromNetCDF4):
     """This child class inherits from the `VariableBase` class, and implements
     the abstract methods assuming the variable source is part of a NetCDF-4
     file.
@@ -468,26 +371,11 @@ class VariableFromNetCDF4(VariableBase):
         """Extract a string representation of the variable data type."""
         return variable.datatype.name
 
-    def _get_shape(self, variable: NetCDF4Variable) -> Tuple[int]:
+    def _get_shape(self, variable: NetCDF4Variable) -> tuple[int]:
         """Extract the shape of the variable data array."""
         return variable.shape
 
-    def _get_attributes(self, variable: NetCDF4Variable) -> Dict:
-        """Identify all variable attributes and save them to a dictionary."""
-        return {
-            attribute_name: self._get_attribute(variable, attribute_name)
-            for attribute_name in variable.ncattrs()
-        }
-
-    def _get_attribute(self, variable: NetCDF4Variable, attribute_name: str) -> Any:
-        """Extract the value of the metadata attribute, applying any necessary
-        overrides or supplements.
-
-        """
-        raw_value = variable.__dict__.get(attribute_name)
-        return self._get_configured_attribute(attribute_name, raw_value)
-
-    def _get_raw_dimensions(self, variable: NetCDF4Variable) -> List[str]:
+    def _get_raw_dimensions(self, variable: NetCDF4Variable) -> list[str]:
         """Retrieve the dimension names as they are stored within the
         variable.
 

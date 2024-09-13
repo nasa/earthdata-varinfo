@@ -21,26 +21,19 @@ class TestCFConfig(TestCase):
         cls.test_config = 'tests/unit/data/test_config.json'
         cls.mission = 'FakeSat'
         cls.short_name = 'FAKE99'
-        cls.excluded_science_variables = {
+        cls.expected_excluded_science_variables = {
             '/exclude_one/.*',
             '/exclude_two/.*',
             '/exclude_three/.*',
         }
         cls.required_variables = {'/required_group/.*'}
-        cls.global_overrides = {'global_override': 'GLOBAL'}
-        cls.global_supplements = {'fakesat_global_supplement': 'fakesat value'}
-        cls.cf_overrides = {
+        cls.expected_metadata_overrides = {
             '.*': {'collection_override': 'collection value'},
+            '/$': {'global_override': 'GLOBAL'},
             '/absent_variable': {'extra_override': 'overriding value'},
             '/coordinates_group/.*': {'coordinates': 'lat, lon'},
             '/group/.*': {'group_override': 'group value'},
             '/group/variable': {'variable_override': 'variable value'},
-        }
-        cls.cf_supplements = {
-            '.*': {'collection_supplement': 'FAKE99 supplement'},
-            '/absent_variable': {'extra_override': 'supplemental value'},
-            '/absent_supplement': {'extra_supplement': 'supplemental value'},
-            '/group4/.*': {'group_supplement': 'FAKE99 group4'},
         }
 
     def test_instantiation(self):
@@ -56,22 +49,15 @@ class TestCFConfig(TestCase):
         self.assertEqual(self.short_name, config.short_name)
 
         self.assertSetEqual(
-            self.excluded_science_variables, config.excluded_science_variables
+            self.expected_excluded_science_variables,
+            config.excluded_science_variables,
         )
 
         self.assertSetEqual(self.required_variables, config.required_variables)
-
-        self.assertDictEqual(self.global_overrides, config.global_overrides)
-        self.assertDictEqual(self.global_supplements, config.global_supplements)
-
-        # The attributes below are protected-access within the class, however,
-        # this test should still check they only contain the expected items.
-        self.assertEqual(
-            self.cf_overrides, config._cf_overrides
-        )  # pylint: disable=W0212
-        self.assertEqual(
-            self.cf_supplements, config._cf_supplements
-        )  # pylint: disable=W0212
+        self.assertDictEqual(
+            self.expected_metadata_overrides,
+            config.metadata_overrides,
+        )
 
     def test_instantiation_no_file(self):
         """Ensure an instance of the `CFConfig` class can be produced when no
@@ -84,8 +70,7 @@ class TestCFConfig(TestCase):
         self.assertEqual(self.short_name, config.short_name)
         self.assertSetEqual(set(), config.excluded_science_variables)
         self.assertSetEqual(set(), config.required_variables)
-        self.assertDictEqual({}, config.global_overrides)
-        self.assertDictEqual({}, config.global_supplements)
+        self.assertDictEqual({}, config.metadata_overrides)
 
     def test_instantiation_missing_configuration_file(self):
         """Ensure a MissingConfigurationFileError is raised when a path to a
@@ -107,75 +92,89 @@ class TestCFConfig(TestCase):
                 config_file='tests/unit/data/ATL03_example.dmr',
             )
 
-    def test_get_cf_attributes_all(self):
-        """Ensure the CFConfig.get_cf_references method returns all the
-        overriding and supplemental references from the class, in
-        dictionaries that are keyed on the variable pattern.
+    def test_get_metadata_overrides_variable(self):
+        """Ensure the CFConfig.get_metadata_overrides method returns all
+        overriding attributes where the variable pattern matches the supplied
+        variable or group name. If multiple patterns match the variable name,
+        then the pattern that is the most specific, as determined by a
+        combination of hierarchical depth in the regular expression and,
+        secondarily, the length of the variable pattern string, will be
+        returned.
 
         """
-        config = CFConfig(self.mission, self.short_name, self.test_config)
-        self.assertDictEqual(
-            config.get_cf_attributes(),
-            {'cf_overrides': self.cf_overrides, 'cf_supplements': self.cf_supplements},
-        )
-
-    def test_get_cf_attributes_variable(self):
-        """Ensure the CFConfig.get_cf_references method returns all overriding
-        and supplemental attributes where the variable pattern matches the
-        supplied variable name. If multiple patterns match the variable
-        name, then all attributes from those patterns should be combined
-        into a single output dictionary.
-
-        """
-        collection_overrides = {'collection_override': 'collection value'}
-        group_overrides = {
+        expected_collection_overrides = {'collection_override': 'collection value'}
+        expected_group_overrides = {
             'collection_override': 'collection value',
             'group_override': 'group value',
         }
-        variable_overrides = {
+        expected_variable_overrides = {
             'collection_override': 'collection value',
             'group_override': 'group value',
             'variable_override': 'variable value',
-        }
-
-        collection_supplements = {'collection_supplement': 'FAKE99 supplement'}
-        group4_supplements = {
-            'collection_supplement': 'FAKE99 supplement',
-            'group_supplement': 'FAKE99 group4',
         }
 
         test_args = [
             [
                 'Collection only',
                 'random_variable',
-                collection_overrides,
-                collection_supplements,
+                expected_collection_overrides,
             ],
             [
                 'Group overrides',
                 '/group/random',
-                group_overrides,
-                collection_supplements,
+                expected_group_overrides,
             ],
             [
                 'Variable overrides',
                 '/group/variable',
-                variable_overrides,
-                collection_supplements,
-            ],
-            [
-                'Group supplements',
-                '/group4/variable',
-                collection_overrides,
-                group4_supplements,
+                expected_variable_overrides,
             ],
         ]
 
         config = CFConfig(self.mission, self.short_name, self.test_config)
 
-        for description, variable, overrides, supplements in test_args:
+        for description, variable, expected_overrides in test_args:
             with self.subTest(description):
                 self.assertDictEqual(
-                    config.get_cf_attributes(variable),
-                    {'cf_overrides': overrides, 'cf_supplements': supplements},
+                    config.get_metadata_overrides(variable),
+                    expected_overrides,
                 )
+
+    def test_get_metadata_overrides_variable_conflicts(self):
+        """Ensure that if a variable matches multiple override rules that
+        specify conflicting values for a metadata attribute, the most specific
+        matching metadata attribute takes precedence.
+
+        The primary measure of specificity is the depth of the variable
+        hierarchy specified in the VariablePattern, with secondary sorting
+        based upon the length of strings at the same hierarchy.
+
+        """
+        config = CFConfig(self.mission, 'FAKE97', self.test_config)
+
+        with self.subTest('Deeper matches takes precedence over shallower'):
+            self.assertDictEqual(
+                config.get_metadata_overrides('/group/variable'),
+                {
+                    'conflicting_attribute_global_and_group': 'applies to /group/.*',
+                    'conflicting_attribute_group_and_variable': 'applies to /group/variable',
+                },
+            )
+
+        with self.subTest('Depth takes precedence over string length'):
+            self.assertDictEqual(
+                config.get_metadata_overrides('/other_group/variable'),
+                {
+                    'conflicting_attribute_global_and_group': 'applies to all',
+                    'test_depth_priority_over_string_length': 'applies to /other_group/variable',
+                },
+            )
+
+        with self.subTest('String length decides between matches of equal depth'):
+            self.assertDictEqual(
+                config.get_metadata_overrides('/string_length/variable'),
+                {
+                    'conflicting_attribute_global_and_group': 'applies to all',
+                    'test_string_length_same_depth': 'applies to /string_length/variable',
+                },
+            )

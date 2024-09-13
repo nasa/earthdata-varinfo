@@ -1,0 +1,154 @@
+{
+  "$schema": "http://json-schema.org/draft/2020-12/schema",
+  "title": "earthdata-varinfo configuration file",
+  "description": "A schema for the configuration file used by earthdata-varinfo to augment CF-Convention metadata in granules.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "Identification": {
+      "description": "A description indicating the tool for which earthdata-varinfo and this configuration file will be used.",
+      "type": "string",
+      "minLength": 1
+    },
+    "Version": {
+      "description": "A numeric identifier for the version of the specific configuration file (not the schema version itself).",
+      "type": "integer"
+    },
+    "CollectionShortNamePath": {
+      "description": "A list of HDF metadata attribute paths that provide the shortname value of the collection for the data file being processed. Processed in the listed order.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "Mission": {
+      "description": "A set of mission names that are defined for matching short name values.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "ExcludedScienceVariables": {
+      "description": "VarInfo classes currently assume that any variable that has a grid mapping attribute, or has a spatial or temporal dimension and is not itself a dimension or bounds variable, should be treated as a science variable. This may not be true in all cases, and so ExcludedScienceVariables provide a method to denote non-science variables that might otherwise be incorrectly identified.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/MissionVariablePatternType"
+      }
+    },
+    "RequiredVariables": {
+      "description": "# VarInfo classes will calculate a set of required variables for a given science variable. This setting imposes additional contents for the required variables list.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/MissionVariablePatternType"
+      }
+    },
+    "MetadataOverrides": {
+      "description": "# For cases where CF references do not exist, or are invalid. For example, variables that have no dimension references in the HDF-5 file contents",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/MetadataOverridesItemType"
+      }
+    }
+  },
+  "required": ["Identification", "Version", "CollectionShortNamePath", "Mission"],
+  "$defs": {
+    "ApplicabilityType": {
+      "description": "An object that specifies a combination of satellite mission, collection short name and variable patterns to which a set of attributes should be applied. At least one of those properties must be specified.",
+      "type": "object",
+      "properties": {
+        "Mission": {
+          "description": "The name of a mission to which the attributes can be applied. This mission name should match one listed in the Mission mapping of this schema.",
+          "type": "string"
+        },
+        "ShortNamePath": {
+          "description": "The short name for the collection to which a granule belongs.",
+          "type": "string"
+        },
+        "VariablePattern": {
+          "description": "A regular expression identifying all variables to which the schema item should be applied.",
+          "type": "string"
+        }
+      },
+      "anyOf": [{
+        "required": ["Mission"]
+      }, {
+        "required": ["ShortNamePath"]
+      }],
+      "additionalProperties": false
+    },
+    "AttributesItemType": {
+      "description": "An object that includes the name and value that should be used to either extend or overwrite a metadata attribute for applicable variables.",
+      "type": "object",
+      "properties": {
+        "Name": {
+          "description": "The metadata attribute name.",
+          "type": "string"
+        },
+        "Value": {
+          "description": "The overriding metadata attribute value. The value specified in the configuration file will replace the corresponding metadata value in any applicable source file.",
+          "anyOf": [{
+            "type": ["number", "string"]
+          }, {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }]
+        }
+      },
+      "required": ["Name", "Value"],
+      "additionalProperties": false
+    },
+    "AttributesType": {
+      "description": "A list of metadata attributes to be updated for variables identified by the applicability rule.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/AttributesItemType"
+      }
+    },
+    "MissionVariablePatternType": {
+      "description": "An object that defines a list of variables, as strings or regular expressions, that should be considered as either required variables or excluded as science variables for a given collection.",
+      "type": "object",
+      "properties": {
+        "Applicability": {
+          "description": "The mission and/or collection short name to which the list of required variables or excluded variables should be applied.",
+          "$ref": "#/$defs/ApplicabilityType"
+        },
+        "VariablePattern": {
+          "description": "A list of variable strings or regular expression patterns that should match variables to be excluded or required for a given collection or mission.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["Applicability", "VariablePattern"],
+      "additionalProperties": false
+    },
+    "MetadataOverridesItemType": {
+      "description": "An item that details one or more metadata attributes to overwrite according to the supplied applicability rules.",
+      "type": "object",
+      "properties": {
+        "_Description": {
+          "description": "Explains the purpose and effect of these overrides.",
+          "type": "string"
+        },
+        "Applicability": {
+          "description": "An applicability rule that indicates which groups and variables within a file a metadata override should apply to. If only a short name and/or mission is provided, the override will apply to all groups and variables. If a VariablePattern is also provided, the override is applied only to those groups or variables whose paths match the regular expression of the VariablePattern.",
+          "$ref": "#/$defs/ApplicabilityType"
+        },
+        "Attributes" : {
+          "description": "Metadata attributes to override for variables or groups that match the mission, short name and/or VariablePattern criteria specified in the Applicability of this object.",
+          "type": "array",
+          "items": {
+            "description": "A list of metadata attributes with their names and values.",
+            "$ref": "#/$defs/AttributesItemType"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": ["Applicability", "Attributes"]
+    }
+  }
+}

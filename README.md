@@ -24,13 +24,14 @@ attributes.
 from varinfo import CFConfig
 
 cf_config = CFConfig('ICESat2', 'ATL03', config_file='config/0.0.1/sample_config_0.0.1.json')
-cf_attributes = cf_config.get_cf_attributes('/full/variable/path')
+metadata_attributes = cf_config.get_metadata_attributes('/full/variable/path')
 ```
 
 ### VarInfo
 
-A group of classes that contain the relations between all variables within a
-single granule. Current classes include:
+A group of classes that contain metadata attributes for all groups and
+variables in a single granule, and the relations between all variables within
+that granule. Current classes include:
 
 * VarInfoBase: An abstract base class that contains core logic and methods used
   by the child classes that parse different sources of granule information.
@@ -66,9 +67,10 @@ var_info.get_spatial_dimensions({'/path/to/science/variable'})
 
 The `VarInfoFromDmr` and `VarInfoFromNetCDF4` classes also have an optional
 argument `short_name`, which can be used upon instantiation to specify the
-short name of the collection to which the granule belongs. This option is to be
-used when a granule does not contain the collection short name within its
-metadata global attributes (e.g., ABoVE collections from ORNL).
+short name of the collection to which the granule belongs. This option is the
+preferred way to specify a collection short name, and particularly encouraged
+for use when a granule does not contain the collection short name within its
+metadata attributes (e.g., ABoVE collections from ORNL).
 
 ```
 var_info = VarInfoFromDmr('/path/to/local/file.dmr', short_name='ATL03')

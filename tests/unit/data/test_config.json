@@ -1,68 +1,46 @@
 {
   "Identification": "var_subsetter_config",
-  "Version": 12,
-  "Collection_ShortName_Path": [
+  "Version": 13,
+  "CollectionShortNamePath": [
     "/HDF5_GLOBAL/short_name",
     "/NC_GLOBAL/short_name",
     "/Metadata/DatasetIdentification/shortName",
     "/METADATA/DatasetIdentification/shortName",
     "/Metadata/SeriesIdentification/shortName",
     "/METADATA/SeriesIdentification/shortName",
+    "short_name",
     "/id"
   ],
   "Mission": {
     "FAKE\\d{2}": "FakeSat",
-    "ATL03": "ICESat2"
+    "ATL03": "ICESat2",
+    "GEDI_L[1234][AB]|GEDI0[1234]_[AB]": "GEDI",
+    "SPL[1234].+": "SMAP",
+    "VIIRS_NPP-.+-L2P": "VIIRS_PO"
   },
-  "Excluded_Science_Variables": [
+  "ExcludedScienceVariables": [
     {
       "Applicability": {
         "Mission": "FakeSat"
       },
-      "Variable_Pattern": [
+      "VariablePattern": [
         "/exclude_one/.*",
         "/exclude_two/.*",
         "/exclude_three/.*"
       ]
     }
   ],
-  "Required_Fields": [
+  "RequiredVariables": [
     {
       "Applicability": {
         "Mission": "FakeSat"
       },
-      "Variable_Pattern": [
+      "VariablePattern": [
         "/required_group/.*"
       ]
     }
   ],
-  "ProductEpochs": [
-    {
-      "Applicability": {
-        "Mission": "FakeSat"
-      },
-      "Epoch": "2005-01-01T00:00:00.000000"
-    }
-  ],
-  "Grid_Mapping_Data": [
-    {
-      "Grid_Mapping_Dataset_Name": "EASE2_Global",
-      "grid_mapping_name": "lambert_cylindrical_equal_area",
-      "standard_parallel": 30.0,
-      "longitude_of_central_meridian": 0.0,
-      "false_easting": 0.0,
-      "false_northing": 0.0
-    },
-    {
-      "Grid_Mapping_Dataset_Name": "EASE2_Polar",
-      "grid_mapping_name": "lambert_azimuthal_equal_area",
-      "longitude_of_projection_origin": 0.0,
-      "latitude_of_projection_origin": 90.0,
-      "false_easting": 0.0,
-      "false_northing": 0.0
-    }
-  ],
-  "CF_Overrides": [
+  "MetadataOverrides": [
     {
       "Applicability": {
         "Mission": "FakeSat",
@@ -73,55 +51,28 @@
           "Name": "collection_override",
           "Value": "collection value"
         }
-      ],
-      "Applicability_Group": [
+      ]
+    },
+    {
+      "Applicability": {
+        "Mission": "FakeSat",
+        "ShortNamePath": "FAKE99",
+        "VariablePattern": "/group/.*"
+      },
+      "Attributes": [
         {
-          "Applicability": {
-            "Variable_Pattern": "/group/.*"
-          },
-          "Attributes": [
-            {
-              "Name": "group_override",
-              "Value": "group value"
-            }
-          ]
-        },
-        {
-          "Applicability": {
-            "ShortNamePath": "FAKE99",
-            "Variable_Pattern": "/group/variable"
-          },
-          "Attributes": [
-            {
-              "Name": "variable_override",
-              "Value": "variable value"
-            }
-          ]
-        },
-        {
-          "Applicability": {
-            "Variable_Pattern": "/coordinates_group/.*"
-          },
-          "Attributes": [
-            {
-              "Name": "coordinates",
-              "Value": "lat, lon"
-            }
-          ]
-        },
-        {
-          "Applicability": {
-            "Variable_Pattern": "/absent_variable"
-          },
-          "Attributes": [
-            {
-              "Name": "extra_override",
-              "Value": "overriding value"
-            }
-          ]
+          "Name": "group_override",
+          "Value": "group value"
         }
-      ],
-      "Global_Attributes": [
+      ]
+    },
+    {
+      "Applicability": {
+        "Mission": "FakeSat",
+        "ShortNamePath": "FAKE99",
+        "VariablePattern": "/$"
+      },
+      "Attributes": [
         {
           "Name": "global_override",
           "Value": "GLOBAL"
@@ -131,93 +82,160 @@
     {
       "Applicability": {
         "Mission": "FakeSat",
-        "ShortNamePath": "FAKE98"
+        "ShortNamePath": "FAKE99",
+        "VariablePattern": "/group/variable"
       },
-      "Applicability_Group": [
+      "Attributes": [
         {
-          "Applicability": {
-            "Variable_Pattern": "/group2/.*"
-          },
-          "Attributes": [
-            {
-              "Name": "other_collection",
-              "Value": "canopy_height"
-            }
-          ]
+          "Name": "variable_override",
+          "Value": "variable value"
+        }
+      ]
+    },
+    {
+      "Applicability": {
+        "Mission": "FakeSat",
+        "ShortNamePath": "FAKE99",
+        "VariablePattern": "/coordinates_group/.*"
+      },
+      "Attributes": [
+        {
+          "Name": "coordinates",
+          "Value": "lat, lon"
+        }
+      ]
+    },
+    {
+      "Applicability": {
+        "Mission": "FakeSat",
+        "ShortNamePath": "FAKE99",
+        "VariablePattern": "/absent_variable"
+      },
+      "Attributes": [
+        {
+          "Name": "extra_override",
+          "Value": "overriding value"
+        }
+      ]
+    },
+    {
+      "Applicability": {
+        "Mission": "FakeSat",
+        "ShortNamePath": "FAKE98",
+        "VariablePattern": "/group2/.*"
+      },
+      "Attributes": [
+        {
+          "Name": "other_collection",
+          "Value": "canopy_height"
         }
       ]
     },
     {
       "Applicability": {
         "Mission": "FakeSat2",
-        "ShortNamePath": "FAKE99"
-      },
-      "Applicability_Group": [
-        {
-          "Applicability": {
-            "Variable_Pattern": "/group3/.*"
-          },
-          "Attributes": [
-            {
-              "Name": "other_mission",
-              "Value": "sea_surface_temperature"
-            }
-          ]
-        }
-      ]
-    }
-  ],
-  "CF_Supplements": [
-    {
-      "Applicability": {
-        "Mission": "FakeSat",
-        "ShortNamePath": "FAKE99"
+        "ShortNamePath": "FAKE99",
+        "VariablePattern": "/group3/.*"
       },
       "Attributes": [
         {
-          "Name": "collection_supplement",
-          "Value": "FAKE99 supplement"
+          "Name": "other_mission",
+          "Value": "sea_surface_temperature"
         }
-      ],
-      "Applicability_Group": [
+      ]
+    },
+    {
+      "Applicability": {
+        "Mission": "FakeSat",
+        "ShortNamePath": "FAKE97",
+        "VariablePattern": "/.*"
+      },
+      "Attributes": [
         {
-          "Applicability": {
-            "Variable_Pattern": "/group4/.*"
-          },
-          "Attributes": [
-            {
-              "Name": "group_supplement",
-              "Value": "FAKE99 group4"
-            }
-          ]
+          "Name": "conflicting_attribute_global_and_group",
+          "Value": "applies to all"
+        }
+      ]
+    },
+    {
+      "Applicability": {
+        "Mission": "FakeSat",
+        "ShortNamePath": "FAKE97",
+        "VariablePattern": "/group/.*"
+      },
+      "Attributes": [
+        {
+          "Name": "conflicting_attribute_global_and_group",
+          "Value": "applies to /group/.*"
         },
         {
-          "Applicability": {
-            "Variable_Pattern": "/absent_variable"
-          },
-          "Attributes": [
-            {
-              "Name": "extra_override",
-              "Value": "supplemental value"
-            }
-          ]
-        },
-        {
-          "Applicability": {
-            "Variable_Pattern": "/absent_supplement"
-          },
-          "Attributes": [
-            {
-              "Name": "extra_supplement",
-              "Value": "supplemental value"
-            }
-          ]
+          "Name": "conflicting_attribute_group_and_variable",
+          "Value": "applies to /group/.*"
         }
-      ],
-      "Global_Attributes": [
+      ]
+    },
+    {
+      "Applicability": {
+        "Mission": "FakeSat",
+        "ShortNamePath": "FAKE97",
+        "VariablePattern": "/group/variable"
+      },
+      "Attributes": [
         {
-          "Name": "fakesat_global_supplement",
-          "Value": "fakesat value"
+          "Name": "conflicting_attribute_group_and_variable",
+          "Value": "applies to /group/variable"
+        }
+      ]
+    },
+    {
+      "Applicability": {
+        "Mission": "FakeSat",
+        "ShortNamePath": "FAKE97",
+        "VariablePattern": "/other_group/variable"
+      },
+      "Attributes": [
+        {
+          "Name": "test_depth_priority_over_string_length",
+          "Value": "applies to /other_group/variable"
+        }
+      ]
+    },
+    {
+      "Applicability": {
+        "Mission": "FakeSat",
+        "ShortNamePath": "FAKE97",
+        "VariablePattern": "/(other_group|long|regex|things).*"
+      },
+      "Attributes": [
+        {
+          "Name": "test_depth_priority_over_string_length",
+          "Value": "applies to lots of groups"
+        }
+      ]
+    },
+    {
+      "Applicability": {
+        "Mission": "FakeSat",
+        "ShortNamePath": "FAKE97",
+        "VariablePattern": "/string_length/variable"
+      },
+      "Attributes": [
+        {
+          "Name": "test_string_length_same_depth",
+          "Value": "applies to /string_length/variable"
+        }
+      ]
+    },
+    {
+      "Applicability": {
+        "Mission": "FakeSat",
+        "ShortNamePath": "FAKE97",
+        "VariablePattern": "/string_length/var.*"
+      },
+      "Attributes": [
+        {
+          "Name": "test_string_length_same_depth",
+          "Value": "applies to /string_length/var.*"
         }
       ]
     }
