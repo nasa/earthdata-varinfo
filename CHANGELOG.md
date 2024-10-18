@@ -1,3 +1,19 @@
+## v3.0.1
+### 2024-10-18
+
+### Changed:
+
+* CMR native IDs generated from variable names with spaces in them will replace
+  those space characters with underscores to avoid errors when trying to ingest
+  such variables.
+* The `python-cmr` requirement is updated to v0.12.0, which adds type hints for
+  that package. A couple of type hints in `earthdata-varinfo` have been updated
+  accordingly.
+* The `numpy` requirement has been relaxed to allow broader compatibility with
+  client software. Note: This should enable Python 3.12 compatibility, but
+  there are issues with compatibility of the `xmlrunner` package preventing the
+  running of unit tests under Python 3.12, so this support is unverified.
+
 ## v3.0.0
 ### 2024-09-11
 
