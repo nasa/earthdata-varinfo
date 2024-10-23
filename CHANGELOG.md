@@ -10,9 +10,13 @@
   that package. A couple of type hints in `earthdata-varinfo` have been updated
   accordingly.
 * The `numpy` requirement has been relaxed to allow broader compatibility with
-  client software. Note: This should enable Python 3.12 compatibility, but
-  there are issues with compatibility of the `xmlrunner` package preventing the
-  running of unit tests under Python 3.12, so this support is unverified.
+  client software. Note: This enables Python 3.12 compatibility.
+* To ensure compatibility with Python 3.12, the tests are now run using
+  `pytest`. This allows JUnit style output to be produced, as the previously
+  used `unittets-xml-runner` package was not compatible with Python 3.12. The
+  tests themselves are still written using classes and syntax from `unittest`.
+  The CI/CD for running the tests has been updated to also run the tests under
+  Python 3.12.
 
 ## v3.0.0
 ### 2024-09-11

@@ -30,5 +30,4 @@ prepare-test:
 	mkdir -p tests/reports tests/coverage
 
 test: prepare-test
-	coverage run -m xmlrunner discover tests -o tests/reports
-	coverage html --omit="*tests/*" -d tests/coverage
+	pytest --junitxml=tests/reports/earthdata-varinfo_junit.xml --cov varinfo --cov-report html:tests/coverage --cov-report term
