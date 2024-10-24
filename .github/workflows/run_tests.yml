@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ '3.9', '3.10', '3.11' ]
+        python-version: [ '3.9', '3.10', '3.11', '3.12' ]
       fail-fast: false
 
     steps:
@@ -30,7 +30,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: Test results for Python ${{ matrix.python-version }}
-          path: tests/reports/
+          path: tests/reports/earthdata-varinfo_junit.xml
 
       - name: Archive coverage report
         uses: actions/upload-artifact@v3

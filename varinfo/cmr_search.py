@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from typing import Literal
 import os.path
 
@@ -36,7 +37,7 @@ def get_granules(
     provider: str | None = None,
     cmr_env: CmrEnvType = CMR_OPS,
     auth_header: str | None = None,
-) -> list:
+) -> Sequence:
     """Search CMR to retrieve granules for a specific collection given:
 
     * concept_id: a CMR collection or granule concept ID. For most
@@ -79,7 +80,7 @@ def get_granules(
         # If neither condition is met, there aren't enough CMR query parameters
         # to identify the collection.
         raise MissingPositionalArguments(
-            'concept_id or collection_shortname, ' 'collection_version, and provider'
+            'concept_id or collection_shortname, collection_version, and provider'
         )
 
     # Assign parameters to GranuleQuery
@@ -98,13 +99,13 @@ def get_granules(
     if len(granule_response) == 0:
         # No granules were identified, so no files can be downloaded and parsed
         raise IndexError(
-            'No granules were found with selected ' 'parameters and user permissions'
+            'No granules were found with selected parameters and user permissions'
         )
 
     return granule_response
 
 
-def get_granule_link(granule_response: list) -> str:
+def get_granule_link(granule_response: Sequence) -> str:
     """Get the granule download link from CMR."""
     granule_link = next(
         (
@@ -164,7 +165,7 @@ def get_edl_token_from_launchpad(
       <Launchpad token>
     * cmr_env/mode: CMR environments (OPS, UAT, and SIT)
     """
-    url_urs_endpoint = urs_token_endpoints.get(cmr_env)
+    url_urs_endpoint = urs_token_endpoints[cmr_env]
     try:
         response = requests.post(
             url=url_urs_endpoint, data=f'token={launchpad_token}', timeout=10

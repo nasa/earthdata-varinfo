@@ -216,7 +216,7 @@ for a PR review):
 $ make lint
 ```
 
-Run `unittest` suite:
+Run `unittest` suite (run via `pytest`, but written using `unittest` classes):
 
 ```bash
 $ make test
