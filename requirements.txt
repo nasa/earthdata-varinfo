@@ -1,4 +1,4 @@
 netCDF4 ~= 1.6.3
-numpy ~= 1.24.2
-python-cmr ~= 0.9.0
+numpy >= 1.24.2,< 2.0
+python-cmr ~= 0.12.0
 requests ~= 2.31.0

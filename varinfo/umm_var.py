@@ -403,7 +403,10 @@ def generate_variable_native_id(
 
     """
     return '-'.join(
-        [collection_concept_id, umm_var_record['Name'].replace('/', '_').lstrip('_')]
+        [
+            collection_concept_id,
+            umm_var_record['Name'].replace('/', '_').replace(' ', '_').lstrip('_'),
+        ]
     )
 
 

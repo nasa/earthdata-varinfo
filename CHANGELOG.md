@@ -1,3 +1,23 @@
+## v3.0.1
+### 2024-10-18
+
+### Changed:
+
+* CMR native IDs generated from variable names with spaces in them will replace
+  those space characters with underscores to avoid errors when trying to ingest
+  such variables.
+* The `python-cmr` requirement is updated to v0.12.0, which adds type hints for
+  that package. A couple of type hints in `earthdata-varinfo` have been updated
+  accordingly.
+* The `numpy` requirement has been relaxed to allow broader compatibility with
+  client software. Note: This enables Python 3.12 compatibility.
+* To ensure compatibility with Python 3.12, the tests are now run using
+  `pytest`. This allows JUnit style output to be produced, as the previously
+  used `unittets-xml-runner` package was not compatible with Python 3.12. The
+  tests themselves are still written using classes and syntax from `unittest`.
+  The CI/CD for running the tests has been updated to also run the tests under
+  Python 3.12.
+
 ## v3.0.0
 ### 2024-09-11
 

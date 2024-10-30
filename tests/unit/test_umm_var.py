@@ -977,6 +977,13 @@ class TestUmmVar(TestCase):
                 'C1234567890-PROV-Grid_time',
             )
 
+        with self.subTest('Space in variable name is replaced with underscore'):
+            umm_var_json = {'Name': '/Grid/variable with space'}
+            self.assertEqual(
+                generate_variable_native_id('C1234567890-PROV', umm_var_json),
+                'C1234567890-PROV-Grid_variable_with_space',
+            )
+
     def test_get_variable_type(self):
         """Test that 'VariableType' in a UMM-Var record is set to
         'SCIENCE_VARIABLE', when a variable is a science variable.
