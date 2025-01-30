@@ -165,8 +165,8 @@ class CFConfig:
 
         Next sort that dictionary, so that matching patterns are:
 
-        * Primarily sorted from shallowed to deepest, by counting the number of
-          slashes in the string.
+        * Primarily sorted from shallowed to deepest, by counting the total
+          number of slashes in the string.
         * Within each depth (with the same number of slashes), patterns are
           sorted from shortest to longest string length.
 
@@ -179,6 +179,25 @@ class CFConfig:
         are multiple values supplied for the same metadata attribute, the value
         retained will be the one with the longest variable pattern, which is a
         proxy for how specific the override is.
+
+        Note: Depth is approximated by counting the _total_ number of slashes
+        in the VariablePattern regular expression, and does not account for
+        alternation. As such:
+
+        ```
+        "Applicability": {
+          "VariablePattern": "/(group_one|group_two)/.*
+        }
+        ```
+
+        will correctly determine a depth of 2, whereas:
+
+        ```
+        "Applicability": {
+          "VariablePattern": "(/group_one/.*|/group_two/.*)"
+        }
+        ```
+        will incorrectly determine a depth of 4.
 
         """
         matching_overrides = {
