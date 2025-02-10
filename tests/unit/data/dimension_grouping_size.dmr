@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<Dataset xmlns="namespace_string">
+<Attribute name="short_name">
+  <Value>FAKE123A</Value>
+</Attribute>
+<Dimension name="time" size="1"/>
+<Dimension name="latitude" size="1800"/>
+<Dimension name="longitude" size="3600"/>
+<Float64 name="science_one">
+  <Dim name="/time"/>
+  <Dim name="/latitude"/>
+  <Dim name="/longitude"/>
+</Float64>
+<Float64 name="science_two">
+  <Dim name="/longitude"/>
+</Float64>
+<Float64 name="time">
+  <Dim name="/time"/>
+  <Attribute name="units" type="String">
+    <Value>minutes since 2021-01-07 00:00:00</Value>
+  </Attribute>
+</Float64>
+<Float64 name="latitude">
+  <Dim name="/latitude"/>
+  <Attribute name="units" type="String">
+    <Value>degree_north</Value>
+  </Attribute>
+</Float64>
+<Float64 name="longitude">
+  <Dim name="/longitude"/>
+  <Attribute name="units" type="String">
+    <Value>degree_east</Value>
+  </Attribute>
+</Float64>
+<Group name="science_three">
+  <Dimension name="latitude" size="1111"/>
+  <Dimension name="longitude" size="2222"/>
+  <Float64 name="interesting_thing">
+    <Dim name="/science_three/latitude"/>
+    <Attribute name="coordinates" type="String">
+      <Value>latitude, longitude</Value>
+    </Attribute>
+  </Float64>
+  <Float64 name="latitude">
+    <Attribute name="units" type="String">
+      <Value>degree_north</Value>
+    </Attribute>
+  </Float64>
+  <Float64 name="lat_bnds">
+    <Dim name="latv" size="5555"/>
+    <Attribute name="units" type="String">
+      <Value>degree_north</Value>
+    </Attribute>
+  </Float64>
+</Group>
+</Dataset>

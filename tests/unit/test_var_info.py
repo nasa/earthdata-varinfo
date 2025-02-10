@@ -9,6 +9,7 @@ from varinfo.exceptions import (
     MissingConfigurationFileError,
 )
 from tests.utilities import write_dmr, write_skeleton_netcdf4
+from varinfo.umm_var import get_dimension_information
 
 
 class TestVarInfoFromDmr(TestCase):
@@ -26,6 +27,7 @@ class TestVarInfoFromDmr(TestCase):
         cls.mock_dmr_two = 'tests/unit/data/mock_dataset_two.dmr'
         cls.mock_geo_and_projected_dmr = 'tests/unit/data/mock_geo_and_projected.dmr'
         cls.dimension_grouping_dmr = 'tests/unit/data/dimension_grouping.dmr'
+        cls.dimension_grouping_size_dmr = 'tests/unit/data/dimension_grouping_size.dmr'
         cls.merra_varinfo = VarInfoFromDmr(
             'tests/unit/data/M2I3NPASM_example.dmr', short_name='M2I3NPASM'
         )
@@ -950,3 +952,108 @@ class TestVarInfoFromDmr(TestCase):
                 ),
                 {'/Grid/lat_bnds', '/Grid/lon_bnds'},
             )
+
+    def test_get_shape(self):
+        """Ensure that all variable shapes are returned when requesting
+        variable.shape and dimension information.
+
+        """
+
+        var_info = VarInfoFromDmr(
+            self.dimension_grouping_size_dmr, config_file=self.test_config_file
+        )
+
+        variable = var_info.get_variable('/science_one')
+        with self.subTest('Time dimension variable from /science_one'):
+            self.assertEqual(variable.shape, [1, 1800, 3600])
+            self.assertDictEqual(
+                get_dimension_information(var_info, variable, '/time'),
+                {'Name': 'time', 'Size': 1, 'Type': 'TIME_DIMENSION'},
+            )
+
+        with self.subTest('Latitude dimension variable from /science_one'):
+            self.assertDictEqual(
+                get_dimension_information(var_info, variable, '/latitude'),
+                {'Name': 'latitude', 'Size': 1800, 'Type': 'LATITUDE_DIMENSION'},
+            )
+        with self.subTest('Longitude dimension variable from /science_one'):
+            self.assertDictEqual(
+                get_dimension_information(var_info, variable, '/longitude'),
+                {'Name': 'longitude', 'Size': 3600, 'Type': 'LONGITUDE_DIMENSION'},
+            )
+
+        variable = var_info.get_variable('/science_two')
+        with self.subTest('Longitude dimension variable from /science_two'):
+            self.assertEqual(variable.shape, [3600])
+            self.assertDictEqual(
+                get_dimension_information(var_info, variable, '/longitude'),
+                {'Name': 'longitude', 'Size': 3600, 'Type': 'LONGITUDE_DIMENSION'},
+            )
+
+        variable = var_info.get_variable('/science_three/interesting_thing')
+        with self.subTest('Latitude variable /science_three/interesting_thing'):
+            self.assertEqual(variable.shape, [1111])
+            self.assertDictEqual(
+                get_dimension_information(
+                    var_info, variable, '/science_three/latitude'
+                ),
+                {
+                    'Name': 'science_three/latitude',
+                    'Size': 1111,
+                    'Type': 'LATITUDE_DIMENSION',
+                },
+            )
+
+        variable = var_info.get_variable('/science_three/lat_bnds')
+        with self.subTest('Size obtained from dimension variable shape, int'):
+            self.assertEqual(variable.shape, [5555])
+            self.assertDictEqual(
+                get_dimension_information(var_info, variable, '/science_three/latv'),
+                {'Name': 'science_three/latv', 'Size': 5555, 'Type': 'OTHER'},
+            )
+
+    def test_get_shape_with_anonymous_size_only_dimensions(self):
+        """Ensure that all variable shapes and attributes are correctly
+        returned when requested from a granule with anonymous
+        size-only dimensions defined directly in the <Dim /> element.
+
+        """
+
+        dmr_path = 'tests/unit/data/SPL3FTP_E_example.dmr.xml'
+        var_info = VarInfoFromDmr(dmr_path, short_name='SPL3FTP_E')
+
+        variable = var_info.get_variable(
+            '/Freeze_Thaw_Retrieval_Data_Global/altitude_dem'
+        )
+
+        self.assertEqual(variable.shape, [2, 1624, 3856])
+        self.assertSetEqual(
+            var_info.get_required_variables(
+                {'/Freeze_Thaw_Retrieval_Data_Global/altitude_dem'}
+            ),
+            {
+                '/Freeze_Thaw_Retrieval_Data_Global/latitude',
+                '/Freeze_Thaw_Retrieval_Data_Global/longitude',
+                '/Freeze_Thaw_Retrieval_Data_Global/altitude_dem',
+            },
+        )
+        self.assertSetEqual(
+            var_info.get_required_dimensions(
+                {'/Freeze_Thaw_Retrieval_Data_Global/altitude_dem'}
+            ),
+            set(),
+        )
+        self.assertSetEqual(
+            variable.get_references(),
+            {
+                '/Freeze_Thaw_Retrieval_Data_Global/latitude',
+                '/Freeze_Thaw_Retrieval_Data_Global/longitude',
+            },
+        )
+
+        self.assertEqual(variable.get_valid_min(), 0.0)
+        self.assertFalse(variable.is_geographic())
+        self.assertFalse(variable.is_longitude())
+        self.assertFalse(variable.is_latitude())
+        self.assertFalse(variable.is_temporal())
+        self.assertFalse(variable.is_projection_x_or_y())

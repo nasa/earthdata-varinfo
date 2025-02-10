@@ -565,13 +565,14 @@ class VarInfoFromDmr(VarInfoBase):
 
         """
 
-        def save_variable(output, group_path, element):
+        def save_variable(output, group_path, element, dim_name_size):
             element_path = '/'.join([group_path, element.get('name')])
             variable = VariableFromDmr(
                 element,
                 self.cf_config,
-                namespace=self.namespace,
-                full_name_path=element_path,
+                self.namespace,
+                element_path,
+                dim_name_size,
             )
             output[variable.full_name_path] = variable
             self._assign_variable(variable)
@@ -624,14 +625,21 @@ class VarInfoFromDmr(VarInfoBase):
 
         group_path = group_path.rstrip('/')
 
+        dim_name_size = {}
+
         for child in list(element):
             # If it is in the DAP4 list: use the function
+            # else, if it is a Dimension, assign dictionary dim_name_size{}
             # else, if it is a Group, assign to dictionary and call this
             # function again
             element_type = child.tag.replace(self.namespace, '')
 
             if element_type in element_types:
-                operation(output, group_path, child)
+                operation(output, group_path, child, dim_name_size)
+            elif element_type == 'Dimension':
+                if child.attrib['size'] is not None:
+                    dim_name = '/'.join([group_path, child.get('name')])
+                    dim_name_size[dim_name] = int(child.attrib['size'])
             elif element_type == 'Group':
                 new_group_path = '/'.join([group_path, child.get('name')])
 

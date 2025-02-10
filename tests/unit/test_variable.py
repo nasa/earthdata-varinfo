@@ -22,8 +22,8 @@ class TestVariableFromDmr(TestCase):
         cls.namespace = 'namespace_string'
         cls.dmr_variable = ET.fromstring(
             f'<{cls.namespace}Float64 name="variable">'
-            f'  <{cls.namespace}Dim name="first_dimension" />'
-            f'  <{cls.namespace}Dim name="second_dimension" />'
+            f'  <{cls.namespace}Dim name="first_dimension" size="1800"/>'
+            f'  <{cls.namespace}Dim name="second_dimension" size="3600"/>'
             f'  <{cls.namespace}Attribute name="ancillary_variables" type="String">'
             f'    <{cls.namespace}Value>/ancillary_data/epoch</{cls.namespace}Value>'
             f'  </{cls.namespace}Attribute>'
@@ -177,11 +177,7 @@ class TestVariableFromDmr(TestCase):
             {'/group/begin', '/group/count'},
         )
 
-        # Currently the Dimension elements from the DMR, which contain the
-        # number of elements for a variable in a given dimension, are not
-        # preserved. This means the variable shape is not tracked for DMR
-        # variables.
-        self.assertIsNone(variable.shape)
+        self.assertEqual(variable.shape, [1800, 3600])
 
     def test_variable_cf_override_reference(self):
         """Ensure a CF-Convention attribute that contains references to other
@@ -685,6 +681,58 @@ class TestVariableFromDmr(TestCase):
                 )
 
                 self.assertEqual(variable.get_valid_max(), expected_valid_max)
+
+    def test_variable_get_shape(self):
+        """Ensure that all variable shapes are returned when requesting
+        variable.shape and dimension.
+
+        """
+        with self.subTest('<Dim /> element with name and size variable'):
+            dmr_variable = ET.fromstring(
+                f'<{self.namespace}Float64 name="science">'
+                f'  <{self.namespace}Dim name="time" size="2"/>'
+                f'  <{self.namespace}Dim name="latitude" size="1800"/>'
+                f'  <{self.namespace}Dim name="longitude" size="3600"/>'
+                f'  <{self.namespace}Attribute name="coordinates" type="String">'
+                f'    <{self.namespace}Value>latitude, longitude</{self.namespace}Value>'
+                f'  </{self.namespace}Attribute>'
+                f'</{self.namespace}Float64>'
+            )
+
+            variable = VariableFromDmr(
+                dmr_variable,
+                self.fakesat_config,
+                self.namespace,
+                '/coordinates_group/science',
+            )
+
+            self.assertEqual(
+                variable.dimensions,
+                [
+                    '/coordinates_group/time',
+                    '/coordinates_group/latitude',
+                    '/coordinates_group/longitude',
+                ],
+            )
+
+            self.assertEqual(variable.shape, [2, 1800, 3600])
+
+        with self.subTest('<Dim /> element and size ONLY variable'):
+            dmr_variable = ET.fromstring(
+                f'<{self.namespace}Float64 name="d_4_chunks">'
+                f'  <{self.namespace}Dim size="2222"/>'
+                f'</{self.namespace}Float64>'
+            )
+
+            variable = VariableFromDmr(
+                dmr_variable,
+                self.fakesat_config,
+                self.namespace,
+                self.dmr_variable_path,
+            )
+
+            self.assertEqual(variable.dimensions, [])
+            self.assertEqual(variable.shape, [2222])
 
     def test_variable_from_netcdf4(self):
         """Ensure that a `netCDF4.Variable` instance can be correctly parsed

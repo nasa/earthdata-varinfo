@@ -226,9 +226,6 @@ def get_dimension_information(
     * Projected horizontal spatial dimension (no UMM-Var type for this).
     * Swath dimensions (along or across track).
 
-    Also note: VariableFromDmr instances do not currently extract variable
-    shapes.
-
     """
     dimension_variable = var_info.get_variable(dimension_name)
 
