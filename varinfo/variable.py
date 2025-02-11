@@ -342,7 +342,12 @@ class VariableFromDmr(VariableBase, AttributeContainerFromDmr):
     """
 
     def __init__(
-        self, element, cf_config, namespace, full_name_path, dim_name_size=[str, int]
+        self,
+        element,
+        cf_config,
+        namespace,
+        full_name_path,
+        dim_name_size=[str, int],
     ):
         self.dim_name_size = dim_name_size
         super().__init__(element, cf_config, namespace, full_name_path)
