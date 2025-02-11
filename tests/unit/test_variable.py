@@ -690,12 +690,13 @@ class TestVariableFromDmr(TestCase):
         with self.subTest('<Dim /> element with name and size variable'):
             dmr_variable = ET.fromstring(
                 f'<{self.namespace}Float64 name="science">'
-                f'  <{self.namespace}Dim name="time" size="2"/>'
-                f'  <{self.namespace}Dim name="latitude" size="1800"/>'
-                f'  <{self.namespace}Dim name="longitude" size="3600"/>'
-                f'  <{self.namespace}Attribute name="coordinates" type="String">'
-                f'    <{self.namespace}Value>latitude, longitude</{self.namespace}Value>'
-                f'  </{self.namespace}Attribute>'
+                f' <{self.namespace}Dim name="time" size="2"/>'
+                f' <{self.namespace}Dim name="latitude" size="1800"/>'
+                f' <{self.namespace}Dim name="longitude" size="3600"/>'
+                f' <{self.namespace}Attribute name="coordinates" type="String">'
+                f'   <{self.namespace}Value>latitude, longitude'
+                f'   </{self.namespace}Value>'
+                f' </{self.namespace}Attribute>'
                 f'</{self.namespace}Float64>'
             )
 
@@ -735,8 +736,8 @@ class TestVariableFromDmr(TestCase):
             self.assertEqual(variable.shape, [2222])
 
     def test_variable_from_netcdf4(self):
-        """Ensure that a `netCDF4.Variable` instance can be correctly parsed
-        by the `VariableFromNetCDF4` child class.
+        """Ensure that a `netCDF4.Variable` instance can be correctly
+        parsed by the `VariableFromNetCDF4` child class.
 
         """
         with Dataset('test.nc4', 'w', diskless=True) as dataset:

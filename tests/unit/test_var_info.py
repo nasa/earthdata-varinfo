@@ -991,7 +991,7 @@ class TestVarInfoFromDmr(TestCase):
             )
 
         variable = var_info.get_variable('/science_three/interesting_thing')
-        with self.subTest('Latitude variable /science_three/interesting_thing'):
+        with self.subTest('Latitude in /science_three/interesting_thing'):
             self.assertEqual(variable.shape, [1111])
             self.assertDictEqual(
                 get_dimension_information(
