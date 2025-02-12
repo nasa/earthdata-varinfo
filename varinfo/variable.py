@@ -357,11 +357,15 @@ class VariableFromDmr(VariableBase, AttributeContainerFromDmr):
         return variable.tag.lstrip(self.namespace).lower()
 
     def _get_shape(self, variable: ET.Element) -> tuple[int]:
-        """Extract the shape of the variable data array.  If there are
-        <DIM size=xxx/> elements with a size attribute, use them as the
-        variable shape instead of <Dimensions size=xxx/> from the
-        parent element. Otherwise, use <Dimensions size=xxx/> to define
-        the variable shape.
+        """Extract the shape of the variable data array. First explore
+        XML for - DIM child elements with a size
+        attribute - true for HDF5 files and anonymous dimensions
+        (note no name). If found (with or without names), use them. If
+        not found, use dim_name_size dictionary with matching dimension
+        names to define the variable shape. Note the dim_name_size
+        dictionary is filled when parsing xml for variables, capturing
+        dimensions names and sizes for dimension entries - as found in
+        NetCDF files with named dimensions.
         """
 
         # Retrieve the shape from the dimension size in the
