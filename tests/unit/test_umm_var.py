@@ -513,6 +513,8 @@ class TestUmmVar(TestCase):
         value of None.
 
         """
+        fake_all_dimensions_sizes = {'/time': 1, '/latitude': 1800, '/longitude': 3600}
+
         with self.subTest('A valid_range returns ValidRangeType item'):
             valid_range_variable_tree = ET.fromstring(
                 '<Float64 name="variable">'
@@ -523,7 +525,11 @@ class TestUmmVar(TestCase):
                 '</Float64>'
             )
             variable = VariableFromDmr(
-                valid_range_variable_tree, self.atl03_config, '', '/variable'
+                valid_range_variable_tree,
+                self.atl03_config,
+                '',
+                '/variable',
+                fake_all_dimensions_sizes,
             )
 
             self.assertListEqual(
@@ -542,7 +548,11 @@ class TestUmmVar(TestCase):
                 '</Float64>'
             )
             variable = VariableFromDmr(
-                valid_min_max_variable_tree, self.atl03_config, '', '/variable'
+                valid_min_max_variable_tree,
+                self.atl03_config,
+                '',
+                '/variable',
+                fake_all_dimensions_sizes,
             )
 
             self.assertListEqual(get_valid_ranges(variable), [{'Min': -90, 'Max': 90}])
@@ -556,7 +566,11 @@ class TestUmmVar(TestCase):
                 '</Float64>'
             )
             variable = VariableFromDmr(
-                valid_min_only_variable_tree, self.atl03_config, '', '/variable'
+                valid_min_only_variable_tree,
+                self.atl03_config,
+                '',
+                '/variable',
+                fake_all_dimensions_sizes,
             )
 
             self.assertListEqual(get_valid_ranges(variable), [{'Min': -90}])
@@ -570,7 +584,11 @@ class TestUmmVar(TestCase):
                 '</Float64>'
             )
             variable = VariableFromDmr(
-                valid_max_only_variable_tree, self.atl03_config, '', '/variable'
+                valid_max_only_variable_tree,
+                self.atl03_config,
+                '',
+                '/variable',
+                fake_all_dimensions_sizes,
             )
 
             self.assertListEqual(get_valid_ranges(variable), [{'Max': 90}])
@@ -580,7 +598,11 @@ class TestUmmVar(TestCase):
                 '<Float64 name="variable_name">' '</Float64>'
             )
             variable = VariableFromDmr(
-                no_range_variable_tree, self.atl03_config, '', '/variable'
+                no_range_variable_tree,
+                self.atl03_config,
+                '',
+                '/variable',
+                fake_all_dimensions_sizes,
             )
 
             self.assertIsNone(get_valid_ranges(variable))

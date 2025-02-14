@@ -1006,10 +1006,38 @@ class TestVarInfoFromDmr(TestCase):
 
         variable = var_info.get_variable('/science_three/lat_bnds')
         with self.subTest('Size obtained from dimension variable shape, int'):
-            self.assertEqual(variable.shape, [5555])
+            self.assertEqual(variable.shape, [1111, 5555])
             self.assertDictEqual(
                 get_dimension_information(var_info, variable, '/science_three/latv'),
                 {'Name': 'science_three/latv', 'Size': 5555, 'Type': 'OTHER'},
+            )
+
+        variable = var_info.get_variable('/science_three/lon_bnds')
+        with self.subTest('Size obtained from dimension variable shape, int'):
+            self.assertEqual(variable.shape, [7777, 2222])
+            self.assertDictEqual(
+                get_dimension_information(var_info, variable, '/science_three/lonv'),
+                {'Name': 'science_three/lonv', 'Size': 7777, 'Type': 'OTHER'},
+            )
+
+        variable = var_info.get_variable(
+            '/science_four/Freeze_Thaw_Retrieval_Data_Polar'
+        )
+        with self.subTest(
+            '<Dimension name=latitude> not defined before attempting to access'
+        ):
+            self.assertEqual(variable.shape, [])
+            with self.assertRaises(IndexError):
+                get_dimension_information(var_info, variable, '/science_four/latitude')
+
+        variable = var_info.get_variable(
+            '/science_four/Freeze_Thaw_Retrieval_Data_Global'
+        )
+        with self.subTest('<Dimension name=latitude> is defined'):
+            self.assertEqual(variable.shape, [4444])
+            self.assertDictEqual(
+                get_dimension_information(var_info, variable, '/science_four/latitude'),
+                {'Name': 'science_four/latitude', 'Size': 4444, 'Type': 'OTHER'},
             )
 
     def test_get_shape_with_anonymous_size_only_dimensions(self):

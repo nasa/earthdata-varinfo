@@ -47,7 +47,31 @@
     </Attribute>
   </Float64>
   <Float64 name="lat_bnds">
+    <Dim name="latitude"/>
     <Dim name="latv" size="5555"/>
+    <Attribute name="units" type="String">
+      <Value>degree_north</Value>
+    </Attribute>
+  </Float64>
+  <Float64 name="lon_bnds">
+    <Dim name="lonv" size="7777"/>
+    <Dim name="longitude"/>
+    <Attribute name="units" type="String">
+      <Value>degree_north</Value>
+    </Attribute>
+  </Float64>
+</Group>
+<Group name="science_four">
+  <Dimension name="longitude" size="3333"/>
+  <Float64 name="Freeze_Thaw_Retrieval_Data_Polar">
+    <Dim name="/science_four/latitude"/>
+    <Attribute name="coordinates" type="String">
+      <Value>latitude, longitude</Value>
+    </Attribute>
+  </Float64>
+  <Dimension name="latitude" size="4444"/>
+  <Float64 name="Freeze_Thaw_Retrieval_Data_Global">
+    <Dim name="/science_four/latitude"/>
     <Attribute name="units" type="String">
       <Value>degree_north</Value>
     </Attribute>
