@@ -803,6 +803,73 @@ class TestVariableFromDmr(TestCase):
 
             self.assertEqual(variable.shape, [2, 1800, 3600])
 
+    def test_variable_get_shape_with_without_dim_size(self):
+        """Ensure that all variable shapes <Dim /> elements with/without a size
+        attribute are returned when requesting variable.shape and dimension.
+
+        """
+        with self.subTest('<Dim /> latitude without size'):
+            dmr_variable = ET.fromstring(
+                f'<{self.namespace}Float64 name="science">'
+                f' <{self.namespace}Dim name="delta_time" size="2"/>'
+                f' <{self.namespace}Dim name="latitude"/>'
+                f' <{self.namespace}Dim name="lonv" size="3600"/>'
+                f' <{self.namespace}Attribute name="coordinates" type="String">'
+                f'   <{self.namespace}Value>latitude, longitude'
+                f'   </{self.namespace}Value>'
+                f' </{self.namespace}Attribute>'
+                f'</{self.namespace}Float64>'
+            )
+
+            variable = VariableFromDmr(
+                dmr_variable,
+                self.fakesat_config,
+                self.namespace,
+                '/variable',
+                self.fake_all_dimensions_sizes,
+            )
+
+            self.assertEqual(
+                variable.dimensions,
+                [
+                    '/delta_time',
+                    '/latitude',
+                    '/lonv',
+                ],
+            )
+
+            # Verify latitude in <Dim name="latitude"/> without size
+            # correctly inherits the parent Dimension value 1800
+            # Shape is correctly order in list(delta_time, latitude, lonv)
+            self.assertEqual(variable.shape, [2, 1800, 3600])
+
+        with self.subTest('<Dim /> latitude and longitude without sizes'):
+            dmr_variable = ET.fromstring(
+                f'<{self.namespace}Float64 name="science">'
+                f' <{self.namespace}Dim name="delta_time" size="1"/>'
+                f' <{self.namespace}Dim name="latitude"/>'
+                f' <{self.namespace}Dim name="longitude"/>'
+                f' <{self.namespace}Attribute name="coordinates" type="String">'
+                f'   <{self.namespace}Value>latitude, longitude'
+                f'   </{self.namespace}Value>'
+                f' </{self.namespace}Attribute>'
+                f'</{self.namespace}Float64>'
+            )
+
+            variable = VariableFromDmr(
+                dmr_variable,
+                self.fakesat_config,
+                self.namespace,
+                '/variable',
+                self.fake_all_dimensions_sizes,
+            )
+
+            # Verify latitude and longitude in <Dim name="latitude"/>
+            # <Dim name="longitude"/> witout size correctly
+            # inherits the parent Dimension size
+            # Shape is correctly order in list(delta_time, latitude, lonv)
+            self.assertEqual(variable.shape, [1, 1800, 3600])
+
         with self.subTest('<Dim /> element and size ONLY variable'):
             dmr_variable = ET.fromstring(
                 f'<{self.namespace}Float64 name="d_4_chunks">'
