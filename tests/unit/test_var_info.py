@@ -878,6 +878,19 @@ class TestVarInfoFromDmr(TestCase):
         """
         netcdf4_path = write_skeleton_netcdf4(self.output_dir)
         dataset = VarInfoFromNetCDF4(netcdf4_path, config_file=self.test_config_file)
+
+        self.assertDictEqual(
+            dataset.all_dimensions_sizes,
+            {
+                '/lat': 2,
+                '/lon': 2,
+                '/time': 1,
+                '/group/time': 1,
+                '/group/lat': 2,
+                '/group/lon': 2,
+            },
+        )
+
         self.assertSetEqual(
             dataset.get_science_variables(), {'/group/science2', '/science1'}
         )
@@ -963,6 +976,19 @@ class TestVarInfoFromDmr(TestCase):
             self.dimension_grouping_size_dmr, config_file=self.test_config_file
         )
 
+        self.assertDictEqual(
+            var_info.all_dimensions_sizes,
+            {
+                '/time': 1,
+                '/latitude': 1800,
+                '/longitude': 3600,
+                '/science_three/latitude': 1111,
+                '/science_three/longitude': 2222,
+                '/science_four/longitude': 3333,
+                '/science_four/latitude': 4444,
+            },
+        )
+
         variable = var_info.get_variable('/science_one')
         with self.subTest('Time dimension variable from /science_one'):
             self.assertEqual(variable.shape, [1, 1800, 3600])
@@ -1024,11 +1050,13 @@ class TestVarInfoFromDmr(TestCase):
             '/science_four/Freeze_Thaw_Retrieval_Data_Polar'
         )
         with self.subTest(
-            '<Dimension name=latitude> not defined before attempting to access'
+            '<Dimension name=latitude> is defined after reference /science_four/latitude'
         ):
-            self.assertEqual(variable.shape, [])
-            with self.assertRaises(IndexError):
-                get_dimension_information(var_info, variable, '/science_four/latitude')
+            self.assertEqual(variable.shape, [4444])
+            self.assertDictEqual(
+                get_dimension_information(var_info, variable, '/science_four/latitude'),
+                {'Name': 'science_four/latitude', 'Size': 4444, 'Type': 'OTHER'},
+            )
 
         variable = var_info.get_variable(
             '/science_four/Freeze_Thaw_Retrieval_Data_Global'
