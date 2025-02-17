@@ -67,6 +67,7 @@ class VarInfoBase(ABC):
         self.variables: dict[str, OutputVariableType] = {}
         self.references: set[str] = set()
         self.metadata: dict[str, OutputVariableType] = {}
+        self.all_dimensions_sizes: dict[str, int] = {}
 
         self._set_var_info_config()
         self._read_dataset(file_path)
@@ -565,14 +566,14 @@ class VarInfoFromDmr(VarInfoBase):
 
         """
 
-        def save_variable(output, group_path, element, all_dimensions_sizes):
+        def save_variable(output, group_path, element):
             element_path = '/'.join([group_path, element.get('name')])
             variable = VariableFromDmr(
                 element,
                 self.cf_config,
                 self.namespace,
                 element_path,
-                all_dimensions_sizes,
+                self.all_dimensions_sizes,
             )
             output[variable.full_name_path] = variable
             self._assign_variable(variable)
@@ -625,8 +626,6 @@ class VarInfoFromDmr(VarInfoBase):
 
         group_path = group_path.rstrip('/')
 
-        all_dimensions_sizes = {}
-
         for child in list(element):
             # If it is in the DAP4 list: use the function
             # else, if it is a Dimension, assign dictionary all_dimensions_sizes{}
@@ -635,11 +634,11 @@ class VarInfoFromDmr(VarInfoBase):
             element_type = child.tag.replace(self.namespace, '')
 
             if element_type in element_types:
-                operation(output, group_path, child, all_dimensions_sizes)
+                operation(output, group_path, child)
             elif element_type == 'Dimension':
                 if child.attrib['size'] is not None:
                     dim_name = '/'.join([group_path, child.get('name')])
-                    all_dimensions_sizes[dim_name] = int(child.attrib['size'])
+                    self.all_dimensions_sizes[dim_name] = int(child.attrib['size'])
             elif element_type == 'Group':
                 new_group_path = '/'.join([group_path, child.get('name')])
 
