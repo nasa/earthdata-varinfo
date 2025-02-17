@@ -1040,6 +1040,26 @@ class TestVarInfoFromDmr(TestCase):
                 {'Name': 'science_four/latitude', 'Size': 4444, 'Type': 'OTHER'},
             )
 
+        variable = var_info.get_variable(
+            '/science_four/science_four_child/EASE_row_index'
+        )
+        with self.subTest('Time, latitude, longitude> is defined in Parent'):
+            self.assertEqual(variable.shape, [1, 1800, 3600])
+            self.assertDictEqual(
+                get_dimension_information(var_info, variable, '/time'),
+                {'Name': 'time', 'Size': 1, 'Type': 'TIME_DIMENSION'},
+            )
+
+            self.assertDictEqual(
+                get_dimension_information(var_info, variable, '/latitude'),
+                {'Name': 'latitude', 'Size': 1800, 'Type': 'LATITUDE_DIMENSION'},
+            )
+
+            self.assertDictEqual(
+                get_dimension_information(var_info, variable, '/longitude'),
+                {'Name': 'longitude', 'Size': 3600, 'Type': 'LONGITUDE_DIMENSION'},
+            )
+
     def test_get_shape_with_anonymous_size_only_dimensions(self):
         """Ensure that all variable shapes and attributes are correctly
         returned when requested from a granule with anonymous

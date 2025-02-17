@@ -76,5 +76,12 @@
       <Value>degree_north</Value>
     </Attribute>
   </Float64>
+  <Group name="science_four_child">
+    <Float64 name="EASE_row_index">
+      <Dim name="/time"/>
+      <Dim name="/latitude"/>
+      <Dim name="/longitude"/>
+    </Float64>
+  </Group>
 </Group>
 </Dataset>
