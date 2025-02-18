@@ -1051,6 +1051,10 @@ class TestVarInfoFromDmr(TestCase):
         variable = var_info.get_variable('/science_three/precipitationQualityIndex')
         with self.subTest('Size obtained from dimension variable shape, int'):
             self.assertEqual(variable.shape, [4])
+            self.assertDictEqual(
+                get_dimension_information(var_info, variable, '/science_three/time'),
+                {'Name': 'science_three/time', 'Size': 4, 'Type': 'OTHER'},
+            )
 
         variable = var_info.get_variable(
             '/science_four/Freeze_Thaw_Retrieval_Data_Polar'
