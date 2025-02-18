@@ -1,3 +1,18 @@
+## v3.0.2
+### 2025-02-07
+
+This version of `earthdata-varinfo` enables support for `VariableFromDmr`
+variable dimension shape data in NetCDF-4 files with named dimensions
+and HDF-5 files with anonymous size-only dimensions.
+
+### Added:
+* `VariableFromDmr::_get_shape()` returns dimension shape data for NetCDF-4
+files with named dimensions and HDF-5 files with anonymous size-only dimensions.
+
+### Changed:
+
+*Update DRM `unittest` to validate variable dimension shape data.
+
 ## v3.0.1
 ### 2024-10-18
 

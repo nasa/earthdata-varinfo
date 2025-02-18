@@ -50,9 +50,9 @@ class VariableBase(AttributeContainerBase):
         super().__init__(variable, cf_config, namespace, full_name_path)
         self.group_path, self.name = self._extract_group_and_name()
         self.data_type = self._get_data_type(variable)
-        self.shape = self._get_shape(variable)
         self.references = self._get_all_cf_references()
         self.dimensions = self._extract_dimensions(variable)
+        self.shape = self._get_shape(variable)
 
     @abstractmethod
     def _get_data_type(self, variable: InputVariableType):
@@ -341,16 +341,49 @@ class VariableFromDmr(VariableBase, AttributeContainerFromDmr):
 
     """
 
+    def __init__(
+        self,
+        element: ET.Element,
+        cf_config: CFConfig,
+        namespace: str,
+        full_name_path: str,
+        all_dimensions_sizes: dict[str, int],
+    ):
+        self.all_dimensions_sizes = all_dimensions_sizes
+        super().__init__(element, cf_config, namespace, full_name_path)
+
     def _get_data_type(self, variable: ET.Element) -> str:
         """Extract a string representation of the variable data type."""
         return variable.tag.lstrip(self.namespace).lower()
 
     def _get_shape(self, variable: ET.Element) -> tuple[int]:
-        """Extract the shape of the variable data array. This is not yet
-        implemented as the Dimension information is currently unavailable
-        to the Variable XML content.
-
+        """Extract the shape of the variable data array. First explore
+        XML for - DIM child elements with a size
+        attribute - true for HDF5 files and anonymous dimensions
+        (note no name). If found (with or without names), use them. If
+        not found, use all_dimensions_sizes dictionary with matching dimension
+        names to define the variable shape. Note the all_dimensions_sizes
+        dictionary is filled when parsing xml for variables, capturing
+        dimensions names and sizes for dimension entries - as found in
+        NetCDF files with named dimensions.
         """
+
+        # Retrieve the shape from the dimension size in the
+        # <Dim size=xx/> element.
+        shape = [
+            int(dim_size.attrib['size'])
+            for dim_size in variable.findall(f'.//{self.namespace}Dim[@size]')
+        ]
+
+        # Retrieve the shape from dimension size in the
+        # <Dimension size=xx/> element
+        if len(shape) != len(self.dimensions):
+            for dim_name in self.dimensions:
+                if dim_name in self.all_dimensions_sizes:
+                    index = self.dimensions.index(dim_name)
+                    shape.insert(index, self.all_dimensions_sizes[dim_name])
+
+        return shape
 
     def _get_raw_dimensions(self, variable: ET.Element) -> list[str]:
         """Extract the raw dimension names from a <Dim /> XML element."""

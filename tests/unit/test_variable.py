@@ -20,10 +20,15 @@ class TestVariableFromDmr(TestCase):
         cls.config_file = 'tests/unit/data/test_config.json'
         cls.fakesat_config = CFConfig('FakeSat', 'FAKE99', config_file=cls.config_file)
         cls.namespace = 'namespace_string'
+        cls.fake_all_dimensions_sizes = {
+            '/time': 1,
+            '/latitude': 1800,
+            '/longitude': 3600,
+        }
         cls.dmr_variable = ET.fromstring(
             f'<{cls.namespace}Float64 name="variable">'
-            f'  <{cls.namespace}Dim name="first_dimension" />'
-            f'  <{cls.namespace}Dim name="second_dimension" />'
+            f'  <{cls.namespace}Dim name="first_dimension" size="1800"/>'
+            f'  <{cls.namespace}Dim name="second_dimension" size="3600"/>'
             f'  <{cls.namespace}Attribute name="ancillary_variables" type="String">'
             f'    <{cls.namespace}Value>/ancillary_data/epoch</{cls.namespace}Value>'
             f'  </{cls.namespace}Attribute>'
@@ -140,6 +145,7 @@ class TestVariableFromDmr(TestCase):
             self.fakesat_config,
             self.namespace,
             self.dmr_variable_path,
+            self.fake_all_dimensions_sizes,
         )
 
         self.assertEqual(variable.full_name_path, '/group/variable')
@@ -177,11 +183,7 @@ class TestVariableFromDmr(TestCase):
             {'/group/begin', '/group/count'},
         )
 
-        # Currently the Dimension elements from the DMR, which contain the
-        # number of elements for a variable in a given dimension, are not
-        # preserved. This means the variable shape is not tracked for DMR
-        # variables.
-        self.assertIsNone(variable.shape)
+        self.assertEqual(variable.shape, [1800, 3600])
 
     def test_variable_cf_override_reference(self):
         """Ensure a CF-Convention attribute that contains references to other
@@ -201,6 +203,7 @@ class TestVariableFromDmr(TestCase):
             self.fakesat_config,
             self.namespace,
             '/coordinates_group/science',
+            self.fake_all_dimensions_sizes,
         )
 
         self.assertSetEqual(
@@ -222,7 +225,11 @@ class TestVariableFromDmr(TestCase):
         )
 
         variable = VariableFromDmr(
-            dmr_variable, self.fakesat_config, self.namespace, '/random'
+            dmr_variable,
+            self.fakesat_config,
+            self.namespace,
+            '/random',
+            self.fake_all_dimensions_sizes,
         )
 
         self.assertEqual(
@@ -241,7 +248,11 @@ class TestVariableFromDmr(TestCase):
         )
 
         variable = VariableFromDmr(
-            dmr_variable, self.fakesat_config, self.namespace, '/absent_variable'
+            dmr_variable,
+            self.fakesat_config,
+            self.namespace,
+            '/absent_variable',
+            self.fake_all_dimensions_sizes,
         )
 
         self.assertEqual(variable.attributes.get('extra_override'), 'overriding value')
@@ -269,7 +280,11 @@ class TestVariableFromDmr(TestCase):
                     f'</{self.namespace}Float64>'
                 )
                 variable = VariableFromDmr(
-                    dmr_variable, self.fakesat_config, self.namespace, variable_name
+                    dmr_variable,
+                    self.fakesat_config,
+                    self.namespace,
+                    variable_name,
+                    self.fake_all_dimensions_sizes,
                 )
                 self.assertSetEqual(
                     variable.references.get('coordinates'), {qualified_reference}
@@ -292,7 +307,11 @@ class TestVariableFromDmr(TestCase):
                 )
 
                 variable = VariableFromDmr(
-                    dmr_variable, self.fakesat_config, self.namespace, root_var_name
+                    dmr_variable,
+                    self.fakesat_config,
+                    self.namespace,
+                    root_var_name,
+                    self.fake_all_dimensions_sizes,
                 )
                 self.assertSetEqual(
                     variable.references.get('coordinates'), {qualified_reference}
@@ -308,7 +327,11 @@ class TestVariableFromDmr(TestCase):
             )
 
             grid_mapping_variable = VariableFromDmr(
-                dmr_variable, self.fakesat_config, self.namespace, root_var_name
+                dmr_variable,
+                self.fakesat_config,
+                self.namespace,
+                root_var_name,
+                self.fake_all_dimensions_sizes,
             )
 
             # The CRS and dimensions should be extracted, and the trailing
@@ -330,6 +353,7 @@ class TestVariableFromDmr(TestCase):
                 self.fakesat_config,
                 self.namespace,
                 self.dmr_variable_path,
+                self.fake_all_dimensions_sizes,
             )
 
             references = variable.get_references()
@@ -360,7 +384,11 @@ class TestVariableFromDmr(TestCase):
             )
 
             variable = VariableFromDmr(
-                dmr_variable, self.fakesat_config, self.namespace, '/lat'
+                dmr_variable,
+                self.fakesat_config,
+                self.namespace,
+                '/lat',
+                self.fake_all_dimensions_sizes,
             )
 
             self.assertSetEqual(
@@ -378,6 +406,7 @@ class TestVariableFromDmr(TestCase):
             self.fakesat_config,
             self.namespace,
             self.dmr_variable_path,
+            self.fake_all_dimensions_sizes,
         )
 
         default_value = 'default'
@@ -415,7 +444,11 @@ class TestVariableFromDmr(TestCase):
             f'</{self.namespace}Float64>'
         )
         variable = VariableFromDmr(
-            dmr_variable, self.fakesat_config, self.namespace, variable_name
+            dmr_variable,
+            self.fakesat_config,
+            self.namespace,
+            variable_name,
+            self.fake_all_dimensions_sizes,
         )
 
         self.assertEqual(variable.dimensions, ['/group_one/delta_time'])
@@ -442,6 +475,7 @@ class TestVariableFromDmr(TestCase):
                 self.fakesat_config,
                 self.namespace,
                 '/group_one/time',
+                self.fake_all_dimensions_sizes,
             )
 
             self.assertTrue(temporal_variable.is_temporal())
@@ -462,6 +496,7 @@ class TestVariableFromDmr(TestCase):
                 self.fakesat_config,
                 self.namespace,
                 '/group_one/longitude',
+                self.fake_all_dimensions_sizes,
             )
 
             self.assertFalse(non_temporal_variable.is_temporal())
@@ -477,6 +512,7 @@ class TestVariableFromDmr(TestCase):
                 self.fakesat_config,
                 self.namespace,
                 '/group_one/unitless',
+                self.fake_all_dimensions_sizes,
             )
 
             self.assertFalse(unitless_variable.is_temporal())
@@ -497,7 +533,11 @@ class TestVariableFromDmr(TestCase):
             with self.subTest(description):
                 variable_tree = ET.fromstring(variable_string)
                 variable = VariableFromDmr(
-                    variable_tree, self.fakesat_config, self.namespace, '/variable'
+                    variable_tree,
+                    self.fakesat_config,
+                    self.namespace,
+                    '/variable',
+                    self.fake_all_dimensions_sizes,
                 )
 
                 self.assertTrue(variable.is_geographic())
@@ -512,7 +552,11 @@ class TestVariableFromDmr(TestCase):
             with self.subTest(description):
                 variable_tree = ET.fromstring(variable_string)
                 variable = VariableFromDmr(
-                    variable_tree, self.fakesat_config, self.namespace, '/variable'
+                    variable_tree,
+                    self.fakesat_config,
+                    self.namespace,
+                    '/variable',
+                    self.fake_all_dimensions_sizes,
                 )
 
                 self.assertFalse(variable.is_geographic())
@@ -525,7 +569,11 @@ class TestVariableFromDmr(TestCase):
         with self.subTest('Latitude variable'):
             variable_tree = ET.fromstring(self.latitude_variable_string)
             variable = VariableFromDmr(
-                variable_tree, self.fakesat_config, self.namespace, '/variable'
+                variable_tree,
+                self.fakesat_config,
+                self.namespace,
+                '/variable',
+                self.fake_all_dimensions_sizes,
             )
 
             self.assertTrue(variable.is_latitude())
@@ -541,7 +589,11 @@ class TestVariableFromDmr(TestCase):
             with self.subTest(description):
                 variable_tree = ET.fromstring(variable_string)
                 variable = VariableFromDmr(
-                    variable_tree, self.fakesat_config, self.namespace, '/variable'
+                    variable_tree,
+                    self.fakesat_config,
+                    self.namespace,
+                    '/variable',
+                    self.fake_all_dimensions_sizes,
                 )
 
                 self.assertFalse(variable.is_latitude())
@@ -554,7 +606,11 @@ class TestVariableFromDmr(TestCase):
         with self.subTest('Longitude variable'):
             variable_tree = ET.fromstring(self.longitude_variable_string)
             variable = VariableFromDmr(
-                variable_tree, self.fakesat_config, self.namespace, '/variable'
+                variable_tree,
+                self.fakesat_config,
+                self.namespace,
+                '/variable',
+                self.fake_all_dimensions_sizes,
             )
 
             self.assertTrue(variable.is_longitude())
@@ -570,7 +626,11 @@ class TestVariableFromDmr(TestCase):
             with self.subTest(description):
                 variable_tree = ET.fromstring(variable_string)
                 variable = VariableFromDmr(
-                    variable_tree, self.fakesat_config, self.namespace, '/variable'
+                    variable_tree,
+                    self.fakesat_config,
+                    self.namespace,
+                    '/variable',
+                    self.fake_all_dimensions_sizes,
                 )
 
                 self.assertFalse(variable.is_longitude())
@@ -590,7 +650,11 @@ class TestVariableFromDmr(TestCase):
             with self.subTest(description):
                 variable_tree = ET.fromstring(variable_string)
                 variable = VariableFromDmr(
-                    variable_tree, self.fakesat_config, self.namespace, '/variable'
+                    variable_tree,
+                    self.fakesat_config,
+                    self.namespace,
+                    '/variable',
+                    self.fake_all_dimensions_sizes,
                 )
 
                 self.assertTrue(variable.is_projection_x_or_y())
@@ -605,7 +669,11 @@ class TestVariableFromDmr(TestCase):
             with self.subTest(description):
                 variable_tree = ET.fromstring(variable_string)
                 variable = VariableFromDmr(
-                    variable_tree, self.fakesat_config, self.namespace, '/variable'
+                    variable_tree,
+                    self.fakesat_config,
+                    self.namespace,
+                    '/variable',
+                    self.fake_all_dimensions_sizes,
                 )
 
                 self.assertFalse(variable.is_projection_x_or_y())
@@ -633,7 +701,11 @@ class TestVariableFromDmr(TestCase):
             with self.subTest(description):
                 variable_tree = ET.fromstring(variable_string)
                 variable = VariableFromDmr(
-                    variable_tree, self.fakesat_config, self.namespace, '/variable'
+                    variable_tree,
+                    self.fakesat_config,
+                    self.namespace,
+                    '/variable',
+                    self.fake_all_dimensions_sizes,
                 )
 
                 self.assertEqual(variable.get_range(), expected_range)
@@ -657,7 +729,11 @@ class TestVariableFromDmr(TestCase):
             with self.subTest(description):
                 variable_tree = ET.fromstring(variable_string)
                 variable = VariableFromDmr(
-                    variable_tree, self.fakesat_config, self.namespace, '/variable'
+                    variable_tree,
+                    self.fakesat_config,
+                    self.namespace,
+                    '/variable',
+                    self.fake_all_dimensions_sizes,
                 )
 
                 self.assertEqual(variable.get_valid_min(), expected_valid_min)
@@ -681,14 +757,140 @@ class TestVariableFromDmr(TestCase):
             with self.subTest(description):
                 variable_tree = ET.fromstring(variable_string)
                 variable = VariableFromDmr(
-                    variable_tree, self.fakesat_config, self.namespace, '/variable'
+                    variable_tree,
+                    self.fakesat_config,
+                    self.namespace,
+                    '/variable',
+                    self.fake_all_dimensions_sizes,
                 )
 
                 self.assertEqual(variable.get_valid_max(), expected_valid_max)
 
+    def test_variable_get_shape(self):
+        """Ensure that all variable shapes are returned when requesting
+        variable.shape and dimension.
+
+        """
+        with self.subTest('<Dim /> element with name and size variable'):
+            dmr_variable = ET.fromstring(
+                f'<{self.namespace}Float64 name="science">'
+                f' <{self.namespace}Dim name="time" size="2"/>'
+                f' <{self.namespace}Dim name="latitude" size="1800"/>'
+                f' <{self.namespace}Dim name="longitude" size="3600"/>'
+                f' <{self.namespace}Attribute name="coordinates" type="String">'
+                f'   <{self.namespace}Value>latitude, longitude'
+                f'   </{self.namespace}Value>'
+                f' </{self.namespace}Attribute>'
+                f'</{self.namespace}Float64>'
+            )
+
+            variable = VariableFromDmr(
+                dmr_variable,
+                self.fakesat_config,
+                self.namespace,
+                '/coordinates_group/science',
+                self.fake_all_dimensions_sizes,
+            )
+
+            self.assertEqual(
+                variable.dimensions,
+                [
+                    '/coordinates_group/time',
+                    '/coordinates_group/latitude',
+                    '/coordinates_group/longitude',
+                ],
+            )
+
+            self.assertEqual(variable.shape, [2, 1800, 3600])
+
+    def test_variable_get_shape_with_without_dim_size(self):
+        """Ensure that all variable shapes <Dim /> elements with/without a size
+        attribute are returned when requesting variable.shape and dimension.
+
+        """
+        with self.subTest('<Dim /> latitude without size'):
+            dmr_variable = ET.fromstring(
+                f'<{self.namespace}Float64 name="science">'
+                f' <{self.namespace}Dim name="delta_time" size="2"/>'
+                f' <{self.namespace}Dim name="latitude"/>'
+                f' <{self.namespace}Dim name="lonv" size="3600"/>'
+                f' <{self.namespace}Attribute name="coordinates" type="String">'
+                f'   <{self.namespace}Value>latitude, longitude'
+                f'   </{self.namespace}Value>'
+                f' </{self.namespace}Attribute>'
+                f'</{self.namespace}Float64>'
+            )
+
+            variable = VariableFromDmr(
+                dmr_variable,
+                self.fakesat_config,
+                self.namespace,
+                '/variable',
+                self.fake_all_dimensions_sizes,
+            )
+
+            self.assertEqual(
+                variable.dimensions,
+                [
+                    '/delta_time',
+                    '/latitude',
+                    '/lonv',
+                ],
+            )
+
+            # Verify latitude in <Dim name="latitude"/> without size
+            # correctly inherits the parent Dimension value 1800
+            # Shape is correctly order in list(delta_time, latitude, lonv)
+            self.assertEqual(variable.shape, [2, 1800, 3600])
+
+        with self.subTest('<Dim /> latitude and longitude without sizes'):
+            dmr_variable = ET.fromstring(
+                f'<{self.namespace}Float64 name="science">'
+                f' <{self.namespace}Dim name="delta_time" size="1"/>'
+                f' <{self.namespace}Dim name="latitude"/>'
+                f' <{self.namespace}Dim name="longitude"/>'
+                f' <{self.namespace}Attribute name="coordinates" type="String">'
+                f'   <{self.namespace}Value>latitude, longitude'
+                f'   </{self.namespace}Value>'
+                f' </{self.namespace}Attribute>'
+                f'</{self.namespace}Float64>'
+            )
+
+            variable = VariableFromDmr(
+                dmr_variable,
+                self.fakesat_config,
+                self.namespace,
+                '/variable',
+                self.fake_all_dimensions_sizes,
+            )
+
+            # Verify latitude and longitude in <Dim name="latitude"/>
+            # <Dim name="longitude"/> witout size correctly
+            # inherits the parent Dimension size
+            # Shape is correctly order in list(delta_time, latitude, lonv)
+            self.assertEqual(variable.shape, [1, 1800, 3600])
+
+        with self.subTest('<Dim /> element and size ONLY variable'):
+            dmr_variable = ET.fromstring(
+                f'<{self.namespace}Float64 name="d_4_chunks">'
+                f'  <{self.namespace}Dim size="2222"/>'
+                f'</{self.namespace}Float64>'
+            )
+
+            variable = VariableFromDmr(
+                dmr_variable,
+                self.fakesat_config,
+                self.namespace,
+                self.dmr_variable_path,
+                self.fake_all_dimensions_sizes,
+            )
+
+            self.assertEqual(variable.dimensions, [])
+            self.assertEqual(variable.shape, [2222])
+
     def test_variable_from_netcdf4(self):
-        """Ensure that a `netCDF4.Variable` instance can be correctly parsed
-        by the `VariableFromNetCDF4` child class.
+        """Ensure that a `netCDF4.Variable` instance can be correctly
+        parsed by the `VariableFromNetCDF4` child class.
 
         """
         with Dataset('test.nc4', 'w', diskless=True) as dataset:

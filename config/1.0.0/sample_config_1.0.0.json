@@ -292,7 +292,7 @@
     {
       "Applicability": {
         "Mission": "ICESat2",
-        "ShortNamePath": "ATL0[3-9]|ATL1[023]",
+        "ShortNamePath": "ATL03",
         "VariablePattern": "/gt[123][lr]/geolocation/.*"
       },
       "Attributes": [

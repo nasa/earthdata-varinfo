@@ -67,6 +67,7 @@ class VarInfoBase(ABC):
         self.variables: dict[str, OutputVariableType] = {}
         self.references: set[str] = set()
         self.metadata: dict[str, OutputVariableType] = {}
+        self.all_dimensions_sizes: dict[str, int] = {}
 
         self._set_var_info_config()
         self._read_dataset(file_path)
@@ -570,11 +571,18 @@ class VarInfoFromDmr(VarInfoBase):
             variable = VariableFromDmr(
                 element,
                 self.cf_config,
-                namespace=self.namespace,
-                full_name_path=element_path,
+                self.namespace,
+                element_path,
+                self.all_dimensions_sizes,
             )
             output[variable.full_name_path] = variable
             self._assign_variable(variable)
+
+        self.find_all_dimensions_sizes(
+            self.dataset,
+            set(DAP4_TO_NUMPY_MAP.keys()),
+            '/',
+        )
 
         all_variables = {}
 
@@ -601,6 +609,34 @@ class VarInfoFromDmr(VarInfoBase):
             for reference in self.references
             if self.get_variable(reference) is not None
         }
+
+    def find_all_dimensions_sizes(
+        self,
+        element: ET.Element,
+        element_types: set[str],
+        group_path: str,
+    ):
+        """Perform a depth first search of the `.dmr` `Dimension` element
+        before parsing the variables. This ensures that any variable can
+        reference a dimension defined later in the dataset. Once an element
+        is found, it is then assigned to the `all_dimensions_sizes{}` dictionary.
+
+        """
+        group_path = group_path.rstrip('/')
+
+        for child in list(element):
+            # Ff it is a Dimension, assign dictionary all_dimensions_sizes{}
+            # else, if it is a Group, call this function again
+            element_type = child.tag.replace(self.namespace, '')
+
+            if element_type == 'Dimension':
+                if child.attrib['size'] is not None:
+                    dim_name = '/'.join([group_path, child.get('name')])
+                    self.all_dimensions_sizes[dim_name] = int(child.attrib['size'])
+            elif element_type == 'Group':
+                new_group_path = '/'.join([group_path, child.get('name')])
+
+                self.find_all_dimensions_sizes(child, element_types, new_group_path)
 
     def traverse_elements(
         self,
@@ -710,6 +746,9 @@ class VarInfoFromNetCDF4(VarInfoBase):
                 namespace=self.namespace,
                 full_name_path=variable_path,
             )
+
+            for index, dimensions_name in enumerate(variable.dimensions):
+                self.all_dimensions_sizes[dimensions_name] = variable.shape[index]
 
             self._assign_variable(variable)
 

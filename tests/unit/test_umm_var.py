@@ -391,17 +391,30 @@ class TestUmmVar(TestCase):
                 {'Name': 'lat', 'Size': 2, 'Type': 'LATITUDE_DIMENSION'},
             )
 
-        with self.subTest('Other-type dimension variable'):
-            # Uses M2I3NPASM from DMR, so lacks size information
+        with self.subTest(
+            'Other-type, LATITUDE_DIMENSION, LONGITUDE_DIMENSION,'
+            'and TIME_DIMENSIONdimension variable'
+        ):
+            # Uses M2I3NPASM from DMR
             merra_variable = self.merra_varinfo.get_variable('/EPV')
             self.assertDictEqual(
+                get_dimension_information(self.merra_varinfo, merra_variable, '/time'),
+                {'Name': 'time', 'Size': 8, 'Type': 'TIME_DIMENSION'},
+            )
+            self.assertDictEqual(
                 get_dimension_information(self.merra_varinfo, merra_variable, '/lev'),
-                {'Name': 'lev', 'Size': 'Varies', 'Type': 'OTHER'},
+                {'Name': 'lev', 'Size': 42, 'Type': 'OTHER'},
+            )
+            self.assertDictEqual(
+                get_dimension_information(self.merra_varinfo, merra_variable, '/lat'),
+                {'Name': 'lat', 'Size': 361, 'Type': 'LATITUDE_DIMENSION'},
+            )
+            self.assertDictEqual(
+                get_dimension_information(self.merra_varinfo, merra_variable, '/lon'),
+                {'Name': 'lon', 'Size': 576, 'Type': 'LONGITUDE_DIMENSION'},
             )
 
-        with self.subTest('Variable missing shape returns size "Varies"'):
-            # Currently uses a VariableFromDmr because those do not yet have
-            # shape information.
+        with self.subTest('Variable shape returns size "Varies"'):
             atl03_variable = self.atl03_varinfo.get_variable(
                 '/gt3r/bckgrd_atlas/bckgrd_counts'
             )
@@ -411,7 +424,7 @@ class TestUmmVar(TestCase):
                 ),
                 {
                     'Name': 'gt3r/bckgrd_atlas/delta_time',
-                    'Size': 'Varies',
+                    'Size': 83188,
                     'Type': 'TIME_DIMENSION',
                 },
             )
@@ -426,21 +439,6 @@ class TestUmmVar(TestCase):
                     self.gpm_varinfo, bounds_variable, '/Grid/latv'
                 ),
                 {'Name': 'Grid/latv', 'Size': 2, 'Type': 'OTHER'},
-            )
-
-        with self.subTest('Absent dimension'):
-            # Typically a size-only dimension, without an accompanying variable
-            # It is assumed that the list of dimensions associated with the
-            # variable (as derived from the source granule) is correct, and
-            # that the UMM-Var dimensions should track this dimension.
-            # Note: This test uses a completely fictitious dimension to
-            # replicate this condition due to a lack of a real-world example.
-            gpm_variable = self.gpm_varinfo.get_variable('/Grid/precipitationCal')
-            self.assertDictEqual(
-                get_dimension_information(
-                    self.gpm_varinfo, gpm_variable, '/Grid/absent'
-                ),
-                {'Name': 'Grid/absent', 'Size': 'Varies', 'Type': 'OTHER'},
             )
 
     def test_get_dimension_size(self):
@@ -496,9 +494,7 @@ class TestUmmVar(TestCase):
                 get_dimension_size(self.gpm_varinfo, bounds_variable, '/Grid/latv'), 2
             )
 
-        with self.subTest(
-            'Variable with no shape, no dimension shape returns "Varies"'
-        ):
+        with self.subTest('Variable with shape returns correct size'):
             # This test currently uses input from a DMR file, as the
             # VariableFromDMR class does not derive shape information for any
             # variable - this guarantees skipping the first two conditions in
@@ -506,7 +502,7 @@ class TestUmmVar(TestCase):
             gpm_variable = self.gpm_varinfo.get_variable('/Grid/precipitationCal')
             self.assertEqual(
                 get_dimension_size(self.gpm_varinfo, gpm_variable, '/Grid/lon'),
-                'Varies',
+                3600,
             )
 
     def test_get_valid_ranges(self):
@@ -517,6 +513,8 @@ class TestUmmVar(TestCase):
         value of None.
 
         """
+        fake_all_dimensions_sizes = {'/time': 1, '/latitude': 1800, '/longitude': 3600}
+
         with self.subTest('A valid_range returns ValidRangeType item'):
             valid_range_variable_tree = ET.fromstring(
                 '<Float64 name="variable">'
@@ -527,7 +525,11 @@ class TestUmmVar(TestCase):
                 '</Float64>'
             )
             variable = VariableFromDmr(
-                valid_range_variable_tree, self.atl03_config, '', '/variable'
+                valid_range_variable_tree,
+                self.atl03_config,
+                '',
+                '/variable',
+                fake_all_dimensions_sizes,
             )
 
             self.assertListEqual(
@@ -546,7 +548,11 @@ class TestUmmVar(TestCase):
                 '</Float64>'
             )
             variable = VariableFromDmr(
-                valid_min_max_variable_tree, self.atl03_config, '', '/variable'
+                valid_min_max_variable_tree,
+                self.atl03_config,
+                '',
+                '/variable',
+                fake_all_dimensions_sizes,
             )
 
             self.assertListEqual(get_valid_ranges(variable), [{'Min': -90, 'Max': 90}])
@@ -560,7 +566,11 @@ class TestUmmVar(TestCase):
                 '</Float64>'
             )
             variable = VariableFromDmr(
-                valid_min_only_variable_tree, self.atl03_config, '', '/variable'
+                valid_min_only_variable_tree,
+                self.atl03_config,
+                '',
+                '/variable',
+                fake_all_dimensions_sizes,
             )
 
             self.assertListEqual(get_valid_ranges(variable), [{'Min': -90}])
@@ -574,7 +584,11 @@ class TestUmmVar(TestCase):
                 '</Float64>'
             )
             variable = VariableFromDmr(
-                valid_max_only_variable_tree, self.atl03_config, '', '/variable'
+                valid_max_only_variable_tree,
+                self.atl03_config,
+                '',
+                '/variable',
+                fake_all_dimensions_sizes,
             )
 
             self.assertListEqual(get_valid_ranges(variable), [{'Max': 90}])
@@ -584,7 +598,11 @@ class TestUmmVar(TestCase):
                 '<Float64 name="variable_name">' '</Float64>'
             )
             variable = VariableFromDmr(
-                no_range_variable_tree, self.atl03_config, '', '/variable'
+                no_range_variable_tree,
+                self.atl03_config,
+                '',
+                '/variable',
+                fake_all_dimensions_sizes,
             )
 
             self.assertIsNone(get_valid_ranges(variable))
