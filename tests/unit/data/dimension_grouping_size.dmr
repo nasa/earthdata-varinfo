@@ -6,6 +6,8 @@
 <Dimension name="time" size="1"/>
 <Dimension name="latitude" size="1800"/>
 <Dimension name="longitude" size="3600"/>
+<Dimension name="x" size="72"/>
+<Dimension name="y" size="36"/>
 <Float64 name="science_one">
   <Dim name="/time"/>
   <Dim name="/latitude"/>
@@ -60,6 +62,12 @@
       <Value>degree_north</Value>
     </Attribute>
   </Float64>
+  <Float32 name="precipitationQualityIndex">
+    <Dim name="/science_three/time" size="4"/>
+      <Attribute name="units" type="String">
+        <Value>minutes since 2021-01-07 00:00:00</Value>
+      </Attribute>
+  </Float32>
 </Group>
 <Group name="science_four">
   <Dimension name="longitude" size="3333"/>
@@ -84,4 +92,11 @@
     </Float64>
   </Group>
 </Group>
+<Float64 name="science_five">
+  <Dim name="/time"/>
+  <Dim name="/latitude"/>
+  <Dim name="/longitude"/>
+  <Dim name="/x"/>
+  <Dim name="/y"/>
+</Float64>
 </Dataset>

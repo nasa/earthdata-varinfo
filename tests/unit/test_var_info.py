@@ -982,6 +982,8 @@ class TestVarInfoFromDmr(TestCase):
                 '/time': 1,
                 '/latitude': 1800,
                 '/longitude': 3600,
+                '/x': 72,
+                '/y': 36,
                 '/science_three/latitude': 1111,
                 '/science_three/longitude': 2222,
                 '/science_four/longitude': 3333,
@@ -1046,6 +1048,14 @@ class TestVarInfoFromDmr(TestCase):
                 {'Name': 'science_three/lonv', 'Size': 7777, 'Type': 'OTHER'},
             )
 
+        variable = var_info.get_variable('/science_three/precipitationQualityIndex')
+        with self.subTest('Size obtained from dimension variable shape, int'):
+            self.assertEqual(variable.shape, [4])
+            self.assertDictEqual(
+                get_dimension_information(var_info, variable, '/science_three/time'),
+                {'Name': 'science_three/time', 'Size': 4, 'Type': 'OTHER'},
+            )
+
         variable = var_info.get_variable(
             '/science_four/Freeze_Thaw_Retrieval_Data_Polar'
         )
@@ -1087,6 +1097,10 @@ class TestVarInfoFromDmr(TestCase):
                 get_dimension_information(var_info, variable, '/longitude'),
                 {'Name': 'longitude', 'Size': 3600, 'Type': 'LONGITUDE_DIMENSION'},
             )
+
+        variable = var_info.get_variable('/science_five')
+        with self.subTest('Time dimension variable from /science_five'):
+            self.assertEqual(variable.shape, [1, 1800, 3600, 72, 36])
 
     def test_get_shape_with_anonymous_size_only_dimensions(self):
         """Ensure that all variable shapes and attributes are correctly
