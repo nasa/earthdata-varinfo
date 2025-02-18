@@ -377,10 +377,7 @@ class VariableFromDmr(VariableBase, AttributeContainerFromDmr):
 
         # Retrieve the shape from dimension size in the
         # <Dimension size=xx/> element
-        if (
-            len(shape) != len(self.all_dimensions_sizes)
-            and len(self.all_dimensions_sizes) > 0
-        ):
+        if len(shape) != len(self.dimensions):
             for dim_name in self.dimensions:
                 if dim_name in self.all_dimensions_sizes:
                     index = self.dimensions.index(dim_name)
