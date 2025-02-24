@@ -1,4 +1,4 @@
-""" Utility classes used to extend the unittest capabilities """
+"""Utility classes used to extend the unittest capabilities"""
 
 from typing import Dict
 

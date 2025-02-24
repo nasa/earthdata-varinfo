@@ -1,7 +1,7 @@
-""" This module contains custom exceptions specific to the `earthdata-varinfo`
-    Python package. These exceptions are intended to allow for easier debugging
-    of the expected errors that may occur during an invocation of the package,
-    or any third party code that uses the package.
+"""This module contains custom exceptions specific to the `earthdata-varinfo`
+Python package. These exceptions are intended to allow for easier debugging
+of the expected errors that may occur during an invocation of the package,
+or any third party code that uses the package.
 
 """
 

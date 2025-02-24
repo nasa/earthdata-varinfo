@@ -1,20 +1,20 @@
-""" This module contains a class designed to read and present information from
-    a JSON configuration file. This configuration file provides overriding
-    information for attributes provided by granules on a per-collection basis.
-    This information is primarily intended to augment the CF-Convention
-    attributes for a dataset, but can also be used to alter non CF-Convention
-    metadata within a granule.
+"""This module contains a class designed to read and present information from
+a JSON configuration file. This configuration file provides overriding
+information for attributes provided by granules on a per-collection basis.
+This information is primarily intended to augment the CF-Convention
+attributes for a dataset, but can also be used to alter non CF-Convention
+metadata within a granule.
 
-    Information within the configuration file is split into rules that have
-    an Applicability. This section should define a mission, collection short
-    name and (optionally) a regular expression compatible string for relevant
-    variable paths.
+Information within the configuration file is split into rules that have
+an Applicability. This section should define a mission, collection short
+name and (optionally) a regular expression compatible string for relevant
+variable paths.
 
-    The configuration file also specifies variables that are incorrectly
-    considered as science variables by the VarInfo class, due to them having
-    references in the coordinates attribute. Further, there are required
-    variables that have to be included in the output of any variable subset
-    request for a specific collection.
+The configuration file also specifies variables that are incorrectly
+considered as science variables by the VarInfo class, due to them having
+references in the coordinates attribute. Further, there are required
+variables that have to be included in the output of any variable subset
+request for a specific collection.
 
 """
 

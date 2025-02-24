@@ -1,20 +1,20 @@
-""" This module contains lower-level functionality that can be abstracted into
-    functions. Primarily this improves readability of the source code, and
-    allows finer-grained unit testing of each smaller part of functionality.
+"""This module contains lower-level functionality that can be abstracted into
+functions. Primarily this improves readability of the source code, and
+allows finer-grained unit testing of each smaller part of functionality.
 
-    For CF-Convention reference attributes see the following sections of the
-    Conventions:
+For CF-Convention reference attributes see the following sections of the
+Conventions:
 
-    - Section 3.4: ancillary_variables
-    - Sections 4 and 5: coordinates
-    - Section 5.6: grid_mapping
-    - Section 7.1: bounds
-    - Section 7.2: cell_measure
-    - Section 7.5: geometry, interior_ring, node_coordinates, node_count,
-                   nodes, part_node_count
+- Section 3.4: ancillary_variables
+- Sections 4 and 5: coordinates
+- Section 5.6: grid_mapping
+- Section 7.1: bounds
+- Section 7.2: cell_measure
+- Section 7.5: geometry, interior_ring, node_coordinates, node_count,
+               nodes, part_node_count
 
-    susbset_control_variables is a new attribute introduced by the Data
-    Services team, primarily for use with references for segmented data.
+susbset_control_variables is a new attribute introduced by the Data
+Services team, primarily for use with references for segmented data.
 
 """
 

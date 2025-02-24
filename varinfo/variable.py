@@ -1,6 +1,6 @@
-""" This module contains classes designed to read information from an OPeNDAP
-    DMR or NetCDF-4 file. These classes will group the input into science
-    variables, metadata, coordinates, dimensions and ancillary data sets.
+"""This module contains classes designed to read information from an OPeNDAP
+DMR or NetCDF-4 file. These classes will group the input into science
+variables, metadata, coordinates, dimensions and ancillary data sets.
 
 """
 
