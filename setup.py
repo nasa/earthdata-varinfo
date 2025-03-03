@@ -1,7 +1,7 @@
-""" Scaffolding for the earthdata-varinfo package
+"""Scaffolding for the earthdata-varinfo package
 
-    Note: license and classifier list:
-    https://pypi.org/pypi?%3Aaction=list_classifiers
+Note: license and classifier list:
+https://pypi.org/pypi?%3Aaction=list_classifiers
 
 """
 

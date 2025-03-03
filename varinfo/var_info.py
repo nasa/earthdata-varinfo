@@ -1,6 +1,6 @@
-""" This module contains a class designed to read information from a `.dmr`
-    file. This should group the input into science variables, metadata,
-    coordinates, dimensions and ancillary data sets.
+"""This module contains a class designed to read information from a `.dmr`
+file. This should group the input into science variables, metadata,
+coordinates, dimensions and ancillary data sets.
 
 """
 

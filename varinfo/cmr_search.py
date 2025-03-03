@@ -1,6 +1,6 @@
-""" This script leverages the `python-cmr` library to conduct a CMR search
-    and get a granule download URL. With the granule download URL and the
-    `requests` library a granule is downloaded via https and saved locally.
+"""This script leverages the `python-cmr` library to conduct a CMR search
+and get a granule download URL. With the granule download URL and the
+`requests` library a granule is downloaded via https and saved locally.
 """
 
 from __future__ import annotations

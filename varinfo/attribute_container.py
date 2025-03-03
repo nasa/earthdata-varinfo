@@ -1,7 +1,7 @@
-""" This module contains classes designed to capture information regarding
-    metadata attributes as read from either an OPeNDAP DMR or a NetCDF-4 file.
-    These classes are inherited by both representations of groups and of
-    variables.
+"""This module contains classes designed to capture information regarding
+metadata attributes as read from either an OPeNDAP DMR or a NetCDF-4 file.
+These classes are inherited by both representations of groups and of
+variables.
 
 """
 

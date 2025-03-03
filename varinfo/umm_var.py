@@ -1,33 +1,33 @@
-""" Functionality to convert a Variable instance, from either a DMR or NetCDF-4
-    input, to a UMM-Var record.
+"""Functionality to convert a Variable instance, from either a DMR or NetCDF-4
+input, to a UMM-Var record.
 
-    To use:
+To use:
 
-    ```
-    from varinfo import VarInfoFromNetCDF4
-    from varinfo.umm_var import export_all_umm_var, get_all_umm_var
+```
+from varinfo import VarInfoFromNetCDF4
+from varinfo.umm_var import export_all_umm_var, get_all_umm_var
 
-    varinfo_gpm = VarInfoFromNetCDF4('/path/to/GPM_3IMERGHH/granule.nc4',
-                                     short_name='GPM_3IMERGHH')
+varinfo_gpm = VarInfoFromNetCDF4('/path/to/GPM_3IMERGHH/granule.nc4',
+                                 short_name='GPM_3IMERGHH')
 
-    umm_var_records = get_all_umm_var(varinfo_gpm)
+umm_var_records = get_all_umm_var(varinfo_gpm)
 
-    # To export to disk:
-    export_all_umm_var(umm_var_records.values(), output_dir='path/to/directory')
-    ```
+# To export to disk:
+export_all_umm_var(umm_var_records.values(), output_dir='path/to/directory')
+```
 
-    To validate generated records:
+To validate generated records:
 
-    ```
-    import json
-    from jsonschema import validate
+```
+import json
+from jsonschema import validate
 
-    with open('tests/unit/data/umm_var_json_schema_1.8.2.json') as file_handler:
-        umm_var_schema = json.load(file_handler)
+with open('tests/unit/data/umm_var_json_schema_1.8.2.json') as file_handler:
+    umm_var_schema = json.load(file_handler)
 
-    for record in umm_var_records:
-        validate(schema=umm_var_schema, instance=umm_var_schema)
-    ```
+for record in umm_var_records:
+    validate(schema=umm_var_schema, instance=umm_var_schema)
+```
 
 """
 
