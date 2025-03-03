@@ -1,12 +1,12 @@
-""" This module generates UMM-Var records for a specified collection, and
-    optionally will publish those records to CMR.
-    `generation_collection_umm_var` will:
+"""This module generates UMM-Var records for a specified collection, and
+optionally will publish those records to CMR.
+`generation_collection_umm_var` will:
 
-    * Performing a CMR granule search with collection-based query parameters.
-    * Downloading the granule locally.
-    * Parse the variable metadata from the granule using VarInfoFromNetCDF4.
-    * Generate UMM-Var JSON as a dictionary for each identified variable.
-    * (Optional) Publish each UMM-Var entry to the selected CMR environment.
+* Performing a CMR granule search with collection-based query parameters.
+* Downloading the granule locally.
+* Parse the variable metadata from the granule using VarInfoFromNetCDF4.
+* Generate UMM-Var JSON as a dictionary for each identified variable.
+* (Optional) Publish each UMM-Var entry to the selected CMR environment.
 
 """
 
