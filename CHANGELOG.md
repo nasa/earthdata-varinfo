@@ -1,3 +1,10 @@
+## v3.0.3
+### Unreleased
+
+### Changed:
+
+* Updated to `netCDF4~=1.7.2` to enable `mypy` type hints for the package.
+
 ## v3.0.2
 ### 2025-02-07
 
@@ -11,7 +18,7 @@ files with named dimensions and HDF-5 files with anonymous size-only dimensions.
 
 ### Changed:
 
-*Update DRM `unittest` to validate variable dimension shape data.
+* Update DMR `unittest` to validate variable dimension shape data.
 
 ## v3.0.1
 ### 2024-10-18
