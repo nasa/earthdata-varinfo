@@ -190,9 +190,32 @@ class VariableBase(AttributeContainerBase):
         `projection_y_angular_coordinate`.
 
         """
+        return self.is_projection_x() or self.is_projection_y()
+
+    def is_projection_x(self) -> bool:
+        """Determine if the variable is a projected x spatial coordinate based
+        on the `standard_name` metadata attribute being
+        `projection_x_coordinate`, as defined by the CF Conventions
+        (v1.9). Note, geostationary projections have coordinate with
+        `standard_name` metadata attribute value of
+        `projection_x_angular_coordinate`.
+
+        """
         return self.attributes.get('standard_name') in [
             'projection_x_coordinate',
             'projection_x_angular_coordinate',
+        ]
+
+    def is_projection_y(self) -> bool:
+        """Determine if the variable is a projected y spatial coordinate based
+        on the `standard_name` metadata attribute being
+        `projection_y_coordinate`, as defined by the CF Conventions
+        (v1.9). Note, geostationary projections have coordinate with
+        `standard_name` metadata attribute value of
+        `projection_y_angular_coordinate`.
+
+        """
+        return self.attributes.get('standard_name') in [
             'projection_y_coordinate',
             'projection_y_angular_coordinate',
         ]
@@ -218,7 +241,7 @@ class VariableBase(AttributeContainerBase):
         }
 
     def _get_cf_references(self, attribute_name: str) -> set[str]:
-        """Retrieve an attribute from the parsed varaible metadata, correcting
+        """Retrieve an attribute from the parsed variable metadata, correcting
         for any known artefacts (missing or incorrect references). Then
         split this string and qualify the individual references.
 
