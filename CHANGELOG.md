@@ -1,3 +1,15 @@
+## v3.1.0
+### 2025-03-25
+
+### Added:
+
+* `VariableBase::is_projection_x` and `VariableBase::is_projection_y` added to
+  determine a variable's exact projected coordinate.
+
+### Changed:
+
+* earthdata-varinfo's numpy requirements relaxed to allow numpy v2.
+
 ## v3.0.3
 ### 2025-03-21
 

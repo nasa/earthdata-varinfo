@@ -562,7 +562,7 @@ class TestVariableFromDmr(TestCase):
                 self.assertFalse(variable.is_geographic())
 
     def test_is_latitude(self):
-        """Ensure that a varaible is correctly identified a latitudinal based
+        """Ensure that a variable is correctly identified a latitudinal based
         on its `units` metadata attribute.
 
         """
@@ -677,6 +677,41 @@ class TestVariableFromDmr(TestCase):
                 )
 
                 self.assertFalse(variable.is_projection_x_or_y())
+
+    def test_is_projection_x(self):
+        """Ensure that a variable is correctly identified as a projected
+        spatial dimension based on its `standard_name` metadata
+        attribute.
+
+        """
+        test_args = [
+            [
+                'Projected x variable',
+                self.projection_x_variable_string,
+                self.assertTrue,
+                self.assertFalse,
+            ],
+            [
+                'Projected y variable',
+                self.projection_y_variable_string,
+                self.assertFalse,
+                self.assertTrue,
+            ],
+        ]
+
+        for description, variable_string, x_assertion, y_assertion in test_args:
+            with self.subTest(description):
+                variable_tree = ET.fromstring(variable_string)
+                variable = VariableFromDmr(
+                    variable_tree,
+                    self.fakesat_config,
+                    self.namespace,
+                    '/variable',
+                    self.fake_all_dimensions_sizes,
+                )
+
+                x_assertion(variable.is_projection_x())
+                y_assertion(variable.is_projection_y())
 
     def test_get_range(self):
         """Ensure the correct valid range is returned based either on the
