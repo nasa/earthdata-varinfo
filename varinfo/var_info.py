@@ -288,6 +288,11 @@ class VarInfoBase(ABC):
         variables for the collection, as indicated by the CFConfig class
         instance, and any references within those variables.
 
+        All variables included within the `CFConfig.required_variables` instance
+        attribute will be included in any request for required variables. There
+        is no pattern matching applied from the `ApplicabilityType` for the
+        items in the `RequiredVariables` section of the configuration file.
+
         """
         if self.cf_config.required_variables:
             cf_required_pattern = re.compile(
