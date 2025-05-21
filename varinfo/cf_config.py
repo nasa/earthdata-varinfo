@@ -69,6 +69,11 @@ class CFConfig:
         of it pertaining to the mission and collection specified upon
         instantiating the class.
 
+        Note: Applicable rules for `RequiredVariables` will be applied to all
+        variables in a collection when trying to identify required variables
+        for a given subset of requested variables. The `VariablePattern` of
+        the `ApplicabilityType` is not taken into account.
+
         """
         if self.config_file is not None and not exists(self.config_file):
             raise MissingConfigurationFileError(self.config_file)

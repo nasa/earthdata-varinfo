@@ -1,3 +1,16 @@
+## v3.1.1
+### Unreleased
+
+### Changed:
+
+* DAS-2339 - Clarified documentation regarding `RequiredVariables` in the
+  configuration file schema, `CFConfig` class and
+  `VarInfoBase.get_required_variables`. Variables specified in
+  `RequiredVariables` will be included as required variables for all variables
+  variable subsets of the relevant collection defined in the configuration file
+  rule. There is no filtering based on the variable path of the requested
+  variables in the input set to `VarInfoBase.get_required_variables`.
+
 ## v3.1.0
 ### 2025-03-25
 

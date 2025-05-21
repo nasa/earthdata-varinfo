@@ -37,14 +37,14 @@
       }
     },
     "RequiredVariables": {
-      "description": "# VarInfo classes will calculate a set of required variables for a given science variable. This setting imposes additional contents for the required variables list.",
+      "description": "VarInfo classes will calculate a set of required variables for a given science variable. This setting imposes additional contents for the required variables list that apply to all variables in a collection.",
       "type": "array",
       "items": {
         "$ref": "#/$defs/MissionVariablePatternType"
       }
     },
     "MetadataOverrides": {
-      "description": "# For cases where CF references do not exist, or are invalid. For example, variables that have no dimension references in the HDF-5 file contents",
+      "description": "For cases where CF references do not exist, or are invalid. For example, variables that have no dimension references in the HDF-5 file contents",
       "type": "array",
       "items": {
         "$ref": "#/$defs/MetadataOverridesItemType"
