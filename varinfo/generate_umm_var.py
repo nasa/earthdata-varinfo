@@ -18,13 +18,14 @@ import re
 
 from cmr import CMR_UAT
 
-from varinfo import VarInfoFromNetCDF4
+from varinfo import VarInfoFromNetCDF4, VarInfoFromDmr
 from varinfo.cmr_search import (
     CmrEnvType,
     download_granule,
     get_granule_link,
     get_granules,
     get_edl_token_header,
+    get_dmr_xml_url,
 )
 from varinfo.umm_var import get_all_umm_var, publish_all_umm_var
 
@@ -40,6 +41,7 @@ def generate_collection_umm_var(
     cmr_env: CmrEnvType = CMR_UAT,
     publish: bool = False,
     config_file: str | None = None,
+    use_dmr: bool = False,
 ) -> UmmVarReturnType:
     """Run all the of the functions for downloading and publishing
     a UMM-Var entry to CMR given:
@@ -64,20 +66,38 @@ def generate_collection_umm_var(
         collection_concept_id, cmr_env=cmr_env, auth_header=auth_header_edl_token
     )
 
-    # Get the data download URL for the most recent granule (NetCDF-4 file)
-    granule_link = get_granule_link(granule_response)
+    # Get OPeNDAP data URL with `.dml.xml` appended
+    if use_dmr:
+        granule_link = get_dmr_xml_url(granule_response)
+        print('here first granule link ', granule_link)
+        with TemporaryDirectory() as temp_dir:
+            # Download file to runtime environment
+            local_granule = download_granule(
+                granule_link, auth_header_edl_token, out_directory=temp_dir
+            )
+            print(local_granule)
+            # Parse the granule with VarInfo to map all variables and relations:
+            var_info = VarInfoFromDmr(local_granule, config_file=config_file)
 
-    with TemporaryDirectory() as temp_dir:
-        # Download file to runtime environment
-        local_granule = download_granule(
-            granule_link, auth_header_edl_token, out_directory=temp_dir
-        )
+            # Generate all the UMM-Var records:
+            all_umm_var_records = get_all_umm_var(var_info)
 
-        # Parse the granule with VarInfo to map all variables and relations:
-        var_info = VarInfoFromNetCDF4(local_granule, config_file=config_file)
+    else:
+        print('why are you here')
+        # Get the data download URL for the most recent granule (NetCDF-4 file)
+        granule_link = get_granule_link(granule_response)
 
-        # Generate all the UMM-Var records:
-        all_umm_var_records = get_all_umm_var(var_info)
+        with TemporaryDirectory() as temp_dir:
+            # Download file to runtime environment
+            local_granule = download_granule(
+                granule_link, auth_header_edl_token, out_directory=temp_dir
+            )
+
+            # Parse the granule with VarInfo to map all variables and relations:
+            var_info = VarInfoFromNetCDF4(local_granule, config_file=config_file)
+
+            # Generate all the UMM-Var records:
+            all_umm_var_records = get_all_umm_var(var_info)
 
     if publish:
         # Publish to CMR and construct an output object that is a list of

@@ -190,3 +190,21 @@ def get_edl_token_header(auth_header: str, cmr_env: CmrEnvType) -> str:
     else:
         edl_auth_header = auth_header
     return edl_auth_header
+
+
+def get_dmr_xml_url(granule_response: Sequence) -> str:
+    """Gets the OPeNDAP url from a CMR granule response and appends `.dmr.xml`"""
+    granule_link = next(
+        (
+            link['href']
+            for link in granule_response[0].get('links', [])
+            if link['rel'].endswith('/service#')
+            and 'inherited' not in link  # and 'opendap' in link
+        ),
+        None,
+    )
+
+    if granule_link is None:
+        raise MissingGranuleDownloadLinks(granule_response)
+
+    return granule_link + '.dmr.xml'
