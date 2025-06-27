@@ -69,13 +69,11 @@ def generate_collection_umm_var(
     # Get OPeNDAP data URL with `.dml.xml` appended
     if use_dmr:
         granule_link = get_dmr_xml_url(granule_response)
-        print('here first granule link ', granule_link)
         with TemporaryDirectory() as temp_dir:
             # Download file to runtime environment
             local_granule = download_granule(
                 granule_link, auth_header_edl_token, out_directory=temp_dir
             )
-            print(local_granule)
             # Parse the granule with VarInfo to map all variables and relations:
             var_info = VarInfoFromDmr(local_granule, config_file=config_file)
 
@@ -83,7 +81,6 @@ def generate_collection_umm_var(
             all_umm_var_records = get_all_umm_var(var_info)
 
     else:
-        print('why are you here')
         # Get the data download URL for the most recent granule (NetCDF-4 file)
         granule_link = get_granule_link(granule_response)
 
