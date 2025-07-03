@@ -192,8 +192,7 @@ Prerequisites:
 Set up conda virtual environment:
 
 ```bash
-conda create --name earthdata-varinfo python=3.11 --channel conda-forge \
-    --channel defaults -y
+conda create --name earthdata-varinfo python=3.11 --channel conda-forge -y
 conda activate earthdata-varinfo
 ```
 
