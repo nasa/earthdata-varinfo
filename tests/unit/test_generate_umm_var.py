@@ -20,12 +20,31 @@ class TestGenerateUmmVar(TestCase):
         cls.launchpad_token_header = 'launchpad-token'
         cls.netcdf4_basename = 'f16_ssmis_20210426v7.nc'
         cls.netcdf4_url = f'https://example.com/{cls.netcdf4_basename}'
+        cls.example_dmr_basename = 'M2I3NPASM_example.dmr'
+        cls.opendap_url = (
+            f'https://fake.opendap.earthdata.nasa.gov/{cls.example_dmr_basename}'
+        )
+        cls.opendap_xml_download_url = (
+            f'https://fake.opendap.earthdata.nasa.gov/{cls.example_dmr_basename}.xml'
+        )
         cls.query_granule_return = [
             {
                 'links': [
                     {
                         'href': cls.netcdf4_url,
                         'rel': 'http://esipfed.org/ns/fedsearch/1.1/data#',
+                    }
+                ]
+            }
+        ]
+        cls.query_granule_return_opendap = [
+            {
+                'links': [
+                    {
+                        'rel': 'http://esipfed.org/ns/fedsearch/1.1/service#',
+                        'title': 'OPeNDAP request URL (GET DATA : OPENDAP DATA)',
+                        'hreflang': 'en-US',
+                        'href': cls.opendap_url,
                     }
                 ]
             }
@@ -52,6 +71,69 @@ class TestGenerateUmmVar(TestCase):
         """
         netcdf4_file_path = 'tests/unit/data/f16_ssmis_20210426v7.nc'
         return copy(netcdf4_file_path, out_directory)
+
+    @staticmethod
+    def download_dmr_side_effect(granule_link, auth_header, out_directory):
+        """A helper method that will copy the test file to the temporary
+        directory being used for a specific test.
+
+        Static methods do not have access to class attributes, so the test
+        file path is defined in this method as well as setUpClass.
+
+        """
+        dmr_file_path = 'tests/unit/data/M2I3NPASM_example.dmr'
+        return copy(dmr_file_path, out_directory)
+
+    @patch('varinfo.umm_var.publish_umm_var')
+    @patch('varinfo.generate_umm_var.get_dmr_xml_url')
+    @patch('varinfo.cmr_search.GranuleQuery')
+    @patch('varinfo.generate_umm_var.download_granule')
+    def test_generate_collection_umm_var_dmr(
+        self,
+        mock_download_granule,
+        mock_granule_query,
+        mock_get_dmr_xml_url,
+        mock_publish_umm_var,
+    ):
+        """A request with all the necessary information should succeed.
+        This test is moderately end-to-end, but mocks the full
+        download_granule function for simplicity. That function is tested
+        in detail in test_cmr_search.py.
+
+        """
+        mock_granule_query.return_value.get.return_value = (
+            self.query_granule_return_opendap
+        )
+
+        # Add side effect that will copy test file to the temporary directory,
+        # simulating a download.
+        mock_download_granule.side_effect = self.download_dmr_side_effect
+
+        # Set return value for get_dmr_xml_url
+        mock_get_dmr_xml_url.return_value = self.opendap_xml_download_url
+
+        # Check call arguments when use_dmr=True
+        generate_collection_umm_var(
+            self.collection_concept_id,
+            self.bearer_token_header,
+            use_dmr=True,
+        )
+
+        mock_get_dmr_xml_url.assert_called_once_with(self.query_granule_return_opendap)
+        # Ensure the granule query used expected query parameters
+        mock_granule_query.return_value.parameters.assert_called_once_with(
+            downloadable=True,
+            sort_key='-start_date',
+            concept_id=self.collection_concept_id,
+        )
+
+        # Ensure the call to download the granule had correct parameters
+        mock_download_granule.assert_called_once_with(
+            self.opendap_xml_download_url, self.bearer_token_header, out_directory=ANY
+        )
+
+        # Check that no attempt was made to publish a UMM-Var record to CMR:
+        mock_publish_umm_var.assert_not_called()
 
     @patch('varinfo.umm_var.publish_umm_var')
     @patch('varinfo.cmr_search.GranuleQuery')

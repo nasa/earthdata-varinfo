@@ -11,6 +11,7 @@ from requests.exceptions import HTTPError, Timeout
 from varinfo.cmr_search import (
     get_granules,
     get_granule_link,
+    get_dmr_xml_url,
     download_granule,
     get_edl_token_from_launchpad,
     get_edl_token_header,
@@ -519,3 +520,72 @@ class TestQuery(TestCase):
         """
         test_bearer_token = get_edl_token_header(self.bearer_token_header, CMR_UAT)
         self.assertEqual(test_bearer_token, self.bearer_token_header)
+
+    def test_get_dmr_xml_url(self):
+        """Check if MissingGranuleDownloadLinks is raised."""
+        # Nested dict does not contain key `links`
+        granule_response_no_links = [
+            {'no_links': [{'rel': 'http://esipfed.org/ns/fedsearch/1.1/s3#'}]}
+        ]
+
+        # Nested dict contains `links` but `rel` does not end in '/data#'
+        granule_response_links_no_rel = [
+            {'links': [{'rel': 'http://cool-science-data.#'}]}
+        ]
+
+        # Nested dict contains keys:
+        # `links`, `inherited`, and `rel` ends in '/data#'
+        granule_response_links_rel_inherit = [
+            {
+                'links': [
+                    {
+                        'rel': 'http://cool-science-data/1.1/data#',
+                        'href': 'http://cool-science-data/data/.nc4',
+                        'inherited': True,
+                    }
+                ]
+            }
+        ]
+
+        granule_response_links_empty = [{'links': []}]
+
+        granule_response_links_correct = [
+            {
+                'links': [
+                    {
+                        'rel': 'http://cool-science-data/1.1/service#',
+                        'title': 'OPeNDAP request URL (GET DATA : OPENDAP DATA)',
+                        'hreflang': 'en-US',
+                        'href': 'https://fake.opendap.earthdata.nasa.gov/example.nc4',
+                    }
+                ]
+            }
+        ]
+
+        with self.subTest('Granule has no `links` key'):
+            with self.assertRaises(MissingGranuleDownloadLinks) as context_manager:
+                get_dmr_xml_url(granule_response_no_links)
+            self.assertEqual(
+                f'No links for granule record: {str(granule_response_no_links)}',
+                str(context_manager.exception),
+            )
+
+        with self.subTest('Granule has `links`' 'but `rel` does not end with `/data#`'):
+            with self.assertRaises(MissingGranuleDownloadLinks):
+                get_dmr_xml_url(granule_response_links_no_rel)
+
+        with self.subTest(
+            'Granule has `links`, `inherited`, ' 'and `rel` ends in `/data#`'
+        ):
+            with self.assertRaises(MissingGranuleDownloadLinks):
+                get_dmr_xml_url(granule_response_links_rel_inherit)
+
+        with self.subTest('Granule has `links` but it is an empty list'):
+            with self.assertRaises(MissingGranuleDownloadLinks):
+                get_dmr_xml_url(granule_response_links_empty)
+
+        with self.subTest('Granule has `links` and all correct attributes'):
+            self.assertEqual(
+                get_dmr_xml_url(granule_response_links_correct),
+                'https://fake.opendap.earthdata.nasa.gov/example.nc4.dmr.xml',
+            )
