@@ -74,7 +74,7 @@ class TestGenerateUmmVar(TestCase):
 
     @staticmethod
     def download_dmr_side_effect(granule_link, auth_header, out_directory):
-        """A helper method that will copy the test file to the temporary
+        """A helper method that will copy a test dmr file to the temporary
         directory being used for a specific test.
 
         Static methods do not have access to class attributes, so the test
@@ -83,57 +83,6 @@ class TestGenerateUmmVar(TestCase):
         """
         dmr_file_path = 'tests/unit/data/M2I3NPASM_example.dmr'
         return copy(dmr_file_path, out_directory)
-
-    @patch('varinfo.umm_var.publish_umm_var')
-    @patch('varinfo.generate_umm_var.get_dmr_xml_url')
-    @patch('varinfo.cmr_search.GranuleQuery')
-    @patch('varinfo.generate_umm_var.download_granule')
-    def test_generate_collection_umm_var_dmr(
-        self,
-        mock_download_granule,
-        mock_granule_query,
-        mock_get_dmr_xml_url,
-        mock_publish_umm_var,
-    ):
-        """A request with all the necessary information should succeed.
-        This test is moderately end-to-end, but mocks the full
-        download_granule function for simplicity. That function is tested
-        in detail in test_cmr_search.py.
-
-        """
-        mock_granule_query.return_value.get.return_value = (
-            self.query_granule_return_opendap
-        )
-
-        # Add side effect that will copy test file to the temporary directory,
-        # simulating a download.
-        mock_download_granule.side_effect = self.download_dmr_side_effect
-
-        # Set return value for get_dmr_xml_url
-        mock_get_dmr_xml_url.return_value = self.opendap_xml_download_url
-
-        # Check call arguments when use_dmr=True
-        generate_collection_umm_var(
-            self.collection_concept_id,
-            self.bearer_token_header,
-            use_dmr=True,
-        )
-
-        mock_get_dmr_xml_url.assert_called_once_with(self.query_granule_return_opendap)
-        # Ensure the granule query used expected query parameters
-        mock_granule_query.return_value.parameters.assert_called_once_with(
-            downloadable=True,
-            sort_key='-start_date',
-            concept_id=self.collection_concept_id,
-        )
-
-        # Ensure the call to download the granule had correct parameters
-        mock_download_granule.assert_called_once_with(
-            self.opendap_xml_download_url, self.bearer_token_header, out_directory=ANY
-        )
-
-        # Check that no attempt was made to publish a UMM-Var record to CMR:
-        mock_publish_umm_var.assert_not_called()
 
     @patch('varinfo.umm_var.publish_umm_var')
     @patch('varinfo.cmr_search.GranuleQuery')
@@ -225,6 +174,52 @@ class TestGenerateUmmVar(TestCase):
 
         # Ensure the output looks as expected
         self.assertSetEqual(set(published_umm_var), set(expected_concept_ids))
+
+    @patch('varinfo.umm_var.publish_umm_var')
+    @patch('varinfo.generate_umm_var.get_dmr_xml_url')
+    @patch('varinfo.cmr_search.GranuleQuery')
+    @patch('varinfo.generate_umm_var.download_granule')
+    def test_generate_collection_umm_var_dmr(
+        self,
+        mock_download_granule,
+        mock_granule_query,
+        mock_get_dmr_xml_url,
+        mock_publish_umm_var,
+    ):
+        """Test an end-to-end request for a DMR file."""
+        mock_granule_query.return_value.get.return_value = (
+            self.query_granule_return_opendap
+        )
+
+        # Add side effect that will copy test file to the temporary directory,
+        # simulating a download.
+        mock_download_granule.side_effect = self.download_dmr_side_effect
+
+        # Set return value for get_dmr_xml_url
+        mock_get_dmr_xml_url.return_value = self.opendap_xml_download_url
+
+        # Check call arguments when use_dmr=True
+        generate_collection_umm_var(
+            self.collection_concept_id,
+            self.bearer_token_header,
+            use_dmr=True,
+        )
+
+        mock_get_dmr_xml_url.assert_called_once_with(self.query_granule_return_opendap)
+        # Ensure the granule query used expected query parameters
+        mock_granule_query.return_value.parameters.assert_called_once_with(
+            downloadable=True,
+            sort_key='-start_date',
+            concept_id=self.collection_concept_id,
+        )
+
+        # Ensure the call to download the granule had correct parameters
+        mock_download_granule.assert_called_once_with(
+            self.opendap_xml_download_url, self.bearer_token_header, out_directory=ANY
+        )
+
+        # Check that no attempt was made to publish a UMM-Var record to CMR:
+        mock_publish_umm_var.assert_not_called()
 
     @patch('varinfo.umm_var.publish_umm_var')
     @patch('varinfo.cmr_search.GranuleQuery')

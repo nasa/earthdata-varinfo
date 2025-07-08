@@ -522,7 +522,7 @@ class TestQuery(TestCase):
         self.assertEqual(test_bearer_token, self.bearer_token_header)
 
     def test_get_dmr_xml_url(self):
-        """Check if MissingGranuleDownloadLinks is raised."""
+        """Check if MissingGranuleDownloadLinks is raised with get_dmr_xml_url"""
         # Nested dict does not contain key `links`
         granule_response_no_links = [
             {'no_links': [{'rel': 'http://esipfed.org/ns/fedsearch/1.1/s3#'}]}
