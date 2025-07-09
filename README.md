@@ -120,6 +120,16 @@ umm_var_json = generate_collection_umm_var(<Production collection concept ID>,
 umm_var_json = generate_collection_umm_var(<UAT collection concept ID>,
                                            <authorization header>,
                                            publish=True)
+
+# Use DMR to generate UMM-Var, defaults to UAT, and not to publish:
+umm_var_json = generate_collection_umm_var(<UAT collection concept ID>,
+                                           <authorization header>)
+
+# To generate and publish records from a DMR file for a UAT collection
+# (note the authorization header must contain a LaunchPad token):
+umm_var_json = generate_collection_umm_var(<UAT collection concept ID>,
+                                           <authorization header>,
+                                           publish=True, use_dmr=True)
 ```
 
 Expected outputs:
