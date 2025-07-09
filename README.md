@@ -121,7 +121,7 @@ umm_var_json = generate_collection_umm_var(<UAT collection concept ID>,
                                            <authorization header>,
                                            publish=True)
 
-# Use DMR to generate UMM-Var, defaults to UAT, and not to publish:
+# Use a DMR file to generate UMM-Var, defaults to UAT, and not to publish:
 umm_var_json = generate_collection_umm_var(<UAT collection concept ID>,
                                            <authorization header>)
 
