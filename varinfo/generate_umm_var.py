@@ -66,35 +66,29 @@ def generate_collection_umm_var(
         collection_concept_id, cmr_env=cmr_env, auth_header=auth_header_edl_token
     )
 
-    # Get OPeNDAP data URL with `.dml.xml` appended
     if use_dmr:
+        # Get OPeNDAP data URL with `.dml.xml` appended
         granule_link = get_dmr_xml_url(granule_response)
-        with TemporaryDirectory() as temp_dir:
-            # Download file to runtime environment
-            local_granule = download_granule(
-                granule_link, auth_header_edl_token, out_directory=temp_dir
-            )
-            # Parse the granule with VarInfo to map all variables and relations:
-            var_info = VarInfoFromDmr(local_granule, config_file=config_file)
-
-            # Generate all the UMM-Var records:
-            all_umm_var_records = get_all_umm_var(var_info)
 
     else:
         # Get the data download URL for the most recent granule (NetCDF-4 file)
         granule_link = get_granule_link(granule_response)
 
-        with TemporaryDirectory() as temp_dir:
-            # Download file to runtime environment
-            local_granule = download_granule(
-                granule_link, auth_header_edl_token, out_directory=temp_dir
-            )
+    with TemporaryDirectory() as temp_dir:
+        # Download file to runtime environment
+        local_granule = download_granule(
+            granule_link, auth_header_edl_token, out_directory=temp_dir
+        )
 
-            # Parse the granule with VarInfo to map all variables and relations:
+        if use_dmr:
+            # Parse the granule with VarInfoFromDmr to map all variables and relations:
+            var_info = VarInfoFromDmr(local_granule, config_file=config_file)
+        else:
+            # Parse the granule with VarInfoFromNetCDF4 to map all variables and relations:
             var_info = VarInfoFromNetCDF4(local_granule, config_file=config_file)
 
-            # Generate all the UMM-Var records:
-            all_umm_var_records = get_all_umm_var(var_info)
+    # Generate all the UMM-Var records:
+    all_umm_var_records = get_all_umm_var(var_info)
 
     if publish:
         # Publish to CMR and construct an output object that is a list of
@@ -113,7 +107,7 @@ def generate_collection_umm_var(
             (
                 variable_response
                 if is_variable_concept_id(variable_response)
-                else ': '.join([variable_name, variable_response])
+                else ": ".join([variable_name, variable_response])
             )
             for variable_name, variable_response in publication_response.items()
         ]
@@ -129,4 +123,4 @@ def is_variable_concept_id(possible_concept_id: str) -> bool:
     expected structure of a variable concept ID, e.g., 'V1234567890-PROV'.
 
     """
-    return bool(re.match(r'^V\d{10}-\w+$', possible_concept_id))
+    return bool(re.match(r"^V\d{10}-\w+$", possible_concept_id))
