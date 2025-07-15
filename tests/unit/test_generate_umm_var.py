@@ -20,13 +20,11 @@ class TestGenerateUmmVar(TestCase):
         cls.launchpad_token_header = 'launchpad-token'
         cls.netcdf4_basename = 'f16_ssmis_20210426v7.nc'
         cls.netcdf4_url = f'https://example.com/{cls.netcdf4_basename}'
-        cls.example_dmr_basename = 'M2I3NPASM_example.dmr'
+        cls.example_dmr_basename = 'foo_HDF_EOS_granule.hdf'
         cls.opendap_url = (
             f'https://fake.opendap.earthdata.nasa.gov/{cls.example_dmr_basename}'
         )
-        cls.opendap_xml_download_url = (
-            f'https://fake.opendap.earthdata.nasa.gov/{cls.example_dmr_basename}.xml'
-        )
+        cls.opendap_xml_download_url = f'https://fake.opendap.earthdata.nasa.gov/{cls.example_dmr_basename}.dmr.xml'
         cls.query_granule_return = [
             {
                 'links': [

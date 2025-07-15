@@ -521,25 +521,28 @@ class TestQuery(TestCase):
         test_bearer_token = get_edl_token_header(self.bearer_token_header, CMR_UAT)
         self.assertEqual(test_bearer_token, self.bearer_token_header)
 
-    def test_get_dmr_xml_url(self):
-        """Check if MissingGranuleDownloadLinks is raised with get_dmr_xml_url"""
+    def test_get_dmr_xml_url_raises(self):
+        """Check if MissingGranuleDownloadLinks is raised with get_dmr_xml_url,
+        when the "links" attribute in the "RelatedUrls" of a granule response don't contain
+        the correct fields for an OPeNDAP service url.
+        """
+
         # Nested dict does not contain key `links`
         granule_response_no_links = [
             {'no_links': [{'rel': 'http://esipfed.org/ns/fedsearch/1.1/s3#'}]}
         ]
 
-        # Nested dict contains `links` but `rel` does not end in '/data#'
+        # Nested dict contains `links` but `rel` does not end in '/service#'
         granule_response_links_no_rel = [
             {'links': [{'rel': 'http://cool-science-data.#'}]}
         ]
 
-        # Nested dict contains keys:
-        # `links`, `inherited`, and `rel` ends in '/data#'
+        # Nested dict contains "inherited" key
         granule_response_links_rel_inherit = [
             {
                 'links': [
                     {
-                        'rel': 'http://cool-science-data/1.1/data#',
+                        'rel': 'http://cool-science-data/1.1/service#',
                         'href': 'http://cool-science-data/data/.nc4',
                         'inherited': True,
                     }
@@ -549,14 +552,14 @@ class TestQuery(TestCase):
 
         granule_response_links_empty = [{'links': []}]
 
-        granule_response_links_correct = [
+        granule_response_links_no_opendap = [
             {
                 'links': [
                     {
                         'rel': 'http://cool-science-data/1.1/service#',
                         'title': 'OPeNDAP request URL (GET DATA : OPENDAP DATA)',
                         'hreflang': 'en-US',
-                        'href': 'https://fake.opendap.earthdata.nasa.gov/example.nc4',
+                        'href': 'https://fake.earthdata.nasa.gov/example.nc4',
                     }
                 ]
             }
@@ -570,12 +573,14 @@ class TestQuery(TestCase):
                 str(context_manager.exception),
             )
 
-        with self.subTest('Granule has `links`' 'but `rel` does not end with `/data#`'):
+        with self.subTest(
+            'Granule has `links`' 'but `rel` does not end with `/service#`'
+        ):
             with self.assertRaises(MissingGranuleDownloadLinks):
                 get_dmr_xml_url(granule_response_links_no_rel)
 
         with self.subTest(
-            'Granule has `links`, `inherited`, ' 'and `rel` ends in `/data#`'
+            'Granule has `links` and `rel` ends in `/service#`, but contains `inherited` field.'
         ):
             with self.assertRaises(MissingGranuleDownloadLinks):
                 get_dmr_xml_url(granule_response_links_rel_inherit)
@@ -584,8 +589,51 @@ class TestQuery(TestCase):
             with self.assertRaises(MissingGranuleDownloadLinks):
                 get_dmr_xml_url(granule_response_links_empty)
 
-        with self.subTest('Granule has `links` and all correct attributes'):
+        with self.subTest(
+            'Granule has `links` and `rel` ends in `/service#`, but opendap is NOT in url.'
+        ):
+            with self.assertRaises(MissingGranuleDownloadLinks):
+                get_dmr_xml_url(granule_response_links_no_opendap)
+
+    def test_get_dmr_xml_url(self):
+        """Assert the correct OPeNDAP url is returned for a good granule response
+        (i.e. when the "links" attribute in the "RelatedUrls" of a granule response has
+        the correct fields for an OPeNDAP service url).
+        """
+        granule_response_links_correct_cloud_opendap = [
+            {
+                'links': [
+                    {
+                        'rel': 'http://cool-science-data/1.1/service#',
+                        'title': 'OPeNDAP request URL (GET DATA : OPENDAP DATA)',
+                        'hreflang': 'en-US',
+                        'href': 'https://fake.opendap.earthdata.nasa.gov/example.hdf',
+                    }
+                ]
+            }
+        ]
+
+        granule_response_links_correct_onprem_opendap = [
+            {
+                'links': [
+                    {
+                        'rel': 'http://cool-science-data/1.1/service#',
+                        'type': 'application/x-hdf',
+                        'title': 'OPeNDAP request URL (GET DATA : OPENDAP DATA)',
+                        'hreflang': 'en-US',
+                        'href': 'https://some.fake.server.onprem.opendap.nasa.gov/example.hdf',
+                    }
+                ]
+            }
+        ]
+        with self.subTest('Cloud OPeNDAP Related Urls response'):
             self.assertEqual(
-                get_dmr_xml_url(granule_response_links_correct),
-                'https://fake.opendap.earthdata.nasa.gov/example.nc4.dmr.xml',
+                get_dmr_xml_url(granule_response_links_correct_cloud_opendap),
+                'https://fake.opendap.earthdata.nasa.gov/example.hdf.dmr.xml',
+            )
+
+        with self.subTest('Onprem OPeNDAP Related Urls response'):
+            self.assertEqual(
+                get_dmr_xml_url(granule_response_links_correct_onprem_opendap),
+                'https://some.fake.server.onprem.opendap.nasa.gov/example.hdf.dmr.xml',
             )

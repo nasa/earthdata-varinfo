@@ -199,7 +199,8 @@ def get_dmr_xml_url(granule_response: Sequence) -> str:
             link['href']
             for link in granule_response[0].get('links', [])
             if link['rel'].endswith('/service#')
-            and 'inherited' not in link  # and 'opendap' in link
+            and 'inherited' not in link
+            and 'opendap' in link['href']
         ),
         None,
     )
