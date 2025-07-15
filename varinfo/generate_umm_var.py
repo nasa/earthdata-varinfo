@@ -107,7 +107,7 @@ def generate_collection_umm_var(
             (
                 variable_response
                 if is_variable_concept_id(variable_response)
-                else ": ".join([variable_name, variable_response])
+                else ': '.join([variable_name, variable_response])
             )
             for variable_name, variable_response in publication_response.items()
         ]
@@ -123,4 +123,4 @@ def is_variable_concept_id(possible_concept_id: str) -> bool:
     expected structure of a variable concept ID, e.g., 'V1234567890-PROV'.
 
     """
-    return bool(re.match(r"^V\d{10}-\w+$", possible_concept_id))
+    return bool(re.match(r'^V\d{10}-\w+$', possible_concept_id))
