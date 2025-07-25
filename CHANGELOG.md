@@ -1,5 +1,5 @@
-## v3.1.1
-### Unreleased
+## v3.2.0
+### 2025-07-25
 
 ### Changed:
 
@@ -10,6 +10,11 @@
   variable subsets of the relevant collection defined in the configuration file
   rule. There is no filtering based on the variable path of the requested
   variables in the input set to `VarInfoBase.get_required_variables`.
+
+### Added:
+
+* Support for getting an OPeNDAP url with `cmr_search.get_dmr_xml_url` and
+  a `use_dmr=True` flag to `varinfo/generate_umm_var.generate_collection_umm_var`
 
 ## v3.1.0
 ### 2025-03-25
