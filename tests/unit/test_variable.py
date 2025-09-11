@@ -923,6 +923,20 @@ class TestVariableFromDmr(TestCase):
             self.assertEqual(variable.dimensions, [])
             self.assertEqual(variable.shape, [2222])
 
+
+class TestVariableFromNetCDF4(TestCase):
+    """Tests for the `Variable` class using `netCDF4.Variable` input."""
+
+    @classmethod
+    def setUpClass(cls):
+        """Set up properties of the class that do not need to be reset between
+        tests.
+
+        """
+        cls.config_file = 'tests/unit/data/test_config.json'
+        cls.fakesat_config = CFConfig('FakeSat', 'FAKE99', config_file=cls.config_file)
+        cls.namespace = 'namespace_string'
+
     def test_variable_from_netcdf4(self):
         """Ensure that a `netCDF4.Variable` instance can be correctly
         parsed by the `VariableFromNetCDF4` child class.
@@ -968,3 +982,45 @@ class TestVariableFromDmr(TestCase):
         self.assertEqual(variable.get_valid_min(), -10)
         self.assertEqual(variable.get_valid_max(), 10)
         self.assertSetEqual(variable.get_references(), {'/lat', '/lon'})
+
+    def test_string_variable_get_data_type(self):
+        """Ensure VariableFromNetCDF4 extracts data type from `netCDF4.Variable`
+
+        * First trying `netCDF4.Variable.datatype.name`.
+        * Then fall back to `netCDF4.Variable.datatype.dtype`.
+
+        """
+        with Dataset('test.nc4', 'w', diskless=True) as dataset:
+            dataset.createDimension('lat', size=2)
+            dataset.createDimension('lon', size=2)
+
+            # A float variable has netCDF4.Variable.datatype.name populated
+            nc4_var_datatype_name = dataset.createVariable(
+                '/datatype_name', float, dimensions=('lat', 'lon')
+            )
+
+            # A str variable has netCDF4.Variable.datatype.name of `None`
+            nc4_var_datatype_dtype = dataset.createVariable(
+                'datatype_dtype',
+                str,
+                dimensions=('lat', 'lon'),
+            )
+
+            variable_from_datatype_name = VariableFromNetCDF4(
+                nc4_var_datatype_name,
+                self.fakesat_config,
+                self.namespace,
+                '/datatype_name',
+            )
+            variable_from_datatype_dtype = VariableFromNetCDF4(
+                nc4_var_datatype_dtype,
+                self.fakesat_config,
+                self.namespace,
+                '/datatype_dtype',
+            )
+
+        with self.subTest('From netCDF4.Variable.datatype.name'):
+            self.assertEqual(variable_from_datatype_name.data_type, 'float64')
+
+        with self.subTest('From netCDF4.Variable.datatype.dtype'):
+            self.assertEqual(variable_from_datatype_dtype.data_type, 'str')

@@ -424,8 +424,14 @@ class VariableFromNetCDF4(VariableBase, AttributeContainerFromNetCDF4):
     """
 
     def _get_data_type(self, variable: NetCDF4Variable) -> str:
-        """Extract a string representation of the variable data type."""
-        return variable.datatype.name
+        """Extract a string representation of the variable data type.
+
+        * First try `variable.datatype.name`. This can be `None` for some
+          string type variables.
+        * If `variable.datatype.name` is `None`, try `variable.datatype.dtype`.
+
+        """
+        return variable.datatype.name or variable.datatype.dtype.__name__
 
     def _get_shape(self, variable: NetCDF4Variable) -> tuple[int]:
         """Extract the shape of the variable data array."""
