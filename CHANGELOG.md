@@ -1,3 +1,12 @@
+## v3.3.0
+### 2025-09-11
+
+### Changed:
+
+* DAS-2373 - Updated the retrieval of data type from `netCDF4.Variable` objects
+  to first consider the `netCDF4.Variable.datatype.name` and then fall back to
+  `netCDF4.Variable.datatype.dtype`.
+
 ## v3.2.0
 ### 2025-07-25
 
