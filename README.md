@@ -232,6 +232,9 @@ Run `unittest` suite (run via `pytest`, but written using `unittest` classes):
 $ make test
 ```
 
+Note, the test execution will fail if code coverage of unit tests falls below
+90%.
+
 ### pre-commit hooks:
 
 This repository uses [pre-commit](https://pre-commit.com/) to enable pre-commit
