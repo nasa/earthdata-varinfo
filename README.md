@@ -233,7 +233,7 @@ $ make test
 ```
 
 Note, the test execution will fail if code coverage of unit tests falls below
-90%.
+95%. This threshold is also used during the GitHub workflow CI/CD.
 
 ### pre-commit hooks:
 

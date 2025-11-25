@@ -30,4 +30,4 @@ prepare-test:
 	mkdir -p tests/reports tests/coverage
 
 test: prepare-test
-	pytest --junitxml=tests/reports/earthdata-varinfo_junit.xml --cov varinfo --cov-report html:tests/coverage --cov-report term --cov-fail-under=90
+	pytest --junitxml=tests/reports/earthdata-varinfo_junit.xml --cov varinfo --cov-report html:tests/coverage --cov-report term --cov-fail-under=95
