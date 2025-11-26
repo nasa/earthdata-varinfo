@@ -232,6 +232,9 @@ Run `unittest` suite (run via `pytest`, but written using `unittest` classes):
 $ make test
 ```
 
+Note, the test execution will fail if code coverage of unit tests falls below
+95%. This threshold is also used during the GitHub workflow CI/CD.
+
 ### pre-commit hooks:
 
 This repository uses [pre-commit](https://pre-commit.com/) to enable pre-commit
