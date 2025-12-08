@@ -4,7 +4,7 @@ earthdata-varinfo follows semantic versioning. All notable changes to this
 project will be documented in this file. The format is based on
 [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
-## [vX.Y.Z] - Unreleased
+## [v3.3.1] - 2025-12-08
 
 ### Changed:
 
@@ -215,6 +215,7 @@ to the repository include updated documentation and files outlined by the
 For more information on internal releases prior to NASA open-source approval,
 see `legacy-CHANGELOG.md`.
 
+[v3.3.1]: https://github.com/nasa/earthdata-varinfo/releases/tag/3.3.1
 [v3.3.0]: https://github.com/nasa/earthdata-varinfo/releases/tag/3.3.0
 [v3.2.0]: https://github.com/nasa/earthdata-varinfo/releases/tag/3.2.0
 [v3.1.0]: https://github.com/nasa/earthdata-varinfo/releases/tag/3.1.0
