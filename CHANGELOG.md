@@ -11,6 +11,8 @@ project will be documented in this file. The format is based on
 * Release notes for `earthdata-varinfo` will now include the commit history for
   that release.
 
+* `urllib3` dependency is pinned to ~2.6.1 to handle vulnerabilies CVE-2025-66471 and CVE-2025-66418.
+
 ## [v3.3.0] - 2025-09-11
 
 ### Changed:
