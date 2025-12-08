@@ -2,3 +2,5 @@ netCDF4 >= 1.7.2
 numpy >= 1.24.2,<2.3
 python-cmr ~= 0.12.0
 requests ~= 2.31.0
+# To handle CVE-2025-66471 (coming from python-cmr)
+urllib3 ~= 2.6.1
