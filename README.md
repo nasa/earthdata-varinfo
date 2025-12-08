@@ -20,7 +20,7 @@ the supplied mission name and collection shortname. The JSON file is optional,
 and if not supplied, a `CFConfig` class will be constructed with largely empty
 attributes.
 
-```
+``` python
 from varinfo import CFConfig
 
 cf_config = CFConfig('ICESat2', 'ATL03', config_file='config/0.0.1/sample_config_0.0.1.json')
@@ -41,7 +41,7 @@ that granule. Current classes include:
 * VarInfoFromNetCDF4: Child class that maps input directly from a NetCDF-4
   file. Thus inherits all the methods and logic of VarInfoBase.
 
-```
+``` python
 from varinfo import VarInfoFromDmr
 
 var_info = VarInfoFromDmr('/path/to/local/file.dmr',
@@ -72,7 +72,7 @@ preferred way to specify a collection short name, and particularly encouraged
 for use when a granule does not contain the collection short name within its
 metadata attributes (e.g., ABoVE collections from ORNL).
 
-```
+``` python
 var_info = VarInfoFromDmr('/path/to/local/file.dmr', short_name='ATL03')
 ```
 
@@ -85,7 +85,7 @@ instantiation.
 `earthdata-varinfo` can generate variable metadata records compatible with the
 CMR UMM-Var schema:
 
-```
+```  python
 from varinfo import VarInfoFromNetCDF4
 from varinfo.umm_var import export_all_umm_var_to_json, get_all_umm_var
 
@@ -102,7 +102,7 @@ export_all_umm_var_to_json(list(umm_var.values()), output_dir='local_dir')
 
 ### End-to-end UMM-Var generation and publication:
 
-```
+```  python
 from cmr import CMR_OPS
 from varinfo.generate_umm_var import generate_collection_umm_var
 
@@ -215,7 +215,7 @@ $ make develop
 
 or
 
-```
+```bash
 pip install -r requirements.txt -r dev-requirements.txt
 ```
 
