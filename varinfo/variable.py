@@ -11,7 +11,7 @@ from typing import Union
 import re
 import xml.etree.ElementTree as ET
 
-from netCDF4 import Variable as NetCDF4Variable
+from netCDF4 import Variable as NetCDF4Variable, Dimension as NetCDF4Dimension
 
 from varinfo.attribute_container import (
     AttributeContainerBase,
@@ -442,4 +442,9 @@ class VariableFromNetCDF4(VariableBase, AttributeContainerFromNetCDF4):
         variable.
 
         """
-        return list(variable.dimensions)
+
+        def qualified_path(dim: NetCDF4Dimension) -> str:
+            """Returns the fully qualified path to the NetCDFVariable."""
+            return f'{dim.group().path}/{dim.name}'.replace('//', '/')
+
+        return [qualified_path(dimvar) for dimvar in variable.get_dims()]
