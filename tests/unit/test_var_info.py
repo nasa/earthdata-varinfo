@@ -885,9 +885,6 @@ class TestVarInfoFromDmr(TestCase):
                 '/lat': 2,
                 '/lon': 2,
                 '/time': 1,
-                '/group/time': 1,
-                '/group/lat': 2,
-                '/group/lon': 2,
             },
         )
 
