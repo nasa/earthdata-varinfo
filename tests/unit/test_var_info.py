@@ -885,11 +885,13 @@ class TestVarInfoFromDmr(TestCase):
                 '/lat': 2,
                 '/lon': 2,
                 '/time': 1,
+                '/group/swath': 3,
             },
         )
 
         self.assertSetEqual(
-            dataset.get_science_variables(), {'/group/science2', '/science1'}
+            dataset.get_science_variables(),
+            {'/group/science2', '/science1', '/group/subgroup/science3'},
         )
 
         self.assertSetEqual(
@@ -897,7 +899,16 @@ class TestVarInfoFromDmr(TestCase):
         )
 
         # Groups should now be saved to a new dictionary:
-        self.assertSetEqual(set(dataset.groups.keys()), {'/', '/group'})
+        self.assertSetEqual(
+            set(dataset.groups.keys()), {'/', '/group', '/group/subgroup'}
+        )
+
+        # Explicitly verify the dimensions of the science3 variable
+        # are up-root and up single group.
+        science3_variable = dataset.get_variable('/group/subgroup/science3')
+        self.assertEqual(
+            science3_variable.dimensions, ['/time', '/lat', '/lon', '/group/swath']
+        )
 
     def test_is_science_variable(self):
         """Ensure that a science variable is correctly recognized and
