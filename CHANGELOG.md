@@ -4,6 +4,15 @@ earthdata-varinfo follows semantic versioning. All notable changes to this
 project will be documented in this file. The format is based on
 [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+
+## [v4.0.0] - 2025-12-15
+
+### Changed:
+
+* VariableFromNetCDF4 is updated to use fully qualified paths to variable
+  dimensions. This update allows dimensions in parent groups to be found
+  without special handling.
+
 ## [v3.3.1] - 2025-12-08
 
 ### Changed:
