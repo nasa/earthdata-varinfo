@@ -75,6 +75,20 @@ def write_skeleton_netcdf4(output_dir: str) -> str:
         dataset.createVariable('scalar1', float64, dimensions=())
         dataset.createVariable('/group/scalar2', float64, dimensions=())
 
+        group = dataset.createGroup('group')
+        group.createDimension('swath', size=3)
+
+        subgroup = group.createGroup('subgroup')
+        science3 = subgroup.createVariable(
+            'science3', float64, dimensions=('time', 'lat', 'lon', 'swath')
+        )
+        science3.setncatts(
+            {
+                'long_name': 'science3',
+                'description': 'A 3 science variable, nested for testing',
+            }
+        )
+
     return file_path
 
 
