@@ -633,7 +633,6 @@ class TestQuery(TestCase):
             )
 
         with self.subTest('Onprem OPeNDAP Related Urls response'):
-            self.assertEqual(
+            with self.assertRaises(MissingGranuleDownloadLinks):
                 get_dmr_xml_url(granule_response_links_correct_onprem_opendap),
                 'https://some.fake.server.onprem.opendap.nasa.gov/example.hdf.dmr.xml',
-            )
