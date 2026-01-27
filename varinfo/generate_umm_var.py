@@ -29,7 +29,6 @@ from varinfo.cmr_search import (
 )
 from varinfo.umm_var import get_all_umm_var, publish_all_umm_var
 
-
 # Custom return type: either a list of UMM-Var JSON (a list of dictionaries),
 # or a list of strings (either concept IDs or error strings).
 UmmVarReturnType = list[Union[dict, str]]

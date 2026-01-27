@@ -17,7 +17,6 @@ from netCDF4 import Variable as NetCDF4Variable
 from varinfo.cf_config import CFConfig
 from varinfo.utilities import get_xml_attribute
 
-
 InputContainerType = Union[ET.Element, NetCDF4Group, NetCDF4Variable]
 
 
