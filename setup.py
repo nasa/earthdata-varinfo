@@ -12,7 +12,6 @@ import os
 
 from setuptools import find_packages, setup
 
-
 CURRENT_DIRECTORY = pathlib.Path(__file__).parent.resolve()
 
 

@@ -21,7 +21,6 @@ from varinfo.attribute_container import (
 from varinfo.cf_config import CFConfig
 from varinfo.utilities import CF_REFERENCE_ATTRIBUTES
 
-
 InputVariableType = Union[ET.Element, NetCDF4Variable]
 
 

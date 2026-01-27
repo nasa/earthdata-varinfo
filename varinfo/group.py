@@ -20,7 +20,6 @@ from varinfo.attribute_container import (
 from varinfo.cf_config import CFConfig
 from varinfo.utilities import DAP4_TO_NUMPY_MAP
 
-
 InputGroupType = Union[ET.Element, NetCDF4Group]
 
 
