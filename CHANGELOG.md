@@ -12,6 +12,7 @@ project will be documented in this file. The format is based on
 * `get_umm_var` is updated so that the UMM-Var `Definition` property will use
   `long_name` before the default of the variable name. The full ordering of
   precedence for metadata attributes used as UMM-Var `Definition` is now:
+
   * description
   * Description
   * definition
@@ -19,7 +20,9 @@ project will be documented in this file. The format is based on
   * title
   * Title
   * long_name
-  * The variable name
+
+  If none of the metadata attributes above are present, the variable name is
+  used as a default value for the UMM-Var `Definition`, as before.
 
 ## [v4.0.0] - 2025-12-15
 
