@@ -5,6 +5,22 @@ project will be documented in this file. The format is based on
 [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 
+## [v4.0.1] - 2026-02-02
+
+### Changed:
+
+* `get_umm_var` is updated so that the UMM-Var `Definition` property will use
+  `long_name` before the default of the variable name. The full ordering of
+  precedence for metadata attributes used as UMM-Var `Definition` is now:
+  * description
+  * Description
+  * definition
+  * Definition
+  * title
+  * Title
+  * long_name
+  * The variable name
+
 ## [v4.0.0] - 2025-12-15
 
 ### Changed:
@@ -224,6 +240,8 @@ to the repository include updated documentation and files outlined by the
 For more information on internal releases prior to NASA open-source approval,
 see `legacy-CHANGELOG.md`.
 
+[v4.0.1]: https://github.com/nasa/earthdata-varinfo/releases/tag/4.0.1
+[v4.0.0]: https://github.com/nasa/earthdata-varinfo/releases/tag/4.0.0
 [v3.3.1]: https://github.com/nasa/earthdata-varinfo/releases/tag/3.3.1
 [v3.3.0]: https://github.com/nasa/earthdata-varinfo/releases/tag/3.3.0
 [v3.2.0]: https://github.com/nasa/earthdata-varinfo/releases/tag/3.2.0

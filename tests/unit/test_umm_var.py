@@ -216,6 +216,89 @@ class TestUmmVar(TestCase):
             r'https://cdn.earthdata.nasa.gov/umm/variable/v\d+\.\d+\.\d+$',
         )
 
+    def test_get_umm_var_definition(self):
+        """Ensure that a variable definition uses correct attributes in correct order.
+        In descending order of priority, this should be:
+
+        * description or Description
+        * definition or Definition
+        * title or Title
+        * long_name
+        * variable name
+
+        """
+        netcdf4_file = f'{self.tmp_dir}/input.nc4'
+        with Dataset(netcdf4_file, 'w') as dataset:
+            dataset.setncatts({'short_name': 'test'})
+
+            # Each variable will set the relevant metadata attribute and all
+            # those which should be ignored due to precedence rules.
+            description_variable = dataset.createVariable(
+                'description_variable', float64
+            )
+            description_variable.setncatts(
+                {
+                    'description': 'From description',
+                    'definition': 'From definition',
+                    'title': 'From title',
+                    'long_name': 'From long_name',
+                }
+            )
+
+            definition_variable = dataset.createVariable('definition_variable', float64)
+            definition_variable.setncatts(
+                {
+                    'definition': 'From definition',
+                    'title': 'From title',
+                    'long_name': 'From long_name',
+                }
+            )
+
+            title_variable = dataset.createVariable('title_variable', float64)
+            title_variable.setncatts(
+                {
+                    'title': 'From title',
+                    'long_name': 'From long_name',
+                }
+            )
+
+            long_name_variable = dataset.createVariable('long_name_variable', float64)
+            long_name_variable.setncatts({'long_name': 'From long_name'})
+
+            dataset.createVariable('no_attributes', float64)
+
+        nc_varinfo = VarInfoFromNetCDF4(netcdf4_file)
+
+        with self.subTest('description takes precedence over everything'):
+            description_umm_var = get_umm_var(
+                nc_varinfo, nc_varinfo.get_variable('/description_variable')
+            )
+            self.assertEqual(description_umm_var['Definition'], 'From description')
+
+        with self.subTest('definition comes after Description'):
+            definition_umm_var = get_umm_var(
+                nc_varinfo, nc_varinfo.get_variable('/definition_variable')
+            )
+            self.assertEqual(definition_umm_var['Definition'], 'From definition')
+
+        with self.subTest('title comes after Definition'):
+            title_umm_var = get_umm_var(
+                nc_varinfo, nc_varinfo.get_variable('/title_variable')
+            )
+            self.assertEqual(title_umm_var['Definition'], 'From title')
+
+        with self.subTest('long_name is used before the variable name'):
+            long_name_umm_var = get_umm_var(
+                nc_varinfo, nc_varinfo.get_variable('/long_name_variable')
+            )
+            self.assertEqual(long_name_umm_var['Definition'], 'From long_name')
+
+        with self.subTest('Variable name is final option, after long_name'):
+            variable_name_umm_var = get_umm_var(
+                nc_varinfo, nc_varinfo.get_variable('/no_attributes')
+            )
+            self.assertEqual(variable_name_umm_var['Definition'], 'no_attributes')
+
     def test_get_umm_var_cf_long_name(self):
         """Ensure that if a variable in a granule has the `long_name`
         CF-Convention attribute, the value of that attribute is used in
