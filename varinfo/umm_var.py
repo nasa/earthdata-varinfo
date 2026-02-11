@@ -110,6 +110,7 @@ def get_umm_var(var_info: VarInfoBase, variable: VariableBase) -> dict:
                 'Definition',
                 'title',
                 'Title',
+                'long_name',
             ],
             variable_name,
         ),
