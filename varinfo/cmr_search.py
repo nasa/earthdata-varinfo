@@ -21,7 +21,6 @@ from varinfo.exceptions import (
     GetEdlTokenException,
 )
 
-
 CmrEnvType = Literal[CMR_OPS, CMR_UAT, CMR_SIT]
 urs_token_endpoints = {
     CMR_OPS: 'https://urs.earthdata.nasa.gov/api/nams/edl_user_token',

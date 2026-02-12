@@ -47,7 +47,6 @@ from varinfo.exceptions import InvalidExportDirectory
 from varinfo.var_info import VarInfoBase
 from varinfo.variable import VariableBase
 
-
 UMM_URL = 'https://cdn.earthdata.nasa.gov/umm'
 UMM_VAR_VERSION = '1.8.2'
 
@@ -111,6 +110,7 @@ def get_umm_var(var_info: VarInfoBase, variable: VariableBase) -> dict:
                 'Definition',
                 'title',
                 'Title',
+                'long_name',
             ],
             variable_name,
         ),

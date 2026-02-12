@@ -29,7 +29,6 @@ from varinfo.utilities import (
 )
 from varinfo.variable import VariableFromDmr, VariableFromNetCDF4
 
-
 DimensionsGroupType = dict[tuple[str], set[str]]
 OutputGroupType = Union[GroupFromDmr, GroupFromNetCDF4]
 OutputVariableType = Union[VariableFromDmr, VariableFromNetCDF4]

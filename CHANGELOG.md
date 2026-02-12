@@ -10,6 +10,25 @@ project will be documented in this file. The format is based on
 
 Updating `get_dmr_xml_url` to only return Cloud OPeNDAP urls by checking if "earthdata" is the url
 
+## [v4.0.1] - 2026-02-02
+
+### Changed:
+
+* `get_umm_var` is updated so that the UMM-Var `Definition` property will use
+  `long_name` before the default of the variable name. The full ordering of
+  precedence for metadata attributes used as UMM-Var `Definition` is now:
+
+  * description
+  * Description
+  * definition
+  * Definition
+  * title
+  * Title
+  * long_name
+
+  If none of the metadata attributes above are present, the variable name is
+  used as a default value for the UMM-Var `Definition`, as before.
+
 ## [v4.0.0] - 2025-12-15
 
 ### Changed:
@@ -229,6 +248,8 @@ to the repository include updated documentation and files outlined by the
 For more information on internal releases prior to NASA open-source approval,
 see `legacy-CHANGELOG.md`.
 
+[v4.0.1]: https://github.com/nasa/earthdata-varinfo/releases/tag/4.0.1
+[v4.0.0]: https://github.com/nasa/earthdata-varinfo/releases/tag/4.0.0
 [v3.3.1]: https://github.com/nasa/earthdata-varinfo/releases/tag/3.3.1
 [v3.3.0]: https://github.com/nasa/earthdata-varinfo/releases/tag/3.3.0
 [v3.2.0]: https://github.com/nasa/earthdata-varinfo/releases/tag/3.2.0

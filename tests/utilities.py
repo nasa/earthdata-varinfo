@@ -5,7 +5,6 @@ from typing import Dict
 from netCDF4 import Dataset
 from numpy import float64
 
-
 netcdf4_global_attributes = {
     'short_name': 'ATL03',
     'history': '2021-07-02T14:18:00 Test data',

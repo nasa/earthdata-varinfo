@@ -30,7 +30,6 @@ import numpy as np
 
 from varinfo.exceptions import DmrNamespaceError
 
-
 CF_REFERENCE_ATTRIBUTES = [
     'ancillary_variables',
     'bounds',
