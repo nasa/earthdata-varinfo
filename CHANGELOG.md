@@ -4,6 +4,11 @@ earthdata-varinfo follows semantic versioning. All notable changes to this
 project will be documented in this file. The format is based on
 [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [v4.1.0] - 2026-02-12
+
+### Changed
+
+* **Breaking:** updated `get_dmr_xml_url` to only return Cloud OPeNDAP urls
 
 ## [v4.0.1] - 2026-02-02
 
