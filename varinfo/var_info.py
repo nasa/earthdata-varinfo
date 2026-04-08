@@ -42,6 +42,8 @@ class VarInfoBase(ABC):
 
     """
 
+    _FAKE_DIM_PATTERN = re.compile(r'.*/FakeDim\d+')
+
     def __init__(
         self,
         file_path: str,
@@ -168,15 +170,11 @@ class VarInfoBase(ABC):
         variable in the configuration file supplied to the object.
 
         """
-        exclusion_pattern = re.compile(
-            '|'.join(self.cf_config.excluded_science_variables)
-        )
-
         return {
             variable_path: variable
             for variable_path, variable in self.variables.items()
             if variable.references.get('coordinates') is not None
-            and not self.variable_is_excluded(variable, exclusion_pattern)
+            and not self.cf_config.is_variable_excluded(variable_path)
         }
 
     def _is_spatial_temporal_dimension(self, dimension_path: str) -> bool:
@@ -220,16 +218,12 @@ class VarInfoBase(ABC):
         or ancillary date for another variable.
 
         """
-        exclusions_pattern = re.compile(
-            '|'.join(self.cf_config.excluded_science_variables)
-        )
-
         filtered_with_coordinates = {
             variable_path
             for variable_path, variable in self.variables.items()
             if variable_path is not None
             and self.is_science_variable(variable)
-            and not self.variable_is_excluded(variable_path, exclusions_pattern)
+            and not self.cf_config.is_variable_excluded(variable_path)
         }
 
         return filtered_with_coordinates - self.references
@@ -245,16 +239,12 @@ class VarInfoBase(ABC):
         variable.
 
         """
-        exclusions_pattern = re.compile(
-            '|'.join(self.cf_config.excluded_science_variables)
-        )
-
         non_coordinate_variables = {
             variable_path
             for variable_path, variable in self.variables.items()
             if variable_path is not None
             and (
-                not self.variable_is_excluded(variable_path, exclusions_pattern)
+                not self.cf_config.is_variable_excluded(variable_path)
                 and not self.is_science_variable(variable)
                 and not variable.full_name_path.endswith('_bnds')
             )
@@ -267,7 +257,8 @@ class VarInfoBase(ABC):
         variable_name: str, exclusions_pattern: re.Pattern
     ) -> bool:
         """Ensure the variable name does not match any collection specific
-        exclusion rules.
+        exclusion rules. This is a legacy method for backward compatibility.
+        New code should use CFConfig.is_variable_excluded() instead.
 
         """
         if exclusions_pattern.pattern != '':
@@ -294,14 +285,11 @@ class VarInfoBase(ABC):
 
         """
         if self.cf_config.required_variables:
-            cf_required_pattern = re.compile(
-                '|'.join(self.cf_config.required_variables)
-            )
-
             cf_required_variables = {
                 variable
                 for variable in self.get_all_variables()
-                if variable is not None and re.match(cf_required_pattern, variable)
+                if variable is not None
+                and self.cf_config.is_variable_required(variable)
             }
         else:
             cf_required_variables = set()
@@ -316,9 +304,6 @@ class VarInfoBase(ABC):
             variable = self.get_variable(variable_name)
 
             if variable is not None:
-                # Add variable. Enqueue references not already present in
-                # required set. (Also checking that they are real variables,
-                # and not non-variable dimensions)
                 variable_references = {
                     reference_variable
                     for reference_variable in variable.get_references()
@@ -515,10 +500,9 @@ class VarInfoBase(ABC):
         from the list of required variables.
 
         """
-        fakedim_pattern = re.compile(r'.*/FakeDim\d+')
-
         return {
-            variable for variable in variable_set if not fakedim_pattern.match(variable)
+            variable for variable in variable_set
+            if not VarInfoBase._FAKE_DIM_PATTERN.match(variable)
         }
 
 
