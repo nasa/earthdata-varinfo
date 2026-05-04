@@ -14,6 +14,7 @@ from __future__ import annotations
 
 from tempfile import TemporaryDirectory
 from typing import Union
+from warnings import warn
 import re
 
 from cmr import CMR_UAT
@@ -32,6 +33,11 @@ from varinfo.umm_var import get_all_umm_var, publish_all_umm_var
 # Custom return type: either a list of UMM-Var JSON (a list of dictionaries),
 # or a list of strings (either concept IDs or error strings).
 UmmVarReturnType = list[Union[dict, str]]
+
+DMR_GENERATION_WARNING = (
+    'Generating UMM-Var records from a DMR document will replace spaces in '
+    'variable paths with underscores.'
+)
 
 
 def generate_collection_umm_var(
@@ -67,6 +73,7 @@ def generate_collection_umm_var(
 
     if use_dmr:
         # Get OPeNDAP data URL with `.dml.xml` appended
+        warn(DMR_GENERATION_WARNING, UserWarning)
         granule_link = get_dmr_xml_url(granule_response)
 
     else:
