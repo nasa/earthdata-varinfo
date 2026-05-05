@@ -36,7 +36,8 @@ UmmVarReturnType = list[Union[dict, str]]
 
 DMR_GENERATION_WARNING = (
     'Generating UMM-Var records from a DMR document will replace spaces in '
-    'variable paths with underscores.'
+    'variable paths with underscores. Please use the source data file to '
+    'generate UMM-Var instead, where possible.'
 )
 
 
