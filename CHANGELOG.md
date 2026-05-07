@@ -4,6 +4,14 @@ earthdata-varinfo follows semantic versioning. All notable changes to this
 project will be documented in this file. The format is based on
 [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [v4.1.1] - 2026-05-04
+
+### Changed
+
+* `generate_umm_var.generate_collection_umm_var` will emit a warning when
+  `use_dmr=True`, indicating to the user that spaces in variable paths will be
+  replaced with underscores.
+
 ## [v4.1.0] - 2026-02-12
 
 ### Changed
@@ -248,6 +256,8 @@ to the repository include updated documentation and files outlined by the
 For more information on internal releases prior to NASA open-source approval,
 see `legacy-CHANGELOG.md`.
 
+[v4.1.1]: https://github.com/nasa/earthdata-varinfo/releases/tag/4.1.1
+[v4.1.0]: https://github.com/nasa/earthdata-varinfo/releases/tag/4.1.0
 [v4.0.1]: https://github.com/nasa/earthdata-varinfo/releases/tag/4.0.1
 [v4.0.0]: https://github.com/nasa/earthdata-varinfo/releases/tag/4.0.0
 [v3.3.1]: https://github.com/nasa/earthdata-varinfo/releases/tag/3.3.1

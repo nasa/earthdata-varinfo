@@ -2,7 +2,11 @@ from shutil import copy
 from unittest import TestCase
 from unittest.mock import ANY, patch
 
-from varinfo.generate_umm_var import generate_collection_umm_var, is_variable_concept_id
+from varinfo.generate_umm_var import (
+    DMR_GENERATION_WARNING,
+    generate_collection_umm_var,
+    is_variable_concept_id,
+)
 
 
 class TestGenerateUmmVar(TestCase):
@@ -196,12 +200,15 @@ class TestGenerateUmmVar(TestCase):
         # Set return value for get_dmr_xml_url
         mock_get_dmr_xml_url.return_value = self.opendap_xml_download_url
 
-        # Check call arguments when use_dmr=True
-        generate_collection_umm_var(
-            self.collection_concept_id,
-            self.bearer_token_header,
-            use_dmr=True,
-        )
+        # Check call arguments when use_dmr=True, also ensure a warning is
+        # emitted, regarding UMM-Var generation via DMR documents replacing
+        # spaces with underscores.
+        with self.assertWarnsRegex(UserWarning, DMR_GENERATION_WARNING):
+            generate_collection_umm_var(
+                self.collection_concept_id,
+                self.bearer_token_header,
+                use_dmr=True,
+            )
 
         mock_get_dmr_xml_url.assert_called_once_with(self.query_granule_return_opendap)
         # Ensure the granule query used expected query parameters
