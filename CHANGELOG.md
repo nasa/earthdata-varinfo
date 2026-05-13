@@ -4,6 +4,12 @@ earthdata-varinfo follows semantic versioning. All notable changes to this
 project will be documented in this file. The format is based on
 [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [v4.2.0] - 2026-05-13
+
+### Added
+
+* This version of `earthdata-varinfo` added support for identifying explicitly excluded science variables. This includes `get_excluded_science_variables()` to retrieve a complete set of excluded variables defined in the JSON configuration, and `is_excluded_science_variable()` to evaluate the exclusion status of a specific variable.
+
 ## [v4.1.1] - 2026-05-04
 
 ### Changed
@@ -256,6 +262,7 @@ to the repository include updated documentation and files outlined by the
 For more information on internal releases prior to NASA open-source approval,
 see `legacy-CHANGELOG.md`.
 
+[v4.2.0]: https://github.com/nasa/earthdata-varinfo/releases/tag/4.2.0
 [v4.1.1]: https://github.com/nasa/earthdata-varinfo/releases/tag/4.1.1
 [v4.1.0]: https://github.com/nasa/earthdata-varinfo/releases/tag/4.1.0
 [v4.0.1]: https://github.com/nasa/earthdata-varinfo/releases/tag/4.0.1

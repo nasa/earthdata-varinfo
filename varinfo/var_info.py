@@ -214,6 +214,18 @@ class VarInfoBase(ABC):
 
         return False
 
+    def is_excluded_science_variable(self, variable_path: str) -> bool:
+        """Determine if a variable is excluded from science variables.
+        A variable is classified as excluded if its path matches any of the
+        exclusion patterns specified in the VarInfo configuration, preventing
+        it from being processed as a standard science variable.
+
+        """
+        exclusions_pattern = re.compile(
+            '|'.join(self.cf_config.excluded_science_variables)
+        )
+        return self.variable_is_excluded(variable_path, exclusions_pattern)
+
     def get_science_variables(self) -> set[str]:
         """Retrieve a set of names for all variables that have coordinate
         references, that are not themselves used as dimensions, coordinates
@@ -233,6 +245,25 @@ class VarInfoBase(ABC):
         }
 
         return filtered_with_coordinates - self.references
+
+    def get_excluded_science_variables(self) -> set[str]:
+        """Retrieve a set of paths for all excluded science variables.
+        Evaluates all variables in the dataset and returns a set of those
+        that match the VarInfo configuration exclusion patterns.
+
+        """
+        exclusions_pattern = re.compile(
+            '|'.join(self.cf_config.excluded_science_variables)
+        )
+
+        excluded_variables = {
+            variable_path
+            for variable_path, variable in self.variables.items()
+            if variable_path is not None
+            and self.variable_is_excluded(variable_path, exclusions_pattern)
+        }
+
+        return excluded_variables
 
     def get_metadata_variables(self) -> set[str]:
         """Retrieve set of names for all variables that do no have

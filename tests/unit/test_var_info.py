@@ -419,6 +419,17 @@ class TestVarInfoFromDmr(TestCase):
         science_variables = dataset.get_science_variables()
         self.assertEqual(science_variables, {'/science/interesting_thing'})
 
+    def test_var_info_get_excluded_science_variables(self):
+        """Ensure the correct set of excluded science variables is returned. This
+        should account for excluded science variables defined in the
+        associated instance of the `CFConfig` class.
+
+        """
+        dataset = VarInfoFromDmr(self.mock_dmr_two, config_file=self.test_config_file)
+
+        excluded_science_variables = dataset.get_excluded_science_variables()
+        self.assertEqual(excluded_science_variables, {'/exclude_one/has_coordinates'})
+
     def test_var_info_get_metadata_variables(self):
         """Ensure the correct set of metadata variables (those without
         coordinate references) is returned. This should exclude variables
@@ -487,6 +498,21 @@ class TestVarInfoFromDmr(TestCase):
                 result = VarInfoFromDmr.variable_is_excluded(variable_name, re_pattern)
 
                 self.assertEqual(result, expected_result)
+
+    def test_var_info_is_excluded_science_variable(self):
+        """Verify that is_excluded_science_variable correctly returns True
+        for variables that match the exclusion patterns defined in the
+        associated CFConfig instance.
+
+        """
+        dataset = VarInfoFromDmr(self.mock_dmr_two, config_file=self.test_config_file)
+        self.assertTrue(
+            dataset.is_excluded_science_variable('/exclude_one/has_coordinates')
+        )
+        self.assertFalse(
+            dataset.is_excluded_science_variable('/required_group/has_no_coordinates')
+        )
+        self.assertFalse(dataset.is_excluded_science_variable('/science/lat_bnds'))
 
     def test_exclude_fake_dimensions(self):
         """Ensure a set of required variables will not include any dimension
@@ -877,7 +903,9 @@ class TestVarInfoFromDmr(TestCase):
 
         """
         netcdf4_path = write_skeleton_netcdf4(self.output_dir)
-        dataset = VarInfoFromNetCDF4(netcdf4_path, config_file=self.test_config_file)
+        dataset = VarInfoFromNetCDF4(
+            netcdf4_path, 'FAKE99', config_file=self.test_config_file
+        )
 
         self.assertDictEqual(
             dataset.all_dimensions_sizes,
@@ -895,12 +923,29 @@ class TestVarInfoFromDmr(TestCase):
         )
 
         self.assertSetEqual(
+            dataset.get_excluded_science_variables(),
+            {
+                '/exclude_one/string_time_utc_seconds',
+                '/exclude_two/subgroup/has_coordinates',
+            },
+        )
+
+        self.assertSetEqual(
             dataset.get_metadata_variables(), {'/scalar1', '/group/scalar2'}
         )
 
         # Groups should now be saved to a new dictionary:
         self.assertSetEqual(
-            set(dataset.groups.keys()), {'/', '/group', '/group/subgroup'}
+            set(dataset.groups.keys()),
+            {
+                '/',
+                '/group',
+                '/group/subgroup',
+                '/group/subgroup',
+                '/exclude_one',
+                '/exclude_two',
+                '/exclude_two/subgroup',
+            },
         )
 
         # Explicitly verify the dimensions of the science3 variable
