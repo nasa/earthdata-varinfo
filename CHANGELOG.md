@@ -4,6 +4,13 @@ earthdata-varinfo follows semantic versioning. All notable changes to this
 project will be documented in this file. The format is based on
 [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [v4.1.2] - 2026-05-14
+
+### Changed
+
+* Relaxes top end of some pinned dependecies to prevent over specification.
+* `urllib3` dependency set to `>= 2.7.0` to prevent CVE-2026-44432.
+
 ## [v4.1.1] - 2026-05-04
 
 ### Changed
