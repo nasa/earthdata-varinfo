@@ -9,7 +9,6 @@ project will be documented in this file. The format is based on
 ### Changed
 
 * Sets `python-cmr >=0.13.0` to end direct `urllib3` override and prevent CVE-2026-44432.
-* Relaxes top end of some pinned dependecies to prevent over specification.
 
 ## [v4.1.1] - 2026-05-04
 
