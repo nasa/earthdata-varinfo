@@ -65,7 +65,7 @@ setup(
     install_requires=parse_dependencies('requirements.txt'),
     extras_require={'dev': parse_dependencies('dev-requirements.txt')},
     test_suite='tests',
-    python_requires='>=3.9',
+    python_requires='>=3.10',
     license='License :: OSI Approved :: Apache Software License',
     classifiers=[
         'Programming Language :: Python',
