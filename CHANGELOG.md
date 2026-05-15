@@ -4,6 +4,16 @@ earthdata-varinfo follows semantic versioning. All notable changes to this
 project will be documented in this file. The format is based on
 [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [v5.0.0] - 2026-05-14
+
+### Removed
+
+* Removed support for python 3.9.
+
+### Changed
+
+* Sets `python-cmr >=0.13.0` to end direct `urllib3` override and prevent CVE-2026-44432.
+
 ## [v4.1.1] - 2026-05-04
 
 ### Changed
