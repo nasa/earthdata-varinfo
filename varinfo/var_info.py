@@ -67,12 +67,13 @@ class VarInfoBase(ABC):
         self.references: set[str] = set()
         self.metadata: dict[str, OutputVariableType] = {}
         self.all_dimensions_sizes: dict[str, int] = {}
-
+        self.exclusions_pattern = None
         self._set_var_info_config()
         self._read_dataset(file_path)
         self._set_mission_and_short_name()
         self.cf_config = self._set_cf_config()
         self._extract_variables()
+        self._set_exclusions_pattern()
 
     @abstractmethod
     def _read_dataset(self, file_path: str):
@@ -150,6 +151,12 @@ class VarInfoBase(ABC):
 
         """
 
+    def _set_exclusions_pattern(self) -> re.Pattern:
+        """Compile the exclusion regex pattern."""
+        self.exclusions_pattern = re.compile(
+            '|'.join(self.cf_config.excluded_science_variables)
+        )
+
     def get_variable(self, variable_path: str) -> OutputVariableType | None:
         """Retrieve a variable specified by an absolute path. First check the
         variables with coordinates, before checking those without. If there
@@ -168,15 +175,11 @@ class VarInfoBase(ABC):
         variable in the configuration file supplied to the object.
 
         """
-        exclusion_pattern = re.compile(
-            '|'.join(self.cf_config.excluded_science_variables)
-        )
-
         return {
             variable_path: variable
             for variable_path, variable in self.variables.items()
             if variable.references.get('coordinates') is not None
-            and not self.variable_is_excluded(variable, exclusion_pattern)
+            and not self.variable_is_excluded(variable, self.exclusions_pattern)
         }
 
     def _is_spatial_temporal_dimension(self, dimension_path: str) -> bool:
@@ -214,25 +217,45 @@ class VarInfoBase(ABC):
 
         return False
 
+    def is_excluded_science_variable(self, variable_path: str) -> bool:
+        """Determine if a variable is excluded from science variables.
+        A variable is classified as excluded if its path matches any of the
+        exclusion patterns specified in the VarInfo configuration, preventing
+        it from being processed as a standard science variable.
+
+        """
+        return self.variable_is_excluded(variable_path, self.exclusions_pattern)
+
     def get_science_variables(self) -> set[str]:
         """Retrieve a set of names for all variables that have coordinate
         references, that are not themselves used as dimensions, coordinates
         or ancillary date for another variable.
 
         """
-        exclusions_pattern = re.compile(
-            '|'.join(self.cf_config.excluded_science_variables)
-        )
-
         filtered_with_coordinates = {
             variable_path
             for variable_path, variable in self.variables.items()
             if variable_path is not None
             and self.is_science_variable(variable)
-            and not self.variable_is_excluded(variable_path, exclusions_pattern)
+            and not self.variable_is_excluded(variable_path, self.exclusions_pattern)
         }
 
         return filtered_with_coordinates - self.references
+
+    def get_excluded_science_variables(self) -> set[str]:
+        """Retrieve a set of paths for all excluded science variables.
+        Evaluates all variables in the dataset and returns a set of those
+        that match the VarInfo configuration exclusion patterns.
+
+        """
+        excluded_variables = {
+            variable_path
+            for variable_path, variable in self.variables.items()
+            if variable_path is not None
+            and self.variable_is_excluded(variable_path, self.exclusions_pattern)
+        }
+
+        return excluded_variables
 
     def get_metadata_variables(self) -> set[str]:
         """Retrieve set of names for all variables that do no have
@@ -245,16 +268,12 @@ class VarInfoBase(ABC):
         variable.
 
         """
-        exclusions_pattern = re.compile(
-            '|'.join(self.cf_config.excluded_science_variables)
-        )
-
         non_coordinate_variables = {
             variable_path
             for variable_path, variable in self.variables.items()
             if variable_path is not None
             and (
-                not self.variable_is_excluded(variable_path, exclusions_pattern)
+                not self.variable_is_excluded(variable_path, self.exclusions_pattern)
                 and not self.is_science_variable(variable)
                 and not variable.full_name_path.endswith('_bnds')
             )
