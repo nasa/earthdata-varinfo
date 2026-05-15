@@ -4,11 +4,25 @@ earthdata-varinfo follows semantic versioning. All notable changes to this
 project will be documented in this file. The format is based on
 [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
-## [v4.2.0] - 2026-05-13
+## [v5.1.0] - 2026-05-15
 
 ### Added
 
-* This version of `earthdata-varinfo` added support for identifying explicitly excluded science variables. This includes `get_excluded_science_variables()` to retrieve a complete set of excluded variables defined in the JSON configuration, and `is_excluded_science_variable()` to evaluate the exclusion status of a specific variable.
+* This version of `earthdata-varinfo` adds support for identifying explicitly
+  excluded science variables. This includes `get_excluded_science_variables()`
+  to retrieve a complete set of excluded variables defined in the JSON
+  configuration, and `is_excluded_science_variable()` to evaluate the exclusion
+  status of a specific variable.
+
+## [v5.0.0] - 2026-05-14
+
+### Removed
+
+* Removed support for python 3.9.
+
+### Changed
+
+* Sets `python-cmr >=0.13.0` to end direct `urllib3` override and prevent CVE-2026-44432.
 
 ## [v4.1.1] - 2026-05-04
 
@@ -262,7 +276,8 @@ to the repository include updated documentation and files outlined by the
 For more information on internal releases prior to NASA open-source approval,
 see `legacy-CHANGELOG.md`.
 
-[v4.2.0]: https://github.com/nasa/earthdata-varinfo/releases/tag/4.2.0
+[v5.1.0]: https://github.com/nasa/earthdata-varinfo/releases/tag/5.1.0
+[v5.0.0]: https://github.com/nasa/earthdata-varinfo/releases/tag/5.0.0
 [v4.1.1]: https://github.com/nasa/earthdata-varinfo/releases/tag/4.1.1
 [v4.1.0]: https://github.com/nasa/earthdata-varinfo/releases/tag/4.1.0
 [v4.0.1]: https://github.com/nasa/earthdata-varinfo/releases/tag/4.0.1
