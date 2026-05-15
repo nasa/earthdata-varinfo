@@ -67,6 +67,7 @@ class VarInfoBase(ABC):
         self.references: set[str] = set()
         self.metadata: dict[str, OutputVariableType] = {}
         self.all_dimensions_sizes: dict[str, int] = {}
+        self.exclusions_pattern = None
         self._set_var_info_config()
         self._read_dataset(file_path)
         self._set_mission_and_short_name()
