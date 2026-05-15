@@ -63,7 +63,7 @@ DAP4_TO_NUMPY_MAP = {
 }
 
 
-def recursive_get(input_dictionary: dict, keys: list[str]):
+def recursive_get(input_dictionary: dict, keys: list[str]) -> Any:
     """Extract a value from an arbitrarily nested dictionary."""
     try:
         nested_value = functools.reduce(dict.get, keys, input_dictionary)
@@ -90,7 +90,7 @@ def get_xml_namespace(root_element: Element) -> str:
     The root element of a dmr file is expected to be a Dataset tag.
 
     """
-    match = re.match('(.+)Dataset', root_element.tag)
+    match = re.match(r'(.+)Dataset', root_element.tag)
 
     if match:
         xml_namespace = match.groups()[0]

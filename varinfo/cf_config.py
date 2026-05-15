@@ -60,6 +60,9 @@ class CFConfig:
         self.metadata_overrides: dict[str, dict[str, Any]] = {}
         self.excluded_science_variables: set[str] = set()
         self.required_variables: set[str] = set()
+        self._compiled_exclusion_patterns: list[re.Pattern] = []
+        self._compiled_required_patterns: list[re.Pattern] = []
+        self._metadata_override_patterns: list[tuple[re.Pattern, dict[str, Any]]] = []
 
         if self.mission is not None:
             self._read_config_file()
@@ -94,6 +97,10 @@ class CFConfig:
             )
             for pattern in item['VariablePattern']
         }
+        self._compiled_exclusion_patterns = [
+            re.compile(pattern)
+            for pattern in self.excluded_science_variables
+        ]
 
         self.required_variables = {
             pattern
@@ -104,9 +111,18 @@ class CFConfig:
             )
             for pattern in item['VariablePattern']
         }
+        self._compiled_required_patterns = [
+            re.compile(pattern)
+            for pattern in self.required_variables
+        ]
 
         for override in config.get('MetadataOverrides', []):
             self._process_cf_item(override, self.metadata_overrides)
+
+        self._metadata_override_patterns = [
+            (re.compile(pattern), attributes)
+            for pattern, attributes in self.metadata_overrides.items()
+        ]
 
     def _is_applicable(self, mission: str, short_name: str | None = None) -> bool:
         """Given a mission, and optionally also a collection short name, of an
@@ -122,6 +138,26 @@ class CFConfig:
         )
 
         return mission_matches and short_name_matches
+
+    def is_variable_excluded(self, variable_name: str) -> bool:
+        """Check if the variable matches any exclusion pattern using
+        pre-compiled regular expressions.
+
+        """
+        return any(
+            pattern.match(variable_name) is not None
+            for pattern in self._compiled_exclusion_patterns
+        )
+
+    def is_variable_required(self, variable_name: str) -> bool:
+        """Check if the variable matches any required variable pattern using
+        pre-compiled regular expressions.
+
+        """
+        return any(
+            pattern.match(variable_name) is not None
+            for pattern in self._compiled_required_patterns
+        )
 
     def _process_cf_item(
         self,
@@ -205,30 +241,16 @@ class CFConfig:
         will incorrectly determine a depth of 4.
 
         """
-        matching_overrides = {
-            pattern: attributes
-            for pattern, attributes in self.metadata_overrides.items()
-            if re.match(pattern, variable_path) is not None
-        }
+        matching_overrides = [
+            (pattern.pattern, attributes)
+            for pattern, attributes in self._metadata_override_patterns
+            if pattern.match(variable_path) is not None
+        ]
 
-        # Order MetadataOverrides items by:
-        # First: Depth of the variable hierarchy included in the regular
-        # expression pattern (number of slashes), shallowest to deepest.
-        # Second: The length of the variable pattern, from shorted to longest.
-        # The second ordering is applied in to regular expressions specifying
-        # the same depth of variable hierarchy.
-        sorted_overrides = dict(
-            sorted(
-                matching_overrides.items(),
-                key=lambda pattern: (pattern[0].count('/'), len(pattern[0])),
-            ),
-        )
+        matching_overrides.sort(key=lambda x: (x[0].count('/'), len(x[0])))
 
-        # Combine all overrides. In the case a metadata attribute appears in
-        # multiple matching overrides, the value that comes later based on the
-        # previous sorting of variable patterns will take precedence.
         return {
             attribute_name: attribute_value
-            for sorted_override in sorted_overrides.values()
-            for attribute_name, attribute_value in sorted_override.items()
+            for _, attributes in matching_overrides
+            for attribute_name, attribute_value in attributes.items()
         }
