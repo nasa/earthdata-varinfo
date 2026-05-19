@@ -21,7 +21,8 @@
   "ExcludedScienceVariables": [
     {
       "Applicability": {
-        "Mission": "FakeSat"
+        "Mission": "FakeSat",
+        "ShortNamePath": "FAKE99"
       },
       "VariablePattern": [
         "/exclude_one/.*",

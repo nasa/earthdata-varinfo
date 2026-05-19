@@ -88,6 +88,13 @@ def write_skeleton_netcdf4(output_dir: str) -> str:
             }
         )
 
+        dataset.createVariable(
+            '/exclude_one/string_time_utc_seconds', float64, dimensions=()
+        )
+        dataset.createVariable(
+            '/exclude_two/subgroup/has_coordinates/', float64, dimensions=()
+        )
+
     return file_path
 
 

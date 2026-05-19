@@ -53,6 +53,9 @@ var_info.get_science_variables()
 # Retrieve a set of variables without coordinate metadata:
 var_info.get_metadata_variables()
 
+# Retrieve a set of excluded variables defined in JSON configuration file:
+var_info.get_excluded_science_variables()
+
 # Augment a set of desired variables with all variables required to support
 # the requested set. For example coordinate variables.
 var_info.get_required_variables({'/path/to/science/variable'})
