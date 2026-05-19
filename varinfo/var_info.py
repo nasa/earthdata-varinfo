@@ -67,13 +67,12 @@ class VarInfoBase(ABC):
         self.references: set[str] = set()
         self.metadata: dict[str, OutputVariableType] = {}
         self.all_dimensions_sizes: dict[str, int] = {}
-        self.exclusions_pattern = None
         self._set_var_info_config()
         self._read_dataset(file_path)
         self._set_mission_and_short_name()
         self.cf_config = self._set_cf_config()
         self._extract_variables()
-        self._set_exclusions_pattern()
+        self.exclusions_pattern = self._set_exclusions_pattern()
 
     @abstractmethod
     def _read_dataset(self, file_path: str):
@@ -153,9 +152,7 @@ class VarInfoBase(ABC):
 
     def _set_exclusions_pattern(self) -> re.Pattern:
         """Compile the exclusion regex pattern."""
-        self.exclusions_pattern = re.compile(
-            '|'.join(self.cf_config.excluded_science_variables)
-        )
+        return re.compile('|'.join(self.cf_config.excluded_science_variables))
 
     def get_variable(self, variable_path: str) -> OutputVariableType | None:
         """Retrieve a variable specified by an absolute path. First check the

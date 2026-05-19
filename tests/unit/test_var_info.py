@@ -427,8 +427,9 @@ class TestVarInfoFromDmr(TestCase):
         """
         dataset = VarInfoFromDmr(self.mock_dmr_two, config_file=self.test_config_file)
 
-        excluded_science_variables = dataset.get_excluded_science_variables()
-        self.assertEqual(excluded_science_variables, {'/exclude_one/has_coordinates'})
+        self.assertSetEqual(
+            dataset.get_excluded_science_variables(), {'/exclude_one/has_coordinates'}
+        )
 
     def test_var_info_get_metadata_variables(self):
         """Ensure the correct set of metadata variables (those without
@@ -506,13 +507,25 @@ class TestVarInfoFromDmr(TestCase):
 
         """
         dataset = VarInfoFromDmr(self.mock_dmr_two, config_file=self.test_config_file)
-        self.assertTrue(
-            dataset.is_excluded_science_variable('/exclude_one/has_coordinates')
-        )
-        self.assertFalse(
-            dataset.is_excluded_science_variable('/required_group/has_no_coordinates')
-        )
-        self.assertFalse(dataset.is_excluded_science_variable('/science/lat_bnds'))
+
+        with self.subTest("Ensure valid excluded pattern"):
+            self.assertTrue(
+                dataset.is_excluded_science_variable('/exclude_one/has_coordinates')
+            )
+
+        with self.subTest(
+            "Does not match the exclusion pattern /exclude_one/has_coordinates"
+        ):
+            self.assertFalse(
+                dataset.is_excluded_science_variable(
+                    '/required_group/has_no_coordinates'
+                )
+            )
+
+        with self.subTest(
+            "Science variable '/science/lat_bnds' is not matched by the exclusion pattern"
+        ):
+            self.assertFalse(dataset.is_excluded_science_variable('/science/lat_bnds'))
 
     def test_exclude_fake_dimensions(self):
         """Ensure a set of required variables will not include any dimension
