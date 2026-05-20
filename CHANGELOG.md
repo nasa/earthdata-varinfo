@@ -4,6 +4,13 @@ earthdata-varinfo follows semantic versioning. All notable changes to this
 project will be documented in this file. The format is based on
 [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [v5.1.1] - 2026-05-20
+
+### Changed
+
+* Reintroduces pinning for `urllib3` to force version in downstream clients and
+  prevent CVE-2026-44432 and CVE-2026-44431.
+
 ## [v5.1.0] - 2026-05-15
 
 ### Added
@@ -276,6 +283,7 @@ to the repository include updated documentation and files outlined by the
 For more information on internal releases prior to NASA open-source approval,
 see `legacy-CHANGELOG.md`.
 
+[v5.1.1]: https://github.com/nasa/earthdata-varinfo/releases/tag/5.1.1
 [v5.1.0]: https://github.com/nasa/earthdata-varinfo/releases/tag/5.1.0
 [v5.0.0]: https://github.com/nasa/earthdata-varinfo/releases/tag/5.0.0
 [v4.1.1]: https://github.com/nasa/earthdata-varinfo/releases/tag/4.1.1
