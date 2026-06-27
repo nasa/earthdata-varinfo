@@ -4,6 +4,15 @@ earthdata-varinfo follows semantic versioning. All notable changes to this
 project will be documented in this file. The format is based on
 [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [v5.1.2] - 2026-06-27
+
+### Fixed
+
+* `get_json_serializable_value` now decodes byte strings to text. Byte strings
+  can appear in a variable's `_FillValue` metadata attribute and are not JSON
+  serializable, which caused `publish_umm_var` to crash when posting the UMM-Var
+  record to CMR. See issue #61.
+
 ## [v5.1.1] - 2026-05-20
 
 ### Changed
