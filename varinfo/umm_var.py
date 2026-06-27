@@ -373,13 +373,16 @@ def get_metadata_specification() -> dict:
 
 def get_json_serializable_value(input_value: Any) -> Any:
     """Ensure the value is JSON serializable, as some numpy float and integer
-    types are not.
+    types are not. Byte strings, which can appear in a variable's _FillValue
+    metadata attribute, are also not JSON serializable and are decoded to text.
 
     """
     if isinstance(input_value, np_integer):
         output_value = int(input_value)
     elif isinstance(input_value, np_floating):
         output_value = float(input_value)
+    elif isinstance(input_value, bytes):
+        output_value = input_value.decode('utf-8', errors='replace')
     else:
         output_value = input_value
 

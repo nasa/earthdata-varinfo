@@ -765,6 +765,14 @@ class TestUmmVar(TestCase):
             input_value = 'string value'
             self.assertEqual(get_json_serializable_value(input_value), input_value)
 
+        with self.subTest('Byte string is decoded to a JSON serializable str'):
+            # Byte strings can appear in a variable's _FillValue attribute and
+            # are not JSON serializable (see issue #61), so they are decoded.
+            serializable_value = get_json_serializable_value(b'\x00')
+            self.assertIsInstance(serializable_value, str)
+            # The decoded value can now be serialized without raising TypeError.
+            self.assertEqual(json.loads(json.dumps(serializable_value)), '\x00')
+
     def test_export_umm_var_to_json(self):
         """Ensure that a UMM-Var JSON object is correctly written out to a
         directory.
