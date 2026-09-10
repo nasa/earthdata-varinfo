@@ -13,10 +13,10 @@ jobs:
 
     steps:
       - name: Checkout earthdata-varinfo repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -27,13 +27,13 @@ jobs:
         run: make test
 
       - name: Archive test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Test results for Python ${{ matrix.python-version }}
           path: tests/reports/earthdata-varinfo_junit.xml
 
       - name: Archive coverage report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Coverage report for Python ${{ matrix.python-version }}
           path: tests/coverage/
