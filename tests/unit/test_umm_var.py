@@ -62,7 +62,7 @@ class TestUmmVar(TestCase):
         cls.merra_varinfo = VarInfoFromDmr(
             'tests/unit/data/M2I3NPASM_example.dmr', short_name='M2I3NPASM'
         )
-        with open('tests/unit/data/umm_var_json_schema_1.8.2.json', 'r') as schema_file:
+        with open('tests/unit/data/umm_var_json_schema_1.9.0.json', 'r') as schema_file:
             cls.umm_var_schema = json.load(schema_file)
 
     def setUp(self):
@@ -789,9 +789,9 @@ class TestUmmVar(TestCase):
                 }
             ],
             'MetadataSpecification': {
-                'URL': 'https://cdn.earthdata.nasa.gov/umm/variable/v1.8.2',
+                'URL': 'https://cdn.earthdata.nasa.gov/umm/variable/v1.9.0',
                 'Name': 'UMM-Var',
-                'Version': '1.8.2',
+                'Version': '1.9.0',
             },
         }
 
@@ -857,9 +857,9 @@ class TestUmmVar(TestCase):
                     }
                 ],
                 'MetadataSpecification': {
-                    'URL': 'https://cdn.earthdata.nasa.gov/umm/variable/v1.8.2',
+                    'URL': 'https://cdn.earthdata.nasa.gov/umm/variable/v1.9.0',
                     'Name': 'UMM-Var',
-                    'Version': '1.8.2',
+                    'Version': '1.9.0',
                 },
             },
             {
@@ -873,9 +873,9 @@ class TestUmmVar(TestCase):
                 ],
                 'Units': 'degrees_east',
                 'MetadataSpecification': {
-                    'URL': 'https://cdn.earthdata.nasa.gov/umm/variable/v1.8.2',
+                    'URL': 'https://cdn.earthdata.nasa.gov/umm/variable/v1.9.0',
                     'Name': 'UMM-Var',
-                    'Version': '1.8.2',
+                    'Version': '1.9.0',
                 },
             },
         ]
@@ -911,9 +911,9 @@ class TestUmmVar(TestCase):
             'LongName': 'This is a test variable',
             'Name': 'test_variable',
             'MetadataSpecification': {
-                'URL': 'https://foo.gov/umm/variable/v1.8.2',
+                'URL': 'https://foo.gov/umm/variable/v1.9.0',
                 'Name': 'UMM-Var',
-                'Version': '1.8.2',
+                'Version': '1.9.0',
             },
         }
 
@@ -971,9 +971,9 @@ class TestUmmVar(TestCase):
             'LongName': 'Successful',
             'Name': 'Successful',
             'MetadataSpecification': {
-                'URL': 'https://foo.gov/umm/variable/v1.8.2',
+                'URL': 'https://foo.gov/umm/variable/v1.9.0',
                 'Name': 'UMM-Var',
-                'Version': '1.8.2',
+                'Version': '1.9.0',
             },
         }
 
@@ -1025,18 +1025,18 @@ class TestUmmVar(TestCase):
                 'LongName': 'Variable_1',
                 'Name': 'Variable_1',
                 'MetadataSpecification': {
-                    'URL': 'https://foo.gov/umm/variable/v1.8.2',
+                    'URL': 'https://foo.gov/umm/variable/v1.9.0',
                     'Name': 'UMM-Var',
-                    'Version': '1.8.2',
+                    'Version': '1.9.0',
                 },
             },
             'Variable_2': {
                 'LongName': 'Variable_2',
                 'Name': 'Variable_2',
                 'MetadataSpecification': {
-                    'URL': 'https://foo.gov/umm/variable/v1.8.2',
+                    'URL': 'https://foo.gov/umm/variable/v1.9.0',
                     'Name': 'UMM-Var',
-                    'Version': '1.8.2',
+                    'Version': '1.9.0',
                 },
             },
         }

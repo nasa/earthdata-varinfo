@@ -22,7 +22,7 @@ To validate generated records:
 import json
 from jsonschema import validate
 
-with open('tests/unit/data/umm_var_json_schema_1.8.2.json') as file_handler:
+with open('tests/unit/data/umm_var_json_schema_1.9.0.json') as file_handler:
     umm_var_schema = json.load(file_handler)
 
 for record in umm_var_records:
@@ -48,7 +48,7 @@ from varinfo.var_info import VarInfoBase
 from varinfo.variable import VariableBase
 
 UMM_URL = 'https://cdn.earthdata.nasa.gov/umm'
-UMM_VAR_VERSION = '1.8.2'
+UMM_VAR_VERSION = '1.9.0'
 
 UMM_VAR_DTYPES = [
     'byte',
