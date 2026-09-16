@@ -395,6 +395,25 @@ class TestVariableFromDmr(TestCase):
                 variable.get_references(), {'/lat_bnds', '/longitude_latitude'}
             )
 
+        with self.subTest('References include climatology'):
+            dmr_variable = ET.fromstring(
+                f'<{self.namespace}Float64 name="/time">'
+                f'  <{self.namespace}Attribute name="climatology" type="String">'
+                f'    <{self.namespace}Value>climatology_bnds</{self.namespace}Value>'
+                f'  </{self.namespace}Attribute>'
+                f'</{self.namespace}Float64>'
+            )
+
+            variable = VariableFromDmr(
+                dmr_variable,
+                self.fakesat_config,
+                self.namespace,
+                '/time',
+                self.fake_all_dimensions_sizes,
+            )
+
+            self.assertSetEqual(variable.get_references(), {'/climatology_bnds'})
+
     def test_get_attribute_value(self):
         """Ensure that a metadata attribute value is retrieved or, if that
         metadata attribute is not included in the variable, the default

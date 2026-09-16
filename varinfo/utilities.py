@@ -34,6 +34,7 @@ CF_REFERENCE_ATTRIBUTES = [
     'ancillary_variables',
     'bounds',
     'cell_measures',
+    'climatology',
     'coordinates',
     'geometry',
     'grid_mapping',
