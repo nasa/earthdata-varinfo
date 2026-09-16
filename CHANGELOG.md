@@ -4,6 +4,16 @@ earthdata-varinfo follows semantic versioning. All notable changes to this
 project will be documented in this file. The format is based on
 [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [v5.2.0] - 2026-09-16
+
+### Added
+
+* The `climatology` metadata attribute has been added to the list of CF
+  Convention metadata attributes that are used to determine references between
+  variables. References in the `climatology` metadata attribute are functionally
+  similar to `bounds` variables, however the time intervals may be non-contiguous.
+  (See: https://cfconventions.org/Data/cf-conventions/cf-conventions-1.13/cf-conventions.html#climatological-statistics)
+
 ## [v5.1.2] - 2026-09-10
 
 ### Changed
@@ -290,6 +300,7 @@ to the repository include updated documentation and files outlined by the
 For more information on internal releases prior to NASA open-source approval,
 see `legacy-CHANGELOG.md`.
 
+[v5.2.0]: https://github.com/nasa/earthdata-varinfo/releases/tag/5.2.0
 [v5.1.2]: https://github.com/nasa/earthdata-varinfo/releases/tag/5.1.2
 [v5.1.1]: https://github.com/nasa/earthdata-varinfo/releases/tag/5.1.1
 [v5.1.0]: https://github.com/nasa/earthdata-varinfo/releases/tag/5.1.0
