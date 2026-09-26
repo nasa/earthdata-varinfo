@@ -4,6 +4,13 @@ earthdata-varinfo follows semantic versioning. All notable changes to this
 project will be documented in this file. The format is based on
 [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+### Fixed
+
+* Resolve full DMR metadata paths one hierarchy level at a time, preventing
+  nested groups from shadowing the configured collection short-name path.
+
 ## [v5.2.0] - 2026-09-16
 
 ### Added

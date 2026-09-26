@@ -38,6 +38,35 @@ class TestVarInfoFromDmr(TestCase):
     def tearDown(self):
         rmtree(self.output_dir)
 
+    def test_short_name_uses_exact_configured_path(self):
+        """An unrelated nested metadata group must not select the collection."""
+        for include_direct in (False, True):
+            with self.subTest(include_direct=include_direct):
+                direct = (
+                    (
+                        '<Group name="Metadata"><Group name="DatasetIdentification">'
+                        '<Attribute name="shortName"><Value>ATL03</Value></Attribute>'
+                        '</Group></Group>'
+                    )
+                    if include_direct
+                    else ''
+                )
+                document = (
+                    f'<Dataset xmlns="{self.namespace}">'
+                    '<Group name="other"><Group name="Metadata">'
+                    '<Group name="DatasetIdentification">'
+                    '<Attribute name="shortName"><Value>WRONG</Value></Attribute>'
+                    '</Group></Group></Group>'
+                    f'{direct}</Dataset>'
+                )
+                dataset = VarInfoFromDmr(
+                    write_dmr(self.output_dir, document),
+                    config_file=self.test_config_file,
+                )
+                self.assertEqual(
+                    dataset.short_name, 'ATL03' if include_direct else None
+                )
+
     def test_var_info_short_name(self):
         """Ensure an instance of the VarInfo class correctly identifies a
         collection short name if it is stored as a metadata attribute in

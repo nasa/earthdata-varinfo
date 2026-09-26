@@ -341,6 +341,74 @@ class TestUtilities(TestCase):
                 )
             )
 
+    def test_full_path_xml_attribute_does_not_skip_groups(self):
+        """Every path component must identify a direct child, not a descendant."""
+        namespace = '{http://xml.opendap.org/ns/DAP/4.0#}'
+        document = ET.fromstring(
+            '<Dataset xmlns="http://xml.opendap.org/ns/DAP/4.0#">'
+            '  <Group name="other">'
+            '    <Group name="Metadata">'
+            '      <Attribute name="short_name"><Value>WRONG</Value></Attribute>'
+            '    </Group>'
+            '  </Group>'
+            '  <Group name="Metadata">'
+            '    <Group name="nested">'
+            '      <Float32 name="science">'
+            '        <Attribute name="units"><Value>wrong</Value></Attribute>'
+            '      </Float32>'
+            '      <Group name="only_nested">'
+            '        <Attribute name="value"><Value>not direct</Value></Attribute>'
+            '      </Group>'
+            '    </Group>'
+            '    <Attribute name="short_name"><Value>EXPECTED</Value></Attribute>'
+            '    <Float32 name="science">'
+            '      <Attribute name="units"><Value>K</Value></Attribute>'
+            '    </Float32>'
+            '  </Group>'
+            '</Dataset>'
+        )
+        cases = [
+            ('Metadata/short_name', 'EXPECTED'),
+            ('Metadata/science/units', 'K'),
+            ('Metadata/nested/science/units', 'wrong'),
+            ('other/Metadata/short_name', 'WRONG'),
+            ('Metadata/only_nested/value', None),
+            ('only_nested/value', None),
+            ('science/units', None),
+            ('Metadata/missing/units', None),
+        ]
+        for path, expected in cases:
+            for prefix in ('', '/'):
+                with self.subTest(path=prefix + path):
+                    self.assertEqual(
+                        get_full_path_xml_attribute(document, prefix + path, namespace),
+                        expected,
+                    )
+
+    def test_full_path_xml_attribute_preserves_nested_containers(self):
+        """Exact paths still traverse group, variable and attribute containers."""
+        namespace = '{http://xml.opendap.org/ns/DAP/4.0#}'
+        document = ET.fromstring(
+            '<Dataset xmlns="http://xml.opendap.org/ns/DAP/4.0#">'
+            '  <Group name="group"><Float32 name="science">'
+            '    <Attribute name="metadata" type="Container">'
+            '      <Attribute name="source" type="Container">'
+            '        <Attribute name="version" type="Int32"><Value>2</Value></Attribute>'
+            '      </Attribute>'
+            '    </Attribute>'
+            '  </Float32></Group>'
+            '</Dataset>'
+        )
+        value = get_full_path_xml_attribute(
+            document, '/group/science/metadata/source/version', namespace
+        )
+        self.assertEqual(value, 2)
+        self.assertIsInstance(value, np.int32)
+        self.assertEqual(
+            get_full_path_xml_attribute(document, '/group/science/metadata', namespace),
+            {'source': {'version': np.int32(2)}},
+        )
+
     def test_get_full_path_netcdf4_attribute(self):
         """Ensure a NetCDF-4 metadata attribute can be retrieved from anywhere
         in the file. This includes the root group, nested groups, variables in
