@@ -6,6 +6,8 @@ project will be documented in this file. The format is based on
 
 ## [Unreleased]
 
+## [v5.2.1] - 2026-10-06
+
 ### Fixed
 
 * Resolve full DMR metadata paths one hierarchy level at a time, preventing
@@ -307,6 +309,7 @@ to the repository include updated documentation and files outlined by the
 For more information on internal releases prior to NASA open-source approval,
 see `legacy-CHANGELOG.md`.
 
+[v5.2.1]: https://github.com/nasa/earthdata-varinfo/releases/tag/5.2.1
 [v5.2.0]: https://github.com/nasa/earthdata-varinfo/releases/tag/5.2.0
 [v5.1.2]: https://github.com/nasa/earthdata-varinfo/releases/tag/5.1.2
 [v5.1.1]: https://github.com/nasa/earthdata-varinfo/releases/tag/5.1.1
