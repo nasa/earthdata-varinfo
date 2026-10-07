@@ -39,15 +39,22 @@ class TestVarInfoFromDmr(TestCase):
         rmtree(self.output_dir)
 
     def test_short_name_ignores_unrelated_nested_metadata(self):
-        """A nested metadata group must not select the collection."""
-        document = (
-            f'<Dataset xmlns="{self.namespace}">'
-            '<Group name="other"><Group name="Metadata">'
-            '<Group name="DatasetIdentification">'
-            '<Attribute name="shortName"><Value>WRONG</Value></Attribute>'
-            '</Group></Group></Group>'
-            '</Dataset>'
-        )
+        """Ignore Metadata nested inside other rather than at the root."""
+        # test_config.json looks for /Metadata/DatasetIdentification/shortName.
+        # This document only has /other/Metadata/DatasetIdentification/shortName.
+        document = f"""
+            <Dataset xmlns="{self.namespace}">
+                <Group name="other">
+                    <Group name="Metadata">
+                        <Group name="DatasetIdentification">
+                            <Attribute name="shortName">
+                                <Value>OTHER_COLLECTION</Value>
+                            </Attribute>
+                        </Group>
+                    </Group>
+                </Group>
+            </Dataset>
+        """
         dataset = VarInfoFromDmr(
             write_dmr(self.output_dir, document),
             config_file=self.test_config_file,
@@ -55,17 +62,27 @@ class TestVarInfoFromDmr(TestCase):
         self.assertIsNone(dataset.short_name)
 
     def test_short_name_uses_exact_configured_path(self):
-        """The direct metadata path takes precedence over a nested namesake."""
-        document = (
-            f'<Dataset xmlns="{self.namespace}">'
-            '<Group name="other"><Group name="Metadata">'
-            '<Group name="DatasetIdentification">'
-            '<Attribute name="shortName"><Value>WRONG</Value></Attribute>'
-            '</Group></Group></Group>'
-            '<Group name="Metadata"><Group name="DatasetIdentification">'
-            '<Attribute name="shortName"><Value>ATL03</Value></Attribute>'
-            '</Group></Group></Dataset>'
-        )
+        """Use root Metadata even when an unrelated group appears first."""
+        # Only the root /Metadata/DatasetIdentification/shortName path matches
+        # test_config.json; the preceding /other branch must be ignored.
+        document = f"""
+            <Dataset xmlns="{self.namespace}">
+                <Group name="other">
+                    <Group name="Metadata">
+                        <Group name="DatasetIdentification">
+                            <Attribute name="shortName">
+                                <Value>OTHER_COLLECTION</Value>
+                            </Attribute>
+                        </Group>
+                    </Group>
+                </Group>
+                <Group name="Metadata">
+                    <Group name="DatasetIdentification">
+                        <Attribute name="shortName"><Value>ATL03</Value></Attribute>
+                    </Group>
+                </Group>
+            </Dataset>
+        """
         dataset = VarInfoFromDmr(
             write_dmr(self.output_dir, document),
             config_file=self.test_config_file,

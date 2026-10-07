@@ -344,38 +344,52 @@ class TestUtilities(TestCase):
     def test_full_path_xml_attribute_does_not_skip_groups(self):
         """Every path component must identify a direct child, not a descendant."""
         namespace = '{http://xml.opendap.org/ns/DAP/4.0#}'
-        document = ET.fromstring(
-            '<Dataset xmlns="http://xml.opendap.org/ns/DAP/4.0#">'
-            '  <Group name="other">'
-            '    <Group name="Metadata">'
-            '      <Attribute name="short_name"><Value>WRONG</Value></Attribute>'
-            '    </Group>'
-            '  </Group>'
-            '  <Group name="Metadata">'
-            '    <Group name="nested">'
-            '      <Float32 name="science">'
-            '        <Attribute name="units"><Value>wrong</Value></Attribute>'
-            '      </Float32>'
-            '      <Group name="only_nested">'
-            '        <Attribute name="value"><Value>not direct</Value></Attribute>'
-            '      </Group>'
-            '    </Group>'
-            '    <Attribute name="short_name"><Value>EXPECTED</Value></Attribute>'
-            '    <Float32 name="science">'
-            '      <Attribute name="units"><Value>K</Value></Attribute>'
-            '    </Float32>'
-            '  </Group>'
-            '</Dataset>'
-        )
+        document = ET.fromstring("""
+            <Dataset xmlns="http://xml.opendap.org/ns/DAP/4.0#">
+                <Group name="other">
+                    <Group name="Metadata">
+                        <Attribute name="short_name">
+                            <Value>OTHER_COLLECTION</Value>
+                        </Attribute>
+                    </Group>
+                </Group>
+                <Group name="Metadata">
+                    <Group name="nested">
+                        <Float32 name="science">
+                            <Attribute name="units"><Value>m</Value></Attribute>
+                        </Float32>
+                        <Group name="only_nested">
+                            <Attribute name="value">
+                                <Value>NESTED_VALUE</Value>
+                            </Attribute>
+                        </Group>
+                    </Group>
+                    <Attribute name="short_name">
+                        <Value>ROOT_COLLECTION</Value>
+                    </Attribute>
+                    <Float32 name="science">
+                        <Attribute name="units"><Value>K</Value></Attribute>
+                    </Float32>
+                </Group>
+            </Dataset>
+            """)
         cases = [
-            ('Metadata/short_name', 'EXPECTED'),
-            ('Metadata/science/units', 'K'),
-            ('Metadata/nested/science/units', 'wrong'),
-            ('other/Metadata/short_name', 'WRONG'),
-            ('Metadata/only_nested/value', None),
-            ('only_nested/value', None),
+            # Each full path returns the value stored at that location.
+            ('Metadata/short_name', 'ROOT_COLLECTION'),
+            ('other/Metadata/short_name', 'OTHER_COLLECTION'),
+            ('Metadata/nested/science/units', 'm'),
+            # The science variable is inside Metadata, not at the root.
             ('science/units', None),
+            ('Metadata/science/units', 'K'),
+            # Reaching only_nested requires the intermediate nested group.
+            ('Metadata/only_nested/value', None),
+            ('Metadata/nested/only_nested/value', 'NESTED_VALUE'),
+            # Neither Metadata nor nested may be omitted from that path.
+            ('only_nested/value', None),
+            ('Metadata/nested/only_nested/value', 'NESTED_VALUE'),
+            # Metadata contains science, but has no child named missing.
             ('Metadata/missing/units', None),
+            ('Metadata/science/units', 'K'),
         ]
         for path, expected in cases:
             for prefix in ('', '/'):
