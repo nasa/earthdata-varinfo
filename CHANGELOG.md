@@ -4,6 +4,15 @@ earthdata-varinfo follows semantic versioning. All notable changes to this
 project will be documented in this file. The format is based on
 [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+### Fixed
+
+* `VariableBase.get_valid_min` and `VariableBase.get_valid_max` now read the
+  `valid_range` metadata attribute of variables parsed from NetCDF-4 files.
+  netCDF4-python returns this attribute as a `numpy.ndarray`, which was not
+  recognised, so `ValidRanges` was omitted from generated UMM-Var records.
+
 ## [v5.2.0] - 2026-09-16
 
 ### Added
