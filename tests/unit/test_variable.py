@@ -1002,6 +1002,26 @@ class TestVariableFromNetCDF4(TestCase):
         self.assertEqual(variable.get_valid_max(), 10)
         self.assertSetEqual(variable.get_references(), {'/lat', '/lon'})
 
+    def test_netcdf4_valid_range_min_max(self):
+        """Ensure the valid minimum and maximum are extracted from a
+        `valid_range` attribute in a NetCDF-4 file, where netCDF4-python
+        returns multi-element attributes as `numpy.ndarray` objects.
+
+        """
+        with Dataset('test.nc4', 'w', diskless=True) as dataset:
+            dataset.createDimension('lat', size=2)
+            nc4_variable = dataset.createVariable(
+                'science', float64, dimensions=('lat',)
+            )
+            nc4_variable.setncattr('valid_range', [-2.0, 40.0])
+
+            variable = VariableFromNetCDF4(
+                nc4_variable, self.fakesat_config, self.namespace, '/science'
+            )
+
+        self.assertEqual(variable.get_valid_min(), -2.0)
+        self.assertEqual(variable.get_valid_max(), 40.0)
+
     def test_string_variable_get_data_type(self):
         """Ensure VariableFromNetCDF4 extracts data type from `netCDF4.Variable`
 
