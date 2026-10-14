@@ -38,6 +38,57 @@ class TestVarInfoFromDmr(TestCase):
     def tearDown(self):
         rmtree(self.output_dir)
 
+    def test_short_name_ignores_unrelated_nested_metadata(self):
+        """Ignore Metadata nested inside other rather than at the root."""
+        # test_config.json looks for /Metadata/DatasetIdentification/shortName.
+        # This document only has /other/Metadata/DatasetIdentification/shortName.
+        document = f"""
+            <Dataset xmlns="{self.namespace}">
+                <Group name="other">
+                    <Group name="Metadata">
+                        <Group name="DatasetIdentification">
+                            <Attribute name="shortName">
+                                <Value>OTHER_COLLECTION</Value>
+                            </Attribute>
+                        </Group>
+                    </Group>
+                </Group>
+            </Dataset>
+        """
+        dataset = VarInfoFromDmr(
+            write_dmr(self.output_dir, document),
+            config_file=self.test_config_file,
+        )
+        self.assertIsNone(dataset.short_name)
+
+    def test_short_name_uses_exact_configured_path(self):
+        """Use root Metadata even when an unrelated group appears first."""
+        # Only the root /Metadata/DatasetIdentification/shortName path matches
+        # test_config.json; the preceding /other branch must be ignored.
+        document = f"""
+            <Dataset xmlns="{self.namespace}">
+                <Group name="other">
+                    <Group name="Metadata">
+                        <Group name="DatasetIdentification">
+                            <Attribute name="shortName">
+                                <Value>OTHER_COLLECTION</Value>
+                            </Attribute>
+                        </Group>
+                    </Group>
+                </Group>
+                <Group name="Metadata">
+                    <Group name="DatasetIdentification">
+                        <Attribute name="shortName"><Value>ATL03</Value></Attribute>
+                    </Group>
+                </Group>
+            </Dataset>
+        """
+        dataset = VarInfoFromDmr(
+            write_dmr(self.output_dir, document),
+            config_file=self.test_config_file,
+        )
+        self.assertEqual(dataset.short_name, 'ATL03')
+
     def test_var_info_short_name(self):
         """Ensure an instance of the VarInfo class correctly identifies a
         collection short name if it is stored as a metadata attribute in

@@ -205,14 +205,15 @@ def get_full_path_xml_attribute(
 ) -> Any | None:
     """Helper function that retrieves the value of an XML attribute, given the
     full path to that attribute. If the XML attribute is not present, then
-    `None` is returned.
+    `None` is returned. Each path component is resolved as a direct child,
+    so similarly named descendants in other groups cannot match the path.
 
     """
     attribute_element = dmr_document
 
     try:
         for path_part in attribute_path.lstrip('/').split('/')[:-1]:
-            attribute_element = attribute_element.find(f'.//*[@name="{path_part}"]')
+            attribute_element = attribute_element.find(f'./*[@name="{path_part}"]')
 
         attribute_value = get_xml_attribute(
             attribute_element,
