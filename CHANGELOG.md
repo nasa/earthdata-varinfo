@@ -4,6 +4,13 @@ earthdata-varinfo follows semantic versioning. All notable changes to this
 project will be documented in this file. The format is based on
 [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [v5.2.1] - 2026-10-14
+
+### Changed
+
+* Relaxed the `numpy` version constraint from `<2.3` to `<2.6` to allow use of
+  more recent `numpy` releases.
+
 ## [v5.2.0] - 2026-09-16
 
 ### Added
