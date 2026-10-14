@@ -1,5 +1,5 @@
 netCDF4 >= 1.7.2
-numpy >= 1.24.2,<2.6
+numpy >= 1.24.2
 python-cmr >= 0.13.0
 requests >= 2.33.0
 # To mitigate CVE-2026-44431 and CVE-2026-44432 in downstream clients.
