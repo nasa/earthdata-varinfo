@@ -4,6 +4,12 @@ earthdata-varinfo follows semantic versioning. All notable changes to this
 project will be documented in this file. The format is based on
 [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [v5.2.1] - 2026-10-14
+
+### Changed
+
+* Removed the upper version cap on the `numpy` constraint to allow use of the latest `numpy` releases.
+
 ## [v5.2.0] - 2026-09-16
 
 ### Added
@@ -300,6 +306,7 @@ to the repository include updated documentation and files outlined by the
 For more information on internal releases prior to NASA open-source approval,
 see `legacy-CHANGELOG.md`.
 
+[v5.2.1]: https://github.com/nasa/earthdata-varinfo/releases/tag/5.2.1
 [v5.2.0]: https://github.com/nasa/earthdata-varinfo/releases/tag/5.2.0
 [v5.1.2]: https://github.com/nasa/earthdata-varinfo/releases/tag/5.1.2
 [v5.1.1]: https://github.com/nasa/earthdata-varinfo/releases/tag/5.1.1
