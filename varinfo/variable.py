@@ -12,6 +12,7 @@ import re
 import xml.etree.ElementTree as ET
 
 from netCDF4 import Variable as NetCDF4Variable, Dimension as NetCDF4Dimension
+import numpy as np
 
 from varinfo.attribute_container import (
     AttributeContainerBase,
@@ -102,7 +103,7 @@ class VariableBase(AttributeContainerBase):
 
         if valid_min is None:
             valid_range = self.attributes.get('valid_range')
-            if isinstance(valid_range, list) and len(valid_range) == 2:
+            if isinstance(valid_range, (list, np.ndarray)) and len(valid_range) == 2:
                 valid_min = valid_range[0]
 
         return valid_min
@@ -121,7 +122,7 @@ class VariableBase(AttributeContainerBase):
 
         if valid_max is None:
             valid_range = self.attributes.get('valid_range')
-            if isinstance(valid_range, list) and len(valid_range) == 2:
+            if isinstance(valid_range, (list, np.ndarray)) and len(valid_range) == 2:
                 valid_max = valid_range[1]
 
         return valid_max
