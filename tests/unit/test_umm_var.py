@@ -28,6 +28,7 @@ from varinfo.umm_var import (
     get_first_matched_attribute,
     get_json_serializable_value,
     get_metadata_specification,
+    get_sanitised_variable_name,
     get_umm_var,
     get_umm_var_dtype,
     get_valid_ranges,
@@ -1050,6 +1051,50 @@ class TestUmmVar(TestCase):
         expected_output = {'Variable_1': 'Variable-ID', 'Variable_2': 'Failed request'}
         self.assertEqual(len(actual_output), 2)
         self.assertEqual(actual_output, expected_output)
+
+    def get_sanitised_variable_name(self):
+        """Ensure a URL-compatible variable name is returned."""
+        with self.subTest('No changes to already reasonable variable name'):
+            self.assertEqual(
+                get_sanitised_variable_name('time'),
+                'time',
+            )
+
+        with self.subTest('Leading slash is removed'):
+            self.assertEqual(
+                get_sanitised_variable_name('/time'),
+                'time',
+            )
+
+        with self.subTest('Leading space is removed'):
+            self.assertEqual(
+                get_sanitised_variable_name(' time'),
+                'time',
+            )
+
+        with self.subTest('Leading comma is removed'):
+            self.assertEqual(
+                get_sanitised_variable_name(',time'),
+                'time',
+            )
+
+        with self.subTest('Internal slash swapped for underscore'):
+            self.assertEqual(
+                get_sanitised_variable_name('/Grid/time'),
+                'Grid_time',
+            )
+
+        with self.subTest('Internal space swapped for underscore'):
+            self.assertEqual(
+                get_sanitised_variable_name('time with space'),
+                'time_with_space',
+            )
+
+        with self.subTest('Internal comma swapped for underscore'):
+            self.assertEqual(
+                get_sanitised_variable_name('time,corrected'),
+                'time_corrected',
+            )
 
     def test_generate_variable_native_id(self):
         """Ensure a native ID is created as expected. The concept ID is

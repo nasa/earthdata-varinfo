@@ -4,6 +4,17 @@ earthdata-varinfo follows semantic versioning. All notable changes to this
 project will be documented in this file. The format is based on
 [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [v5.2.3] - 2026-11-25
+
+### Changed
+
+* Commas are now excluded from UMM-Var native IDs. These characters cause
+  errors when trying to ingest or update UMM-Var records, as the native ID is
+  used as part of the CMR URL path. While the CF Conventions recommend that
+  variable, dimension, attribute and groups names only comprise letters, digits
+  and underscores (see [here](https://cfconventions.org/Data/cf-conventions/cf-conventions-1.13/cf-conventions.html#_naming_conventions)),
+  in some existing collections do not follow these recommendations.
+
 ## [v5.2.2] - 2026-10-14
 
 ### Fixed
@@ -313,6 +324,7 @@ to the repository include updated documentation and files outlined by the
 For more information on internal releases prior to NASA open-source approval,
 see `legacy-CHANGELOG.md`.
 
+[v5.2.3]: https://github.com/nasa/earthdata-varinfo/releases/tag/5.2.3
 [v5.2.2]: https://github.com/nasa/earthdata-varinfo/releases/tag/5.2.2
 [v5.2.1]: https://github.com/nasa/earthdata-varinfo/releases/tag/5.2.1
 [v5.2.0]: https://github.com/nasa/earthdata-varinfo/releases/tag/5.2.0
