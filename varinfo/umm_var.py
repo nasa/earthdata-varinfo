@@ -386,14 +386,37 @@ def get_json_serializable_value(input_value: Any) -> Any:
     return output_value
 
 
+def get_sanitised_variable_name(variable_name: str) -> str:
+    """Remove special characters from the raw variable name.
+
+    The raw variable name will be the full path. This has special characters
+    that should be removed, such as slashes, commas and spaces. These
+    characters are problematic when the variable name is used as part of the
+    native ID for a variable, as the native ID is part of the URL path for
+    creating and amending UMM-Var records. Identified problem characters are
+    replaced with an underscore. When the first character of the variable name
+    was a character that has been replaced. The resulting leading underscore is
+    entirely removed.
+
+    """
+    characters_to_replace = {'/', ' ', ','}
+
+    for character in characters_to_replace:
+        variable_name = variable_name.replace(character, '_')
+
+    return variable_name.lstrip('_')
+
+
 def generate_variable_native_id(
     collection_concept_id: str, umm_var_record: dict
 ) -> str:
-    """A helper function to create a CMR native ID given the collection
-    concept ID and the variable UMM-Var JSON. This native ID must be unique
-    within the entire provider. The initial implementation will be to
-    concatenate the collection concept ID and the name of the variable
-    while removing slashes that CMR will interpret as part of the URL path.
+    """A helper function to create a unique CMR native ID.
+
+    The generated native ID uses the collection concept ID and the variable
+    UMM-Var JSON. This native ID must be unique within the entire provider.
+    The initial implementation will be to concatenate the collection concept ID
+    and the name of the variable while removing slashes and other special
+    characters that CMR will interpret as part of the URL path.
 
     Note - the `Name` attribute of the generated UMM-Var record is the full
     path of the variable.
@@ -402,7 +425,7 @@ def generate_variable_native_id(
     return '-'.join(
         [
             collection_concept_id,
-            umm_var_record['Name'].replace('/', '_').replace(' ', '_').lstrip('_'),
+            get_sanitised_variable_name(umm_var_record['Name']),
         ]
     )
 
