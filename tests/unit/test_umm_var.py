@@ -1052,7 +1052,7 @@ class TestUmmVar(TestCase):
         self.assertEqual(len(actual_output), 2)
         self.assertEqual(actual_output, expected_output)
 
-    def get_sanitised_variable_name(self):
+    def test_get_sanitised_variable_name(self):
         """Ensure a URL-compatible variable name is returned."""
         with self.subTest('No changes to already reasonable variable name'):
             self.assertEqual(
